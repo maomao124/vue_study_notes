@@ -135,7 +135,160 @@ PS C:\Users\mao> vue ui
 
 
 
+项目结构如下：
 
+![image-20230618225420575](img/vue学习笔记/image-20230618225420575.png)
+
+
+
+
+
+
+
+
+
+## 运行项目
+
+点击package.json文件中serve前的运行按钮
+
+![image-20230618225524036](img/vue学习笔记/image-20230618225524036.png)
+
+
+
+
+
+或者直接点击运行按钮
+
+![image-20230618225611287](img/vue学习笔记/image-20230618225611287.png)
+
+
+
+
+
+或者直接输入命令：
+
+```sh
+npm run serve
+```
+
+
+
+
+
+![image-20230618230541625](img/vue学习笔记/image-20230618230541625.png)
+
+
+
+![image-20230618230552210](img/vue学习笔记/image-20230618230552210.png)
+
+
+
+
+
+
+
+## 修改端口
+
+文档地址：https://webpack.js.org/configuration/dev-server/#devserverport
+
+
+
+打开 vue.config.js 添加
+
+![image-20230618230729710](img/vue学习笔记/image-20230618230729710.png)
+
+
+
+更改成：
+
+![image-20230618230825235](img/vue学习笔记/image-20230618230825235.png)
+
+
+
+
+
+```js
+const {defineConfig} = require('@vue/cli-service')
+module.exports = defineConfig({
+    transpileDependencies: true,
+    devServer:
+        {
+            port: 8083,
+        }
+})
+
+```
+
+
+
+
+
+
+
+## 添加代理
+
+为了避免前后端服务器联调时， fetch、xhr 请求产生跨域问题，需要配置代理
+
+
+
+打开 vue.config.js 添加
+
+![image-20230618231107079](img/vue学习笔记/image-20230618231107079.png)
+
+
+
+
+
+```js
+const {defineConfig} = require('@vue/cli-service')
+module.exports = defineConfig({
+    transpileDependencies: true,
+    devServer:
+        {
+            port: 8083,
+            proxy:
+                {
+                    'api': {
+                        target: "http://localhost:9090",
+                        changeOrigin: true
+                    },
+                    'api2': {
+                        target: "http://localhost:9091",
+                        changeOrigin: true
+                    }
+                }
+        }
+})
+```
+
+
+
+
+
+## Vue 项目结构
+
+```
+├─assets
+├─components
+├─router
+├─store
+└─views
+```
+
+
+
+* assets - 静态资源
+* components - 可重用组件
+* router - 路由
+* store - 数据共享
+* views - 视图组件
+
+
+
+以后还会添加
+
+* api - 跟后台交互，发送 fetch、xhr 请求，接收响应
+* plugins - 插件
 
 
 
