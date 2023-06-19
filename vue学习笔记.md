@@ -1592,3 +1592,413 @@ export default {
 
 # axios
 
+## 概述
+
+axios 它的底层是用了 XMLHttpRequest（xhr）方式发送请求和接收响应，xhr 相对于之前讲过的 fetch api 来说，功能更强大，但由于是比较老的 api，不支持 Promise，axios 对 xhr 进行了封装，使之支持 Promise，并提供了对请求、响应的统一拦截功能
+
+
+
+
+
+## 安装
+
+命令：
+
+```sh
+npm install axios -S
+```
+
+
+
+```sh
+PS D:\程序\2023Q3\vue-test> npm install axios -S
+npm WARN optional SKIPPING OPTIONAL DEPENDENCY: fsevents@2.3.2 (node_modules\fsevents):
+npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for fsevents@2.3.2: wanted {"os":"darwin","arch":"any"} (current: {"os":"win32","arch":"x64"})
+
++ axios@1.4.0
+added 6 packages from 18 contributors, removed 7 packages and audited 980 packages in 8.948s
+
+90 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+
+PS D:\程序\2023Q3\vue-test>
+```
+
+
+
+如果在dependencies下出现axios依赖，证明安装成功
+
+![image-20230619224551265](img/vue学习笔记/image-20230619224551265.png)
+
+
+
+
+
+
+
+## 导入
+
+命令：
+
+```sh
+import axios from 'axios'
+```
+
+
+
+axios 默认导出一个对象，这里的 import 导入的就是它默认导出的对象
+
+
+
+
+
+## 方法
+
+|                请求                |  备注   |
+| :--------------------------------: | :-----: |
+|      axios.get(url[, config])      | get方法 |
+|    axios.delete(url[, config])     |         |
+|     axios.head(url[, config])      |         |
+|    axios.options(url[, config])    |         |
+| axios.post(url[, data[, config]])  |         |
+|  axios.put(url[, data[, config]])  |         |
+| axios.patch(url[, data[, config]]) |         |
+
+
+
+* config - 选项对象、例如查询参数、请求头...
+* data - 请求体数据、最常见的是 json 格式数据
+* get、head 请求无法携带请求体，这应当是浏览器的限制所致（xhr、fetch api 均有限制）
+* options、delete 请求可以通过 config 中的 data 携带请求体
+
+
+
+
+
+## 配置
+
+|      名称       |                            含义                            |
+| :-------------: | :--------------------------------------------------------: |
+|     baseURL     |                    将自动加在 url 前面                     |
+|     headers     |                   请求头，类型为简单对象                   |
+|     params      |  跟在 URL 后的请求参数，类型为简单对象或 URLSearchParams   |
+|      data       | 请求体，类型有简单对象、FormData、URLSearchParams、File 等 |
+| withCredentials |         跨域时是否携带 Cookie 等凭证，默认为 false         |
+|  responseType   |                   响应类型，默认为 json                    |
+
+
+
+```js
+const _axios = axios.create({
+    baseURL: 'http://localhost:8080',
+    withCredentials: true
+});
+```
+
+* 生产环境希望 xhr 请求不走代理，可以用 baseURL 统一修改
+* 希望跨域请求携带 cookie，需要配置 withCredentials: true，服务器也要配置 allowCredentials = true，否则浏览器获取跨域返回的 cookie 时会报错
+
+
+
+
+
+
+
+## 示例
+
+```vue
+<template>
+
+</template>
+
+<script>
+import axios from 'axios'
+
+export default {
+  name: "App16",
+  data()
+  {
+    return {
+      resp: null
+    }
+  },
+  methods:
+      {
+        testGet()
+        {
+          axios.get("/api/testGet").then((resp) =>
+          {
+            console.log(resp);
+            this.resp = resp;
+          }).catch((error) =>
+          {
+            console.log(error);
+          })
+        },
+        testPost()
+        {
+          axios.post("/api/testPost").then((resp) =>
+          {
+            console.log(resp);
+            this.resp = resp;
+          }).catch((error) =>
+          {
+            console.log(error);
+          })
+        },
+        test()
+        {
+          //axios发起ajax请求
+          axios({
+            //请求的方式：
+            method: "post",
+            //请求的url:
+            url: "/api/testPost",
+            //url参数：
+            params:
+                {
+                  a: 1,
+                  b: 2,
+                  c: 3
+                },
+            //头信息：
+            headers:
+                {
+                  token: "123456"
+                },
+            //请求体参数：
+            data:
+                {
+                  a1: 11,
+                  b2: 22,
+                  c3: 33
+                },
+          }).then(response =>
+          {
+            console.log(response);
+            this.resp = response;
+          }).catch(error =>
+          {
+            console.log(error);
+          })
+        }
+      },
+  mounted()
+  {
+    this.testGet();
+    this.testPost();
+    this.test();
+  }
+
+}
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230619225901364](img/vue学习笔记/image-20230619225901364.png)
+
+
+
+![image-20230619225924100](img/vue学习笔记/image-20230619225924100.png)
+
+
+
+![image-20230619225950803](img/vue学习笔记/image-20230619225950803.png)
+
+
+
+![image-20230619230002613](img/vue学习笔记/image-20230619230002613.png)
+
+
+
+
+
+
+
+
+
+
+
+## 创建实例
+
+```js
+const _axios = axios.create(config);
+```
+
+* axios 对象可以直接使用，但使用的是默认的设置
+* 用 axios.create 创建的对象，可以覆盖默认设置
+
+
+
+
+
+
+
+
+
+## 拦截器
+
+```vue
+<script>
+import axios from 'axios'
+
+const _axios = axios.create({
+  baseURL: 'http://localhost:8083',
+  withCredentials: true
+});
+_axios.interceptors.request.use(
+    function (config)
+    {
+      //在这里添加统一的 headers
+      config.headers.auth = "12345678901234567890"
+      return config;
+    }
+)
+_axios.interceptors.response.use(
+    function (response)
+    {
+      //2xx 范围内走这里
+      console.log("请求成功")
+      console.log(response)
+      return response;
+    },
+    function (error)
+    {
+      //超出 2xx, 比如 4xx, 5xx 走这里
+      console.log("请求错误")
+      console.log(error)
+      return error;
+    }
+);
+
+console.log("初始化_axios")
+
+export default _axios;
+</script>
+
+
+```
+
+
+
+
+
+使用：
+
+```vue
+<template>
+  <div>
+
+  </div>
+</template>
+
+<script>
+import _axios from "@/components/MyAxios"
+
+export default {
+  name: "App17",
+  methods:
+      {
+        test()
+        {
+          _axios.get("/testGet", (resp) =>
+          {
+            console.log(resp)
+          })
+        },
+        test2()
+        {
+          //axios发起ajax请求
+          _axios({
+            //请求的方式：
+            method: "post",
+            //请求的url:
+            url: "test2",
+            //url参数：
+            params:
+                {
+
+                },
+            //头信息：
+            headers:
+                {
+                  auth2: "1312324",
+                  token: "12131313131"
+                },
+            //请求体参数：
+            data:
+                {a:1},
+          }).then(response =>
+          {
+            console.log(response);
+
+          })
+        }
+      },
+  mounted()
+  {
+    this.test();
+    this.test2();
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
+
+```
+
+
+
+![image-20230619233257714](img/vue学习笔记/image-20230619233257714.png)
+
+
+
+![image-20230619233307998](img/vue学习笔记/image-20230619233307998.png)
+
+
+
+
+
+![image-20230619234048592](img/vue学习笔记/image-20230619234048592.png)
+
+
+
+![image-20230619234059128](img/vue学习笔记/image-20230619234059128.png)
+
+
+
+
+
+
+
+
+
+
+
+
+
+# ElementUI
+
+## 概述
+
+Element，一套为开发者、设计师和产品经理准备的基于 Vue 2.0 的桌面端组件库
+
+
+
+官网：https://element.eleme.cn/#/zh-CN
+
+
+
+
+
+## 安装
+
