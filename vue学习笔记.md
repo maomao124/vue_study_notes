@@ -1074,5 +1074,228 @@ v-show渲染后的页面代码：
 
 ## 列表渲染
 
+```vue
+<template>
+  <div>
+    <table>
+      <tr>
+        <td>id</td>
+        <td>姓名</td>
+        <td>性别</td>
+        <td>年龄</td>
+      </tr>
+      <tr v-for="student of studentList" :key="student.id">
+        <td>{{ student.id }}</td>
+        <td>{{ student.name }}</td>
+        <td>{{ student.sex }}</td>
+        <td>{{ student.age }}</td>
+      </tr>
+    </table>
+  </div>
 
+
+</template>
+
+<script>
+export default {
+  name: "App10",
+  data()
+  {
+    return {
+      studentList: (function ()
+      {
+        const data = []
+        for (let i = 0; i < 20; i++)
+        {
+          data.push({
+            id: 1000 + i,
+            name: "姓名" + (i + 1),
+            age: Math.round(Math.random() * 10 + 10),
+            sex: Math.random() > 0.5 ? "男" : "女"
+          })
+        }
+        return data;
+      }())
+    }
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230619161403926](img/vue学习笔记/image-20230619161403926.png)
+
+
+
+
+
+打印序号：
+
+```vue
+<template>
+  <div>
+    <table>
+      <tr>
+        <td>序号</td>
+        <td>id</td>
+        <td>姓名</td>
+        <td>性别</td>
+        <td>年龄</td>
+      </tr>
+      <tr v-for="(student,index) of studentList" :key="student.id">
+        <td>{{ index + 1 }}</td>
+        <td>{{ student.id }}</td>
+        <td>{{ student.name }}</td>
+        <td>{{ student.sex }}</td>
+        <td>{{ student.age }}</td>
+      </tr>
+    </table>
+  </div>
+
+
+</template>
+
+<script>
+export default {
+  name: "App11",
+  data()
+  {
+    return {
+      studentList: (function ()
+      {
+        const data = []
+        for (let i = 0; i < 20; i++)
+        {
+          data.push({
+            id: 1000 + i,
+            name: "姓名" + (i + 1),
+            age: Math.round(Math.random() * 10 + 10),
+            sex: Math.random() > 0.5 ? "男" : "女"
+          })
+        }
+        return data;
+      }())
+    }
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230619161812817](img/vue学习笔记/image-20230619161812817.png)
+
+
+
+* v-if 和 v-for 不能用于同一个标签
+* v-for 需要配合特殊的标签属性 key 一起使用，并且 key 属性要绑定到一个能起到唯一标识作用的数据上
+
+
+
+
+
+## v-text
+
+显示文本
+
+```vue
+<template>
+  <div>
+    <p v-text="text1"></p>
+    <p v-text="text2"></p>
+  </div>
+</template>
+
+<script>
+export default {
+  name: "App12",
+  data()
+  {
+    return {
+      text1: "hello",
+      text2: "<h1>你好</h1>",
+
+    }
+  }
+}
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+* v-text标签只显示文本，不解析和渲染标签
+* 使用v-text后，不能添加值，比如\<p v-text="text1">123\</p>
+
+
+
+![image-20230619163015357](img/vue学习笔记/image-20230619163015357.png)
+
+
+
+
+
+
+
+## v-html
+
+```vue
+<template>
+  <div>
+    <p v-html="text1"></p>
+    <p v-html="text2"></p>
+  </div>
+</template>
+
+<script>
+export default {
+  name: "App13",
+  data()
+  {
+    return {
+      text1: "hello",
+      text2: "<h1>你好</h1>",
+    }
+  }
+}
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230619163157361](img/vue学习笔记/image-20230619163157361.png)
+
+
+
+
+
+* 渲染html标签，有XSS攻击风险
+
+
+
+
+
+
+
+
+
+## 重用组件
 
