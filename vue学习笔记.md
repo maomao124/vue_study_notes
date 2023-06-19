@@ -1299,3 +1299,296 @@ export default {
 
 ## 重用组件
 
+Vue重用组件是指可以被多个Vue实例重复使用的组件。这些组件可以包含自定义的状态和事件处理程序，并且可以在整个应用程序中共享。重用组件可以减少代码冗余，提高开发效率，并使代码更加模块化和可维护。
+
+在Vue中，可以使用\<component>标签来定义重用组件
+
+
+
+在Components下添加MyButton.vue
+
+
+
+![image-20230619215008048](img/vue学习笔记/image-20230619215008048.png)
+
+
+
+MyButton.vue内容：
+
+```vue
+<template>
+  <div class="button" :class="[type,size]">
+    -
+    <slot></slot>
+    -
+  </div>
+</template>
+
+<script>
+export default {
+  name: "MyButton",
+  props: ["type", "size"]
+}
+</script>
+
+<style scoped>
+.button {
+  display: inline-block;
+  text-align: center;
+  border-radius: 30px;
+  margin: 5px;
+  font: bold 12px/25px Arial, sans-serif;
+  padding: 0 2px;
+  text-shadow: 1px 1px 1px rgba(255, 255, 255, .22);
+  box-shadow: 1px 1px 1px rgba(0, 0, 0, .29), inset 1px 1px 1px rgba(255, 255, 255, .44);
+  transition: all 0.15s ease;
+}
+
+.button:hover {
+  box-shadow: 1px 1px 1px rgba(0, 0, 0, .29), inset 1px 1px 2px rgba(0, 0, 0, .5);
+}
+
+.button:active {
+  box-shadow: inset 1px 1px 2px rgba(0, 0, 0, .8);
+}
+
+.primary {
+  background-color: #1d6ef9;
+  color: #b5e3f1;
+}
+
+.danger {
+  background-color: rgb(196, 50, 50);
+  color: white;
+}
+
+.success {
+  background-color: #a5cd4e;;
+  color: #3e5706;
+}
+
+.small {
+  height: 25px;
+  font-size: 14px;
+  line-height: 25px;
+}
+
+.middle {
+  height: 30px;
+  font-size: 18px;
+  line-height: 30px;
+}
+
+.large {
+  height: 35px;
+  font-size: 22px;
+  line-height: 35px;
+}
+</style>
+
+```
+
+
+
+* props : 自定义组件属性
+* slot : 插槽，用户
+
+
+
+
+
+使用MyButton.vue：
+
+```vue
+<template>
+  <div>
+    <h1>组件测试</h1>
+    <br>
+    <my-button type="primary" size="small">12345</my-button>
+    <my-button type="primary" size="middle">12345</my-button>
+    <my-button type="primary" size="large">12345</my-button>
+    <br>
+    <my-button type="danger" size="small">12345</my-button>
+    <my-button type="danger" size="middle">12345</my-button>
+    <my-button type="danger" size="large">12345</my-button>
+    <br>
+    <my-button type="success" size="small">12345</my-button>
+    <my-button type="success" size="middle">12345</my-button>
+    <my-button type="success" size="large">12345</my-button>
+    <br>
+
+  </div>
+
+</template>
+
+<script>
+import MyButton from '@/components/MyButton'
+
+export default {
+  name: "App14",
+  components: {MyButton},
+  data()
+  {
+    return {}
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+
+
+MyLink.vue
+
+```vue
+<template>
+  <a :class="[size]" :href="link">
+    <slot></slot>
+  </a>
+</template>
+
+<script>
+export default {
+  name: "MyLink",
+  props: ['size', 'link']
+}
+</script>
+
+<style scoped>
+a {
+  color: tomato;
+  text-decoration: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 0;
+  list-style-type: none;
+  font-family: sans-serif;
+  text-transform: capitalize;
+  position: relative;
+  margin: 0.8em;
+}
+
+/* 添加了左右两个圆点 */
+a::before, a::after {
+  content: '';
+  position: absolute;
+  width: 0.6em;
+  height: 0.6em;
+  background-color: gainsboro;
+  top: calc(50% - 0.3em);
+  border-radius: 50%;
+  transition: 0.5s cubic-bezier(0.5, -0.5, 0.25, 1.5);
+}
+
+a::before {
+  left: 0;
+  z-index: -1;
+}
+
+a::after {
+  right: 0;
+  z-index: -2;
+}
+
+/* 添加悬浮效果 */
+a:hover {
+  color: deeppink;
+}
+
+/* 给前后伪元素添加悬浮效果，注意先后顺序，先是hover后是伪元素 */
+a:hover::before, a:hover::after {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+  background-color: dodgerblue;
+}
+
+a:hover::before {
+  top: 0;
+  left: -0.2em;
+}
+
+a:hover::after {
+  right: -0.2em;
+  filter: brightness(0.8);
+}
+
+.small {
+  font-size: 22px;
+  width: 10em;
+  height: 2em;
+  line-height: 2em;
+}
+
+.middle {
+  font-size: 25px;
+  width: 10em;
+  height: 2em;
+  line-height: 2em;
+}
+
+.large {
+  font-size: 28px;
+  width: 10em;
+  height: 2em;
+  line-height: 2em;
+}
+
+</style>
+```
+
+
+
+
+
+使用MyLink.vue
+
+```vue
+<template>
+  <my-link link="https://www.bilibili.com/" size="small">b站官网</my-link>
+  <my-link link="https://www.bilibili.com/" size="middle">b站官网</my-link>
+  <my-link link="https://www.bilibili.com/" size="large">b站官网</my-link>
+</template>
+
+<script>
+import MyLink from '@/components/MyLink'
+export default {
+  name: "App15",
+  components: {MyLink}
+}
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230619223725884](img/vue学习笔记/image-20230619223725884.png)
+
+
+
+![image-20230619223732358](img/vue学习笔记/image-20230619223732358.png)
+
+
+
+
+
+
+
+
+
+
+
+
+
+# axios
+
