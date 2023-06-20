@@ -1992,13 +1992,401 @@ export default {
 
 Element，一套为开发者、设计师和产品经理准备的基于 Vue 2.0 的桌面端组件库
 
+本人已经学习过，不花过多时间再次学习
+
 
 
 官网：https://element.eleme.cn/#/zh-CN
 
 
 
+![image-20230619234740466](img/vue学习笔记/image-20230619234740466.png)
 
 
-## 安装
+
+
+
+
+
+**一致性 Consistency**
+
+- **与现实生活一致：**与现实生活的流程、逻辑保持一致，遵循用户习惯的语言和概念；
+- **在界面中一致：**所有的元素和结构需保持一致，比如：设计样式、图标和文本、元素的位置等。
+
+
+
+**反馈 Feedback**
+
+- **控制反馈：**通过界面样式和交互动效让用户可以清晰的感知自己的操作；
+- **页面反馈：**操作后，通过页面元素的变化清晰地展现当前状态。
+
+
+
+**效率 Efficiency**
+
+- **简化流程：**设计简洁直观的操作流程；
+- **清晰明确：**语言表达清晰且表意明确，让用户快速理解进而作出决策；
+- **帮助用户识别：**界面简单直白，让用户快速识别而非回忆，减少用户记忆负担。
+
+
+
+**可控 Controllability**
+
+- **用户决策：**根据场景可给予用户操作建议或安全提示，但不能代替用户进行决策；
+- **结果可控：**用户可以自由的进行操作，包括撤销、回退和终止当前操作等。
+
+
+
+
+
+
+
+## vue2安装elementUI
+
+命令：
+
+```sh
+npm i element-ui -S
+```
+
+
+
+```sh
+PS D:\程序\2023Q3\vue-test> npm i element-ui -S
+npm WARN deprecated core-js@2.6.12: core-js@<3.23.3 is no longer maintained and not recommended for usage due to the number of issues. Because of the V8 engine whims, feature detectio
+n in old core-js versions could cause a slowdown up to 100x even if nothing is polyfilled. Some versions have web compatibility issues. Please, upgrade your dependencies to the actual
+ version of core-js.
+
+> core-js@2.6.12 postinstall D:\程序\2023Q3\vue-test\node_modules\babel-runtime\node_modules\core-js
+> node -e "try{require('./postinstall')}catch(e){}"
+
+Thank you for using core-js ( https://github.com/zloirock/core-js ) for polyfilling JavaScript standard library!
+
+The project needs your help! Please consider supporting of core-js on Open Collective or Patreon: 
+> https://opencollective.com/core-js 
+> https://www.patreon.com/zloirock 
+
+Also, the author of core-js ( https://github.com/zloirock ) is looking for a good job -)
+
+npm WARN element-ui@2.15.13 requires a peer of vue@^2.5.17 but none is installed. You must install peer dependencies yourself.
+npm WARN optional SKIPPING OPTIONAL DEPENDENCY: fsevents@2.3.2 (node_modules\fsevents):
+npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for fsevents@2.3.2: wanted {"os":"darwin","arch":"any"} (current: {"os":"win32","arch":"x64"})
+
++ element-ui@2.15.13
+added 9 packages from 8 contributors and audited 989 packages in 19.129s
+
+90 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+
+PS D:\程序\2023Q3\vue-test>
+```
+
+
+
+![image-20230619235345358](img/vue学习笔记/image-20230619235345358.png)
+
+
+
+
+
+**element是支持 vue2.x 的，vue3.x 暂时还不支持 ElementUI**
+
+如果直接使用，将会出现以下错误：
+
+![image-20230620000813835](img/vue学习笔记/image-20230620000813835.png)
+
+
+
+
+
+
+
+
+
+## vue3安装elementUI
+
+命令：
+
+```sh
+npm install element-plus --save
+```
+
+
+
+```sh
+PS D:\程序\2023Q3\vue-test> npm install element-plus --save
+
+> vue-demi@0.14.5 postinstall D:\程序\2023Q3\vue-test\node_modules\vue-demi
+> node ./scripts/postinstall.js
+
+npm WARN element-ui@2.15.13 requires a peer of vue@^2.5.17 but none is installed. You must install peer dependencies yourself.
+npm WARN optional SKIPPING OPTIONAL DEPENDENCY: fsevents@2.3.2 (node_modules\fsevents):
+npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for fsevents@2.3.2: wanted {"os":"darwin","arch":"any"} (current: {"os":"win32","arch":"x64"})
+
++ element-plus@2.3.6
+added 19 packages from 25 contributors and audited 1008 packages in 67.979s
+
+95 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+
+PS D:\程序\2023Q3\vue-test>
+```
+
+
+
+```sh
+npm install @element-plus/icons-vue
+```
+
+
+
+```sh
+PS D:\程序\2023Q3\vue-test> npm install @element-plus/icons-vue
+npm WARN optional SKIPPING OPTIONAL DEPENDENCY: fsevents@2.3.2 (node_modules\fsevents):
+npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for fsevents@2.3.2: wanted {"os":"darwin","arch":"any"} (current: {"os":"win32","arch":"x64"})
+
++ @element-plus/icons-vue@2.1.0
+updated 1 package and audited 1000 packages in 4.308s
+
+95 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+
+PS D:\程序\2023Q3\vue-test>
+```
+
+
+
+
+
+```sh
+npm install @vue/shared
+```
+
+```sh
+PS D:\程序\2023Q3\vue-test> npm install @vue/shared
+npm WARN optional SKIPPING OPTIONAL DEPENDENCY: fsevents@2.3.2 (node_modules\fsevents):
+npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for fsevents@2.3.2: wanted {"os":"darwin","arch":"any"} (current: {"os":"win32","arch":"x64"})
+
++ @vue/shared@3.3.4
+added 1 package from 1 contributor and audited 1000 packages in 3.162s
+
+95 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+
+PS D:\程序\2023Q3\vue-test>
+```
+
+
+
+![image-20230620005022932](img/vue学习笔记/image-20230620005022932.png)
+
+
+
+
+
+## 引入组件
+
+vue2：
+
+```js
+import { createApp } from 'vue'
+import App from './App18.vue'
+
+import Vue from 'vue';
+import ElementUI from 'element-ui';
+import 'element-ui/lib/theme-chalk/index.css';
+Vue.use(ElementUI);
+
+createApp(App).mount('#app')
+```
+
+
+
+vue3：
+
+```js
+import { createApp } from 'vue'
+
+import ElementPlus from 'element-plus'
+import 'element-plus/dist/index.css'
+
+import App from './App18.vue'
+
+const app = createApp(App)
+
+app.use(ElementPlus)
+app.mount('#app')
+```
+
+
+
+
+
+## Button 按钮
+
+```vue
+<template>
+  <div>
+    <el-row>
+      <el-button>默认按钮</el-button>
+      <el-button type="primary">主要按钮</el-button>
+      <el-button type="success">成功按钮</el-button>
+      <el-button type="info">信息按钮</el-button>
+      <el-button type="warning">警告按钮</el-button>
+      <el-button type="danger">危险按钮</el-button>
+    </el-row>
+
+    <br>
+    <br>
+
+    <el-row>
+      <el-button plain>朴素按钮</el-button>
+      <el-button type="primary" plain>主要按钮</el-button>
+      <el-button type="success" plain>成功按钮</el-button>
+      <el-button type="info" plain>信息按钮</el-button>
+      <el-button type="warning" plain>警告按钮</el-button>
+      <el-button type="danger" plain>危险按钮</el-button>
+    </el-row>
+
+    <br>
+    <br>
+
+    <el-row>
+      <el-button round>圆角按钮</el-button>
+      <el-button type="primary" round>主要按钮</el-button>
+      <el-button type="success" round>成功按钮</el-button>
+      <el-button type="info" round>信息按钮</el-button>
+      <el-button type="warning" round>警告按钮</el-button>
+      <el-button type="danger" round>危险按钮</el-button>
+    </el-row>
+
+
+  </div>
+</template>
+
+<script>
+
+export default {
+  name: "App18"
+}
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+
+
+![image-20230620005852317](img/vue学习笔记/image-20230620005852317.png)
+
+
+
+
+
+
+
+
+
+## Table 表格
+
+```vue
+<template>
+  <div>
+
+    <el-table
+        :data="tableData"
+        style="width: 100%">
+      <el-table-column
+          prop="id"
+          label="学号"
+          width="180">
+      </el-table-column>
+      <el-table-column
+          prop="name"
+          label="姓名"
+          width="180">
+      </el-table-column>
+      <el-table-column
+          prop="sex"
+          label="性别"
+          width="180">
+      </el-table-column>
+      <el-table-column
+          prop="age"
+          label="年龄"
+          width="180">
+      </el-table-column>
+    </el-table>
+
+  </div>
+</template>
+
+<script>
+import {ElMessage} from 'element-plus'
+
+export default {
+  name: "App19",
+  data()
+  {
+    return {
+      tableData: (function ()
+      {
+        const data = [];
+        for (let i = 0; i < 100; i++)
+        {
+          data.push({
+            id: 100001 + i,
+            name: "姓名" + (i + 1),
+            sex: Math.random() > 0.5 ? "男" : "女",
+            age: Math.round(Math.random() * 10 + 10)
+          })
+        }
+        ElMessage({
+          type: 'success',
+          message: "加载完成"
+        })
+        return data;
+      }())
+    }
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230620195303433](img/vue学习笔记/image-20230620195303433.png)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Vue-Router
 
