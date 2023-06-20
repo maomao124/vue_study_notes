@@ -2390,3 +2390,564 @@ export default {
 
 # Vue-Router
 
+## 概述
+
+vue 属于单页面应用，所谓的路由，就是根据浏览器路径不同，用不同的**视图组件**替换这个页面内容展示
+
+vue-router是Vue.js官方的路由插件，它和vue.js是深度集成的，适合用于构建单页面应用。
+
+ue的单页面应用是基于路由和组件的，路由用于设定访问路径，并将路径和组件映射起来。传统的页面应用，是用一些超链接来实现页面切换和跳转的。在vue-router单页面应用中，则是路径之间的切换，也就是组件的切换。路由模块的本质 就是建立起url和页面之间的映射关系。
+
+
+
+至于我们为啥不能用a标签，这是因为用Vue做的都是单页应用，就相当于只有一个主的index.html页面，所以你写的标签是不起作用的，你必须使用vue-router来进行管理。
+
+
+
+功能包括：
+
+- 嵌套路由映射
+- 动态路由选择
+- 模块化、基于组件的路由配置
+- 路由参数、查询、通配符
+- 展示由 Vue.js 的过渡系统提供的过渡效果
+- 细致的导航控制
+- 自动激活 CSS 类的链接
+- HTML5 history 模式或 hash 模式
+- 可定制的滚动行为
+- URL 的正确编码
+
+
+
+
+
+## 官网地址和教程
+
+官方网站：https://router.vuejs.org/zh/
+
+教程地址：https://router.vuejs.org/zh/guide/
+
+
+
+
+
+
+
+## 安装
+
+命令：
+
+```sh
+npm install vue-router@4
+```
+
+
+
+```sh
+PS D:\程序\2023Q3\vue-test> npm install vue-router@4
+npm WARN optional SKIPPING OPTIONAL DEPENDENCY: fsevents@2.3.2 (node_modules\fsevents):
+npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for fsevents@2.3.2: wanted {"os":"darwin","arch":"any"} (current: {"os":"win32","arch":"x64"})
+
++ vue-router@4.2.2
+added 2 packages from 1 contributor and audited 1002 packages in 6.82s
+
+96 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+
+PS D:\程序\2023Q3\vue-test>
+```
+
+
+
+
+
+![image-20230620201956766](img/vue学习笔记/image-20230620201956766.png)
+
+
+
+
+
+
+
+
+
+## 入门
+
+src下的router目录创建Router1.vue：
+
+![image-20230620205214934](img/vue学习笔记/image-20230620205214934.png)
+
+
+
+内容如下：
+
+```vue
+<script>
+
+import {createRouter, createWebHashHistory} from 'vue-router'
+import App from '@/App'
+import App2 from '@/App2'
+import App3 from '@/App3'
+import App4 from '@/App4'
+import App5 from '@/App5'
+import App6 from '@/App6'
+import App7 from '@/App7'
+import App8 from '@/App8'
+import App9 from '@/App9'
+import App10 from '@/App10'
+import App11 from '@/App11'
+import App12 from '@/App12'
+import App13 from '@/App13'
+import App15 from '@/App15'
+import App14 from '@/App14'
+import App16 from '@/App16'
+import App17 from '@/App17'
+import App18 from '@/App18'
+import App19 from '@/App19'
+
+
+const routes = [
+  {
+    path: '/',
+    component: App
+  },
+  {
+    path: '/app2',
+    component: App2
+  },
+  {
+    path: '/app3',
+    component: App3
+  },
+  {
+    path: '/app4',
+    component: App4
+  },
+  {
+    path: '/app5',
+    component: App5
+  },
+  {
+    path: '/app6',
+    component: App6
+  },
+  {
+    path: '/app7',
+    component: App7
+  },
+  {
+    path: '/app8',
+    component: App8
+  },
+  {
+    path: '/app9',
+    component: App9
+  },
+  {
+    path: '/app10',
+    component: App10
+  },
+  {
+    path: '/app11',
+    component: App11
+  },
+  {
+    path: '/app12',
+    component: App12
+  },
+  {
+    path: '/app13',
+    component: App13
+  },
+  {
+    path: '/app14',
+    component: App14
+  },
+  {
+    path: '/app15',
+    component: App15
+  },
+  {
+    path: '/app16',
+    component: App16
+  },
+  {
+    path: '/app17',
+    component: App17
+  },
+  {
+    path: '/app18',
+    component: App18
+  },
+  {
+    path: '/app19',
+    component: App19
+  },
+]
+
+const router = createRouter({
+  //内部提供了 history 模式的实现。为了简单起见，我们在这里使用 hash 模式。
+  history: createWebHashHistory(),
+  routes, // `routes: routes` 的缩写
+})
+
+export default router
+
+</script>
+```
+
+
+
+
+
+更改main.js
+
+
+
+![image-20230620205322947](img/vue学习笔记/image-20230620205322947.png)
+
+
+
+```js
+import { createApp } from 'vue'
+
+import ElementPlus from 'element-plus'
+import 'element-plus/dist/index.css'
+
+import App from './App20.vue'
+import Router1 from '@/router/Router1'
+
+const app = createApp(App)
+
+app.use(ElementPlus)
+app.use(Router1)
+app.mount('#app')
+```
+
+
+
+App20.vue：
+
+```vue
+<template>
+
+  <div class="all">
+    <router-view class="r"></router-view>
+  </div>
+
+</template>
+
+<script>
+export default {
+  name: "App20"
+}
+</script>
+
+<style scoped>
+.all {
+  padding: 20px;
+  background: #b5e3f1;
+}
+.r{
+  background: cornflowerblue;
+}
+
+body {
+
+}
+</style>
+```
+
+
+
+
+
+手动更改浏览器地址栏，测试如下：
+
+![image-20230620205416678](img/vue学习笔记/image-20230620205416678.png)
+
+
+
+![image-20230620205438100](img/vue学习笔记/image-20230620205438100.png)
+
+
+
+![image-20230620205447199](img/vue学习笔记/image-20230620205447199.png)
+
+
+
+![image-20230620205510683](img/vue学习笔记/image-20230620205510683.png)
+
+
+
+![image-20230620205521137](img/vue学习笔记/image-20230620205521137.png)
+
+
+
+![image-20230620205537978](img/vue学习笔记/image-20230620205537978.png)
+
+
+
+![image-20230620205559621](img/vue学习笔记/image-20230620205559621.png)
+
+
+
+![image-20230620205608985](img/vue学习笔记/image-20230620205608985.png)
+
+
+
+
+
+
+
+*  `<router-view>` 起到占位作用，改变路径后，这个路径对应的视图组件就会占据 `<router-view>` 的位置，替换掉它之前的内容
+
+
+
+
+
+
+
+## 跳转
+
+### 概述
+
+有两种方式：
+
+* 使用router-link标签跳转
+* 使用js代码跳转
+
+
+
+
+
+### router-link标签
+
+```vue
+<template>
+
+  <el-container>
+    <el-aside width="200px">
+      <div class="link">
+
+        <!--使用 router-link 组件进行导航 -->
+        <!--通过传递 `to` 来指定链接 -->
+        <router-link to="/">首页</router-link>
+        <br>
+        <router-link to="/app2">app2</router-link>
+        <br>
+        <router-link to="/app3">app3</router-link>
+        <br>
+        <router-link to="/app4">app4</router-link>
+        <br>
+        <router-link to="/app5">app5</router-link>
+        <br>
+        <router-link to="/app6">app6</router-link>
+        <br>
+        <router-link to="/app7">app7</router-link>
+        <br>
+        <router-link to="/app8">app8</router-link>
+        <br>
+        <router-link to="/app9">app9</router-link>
+        <br>
+        <router-link to="/app10">app10</router-link>
+        <br>
+        <router-link to="/app11">app11</router-link>
+        <br>
+        <router-link to="/app12">app12</router-link>
+        <br>
+        <router-link to="/app13">app13</router-link>
+        <br>
+        <router-link to="/app14">app14</router-link>
+        <br>
+        <router-link to="/app15">app15</router-link>
+        <br>
+        <router-link to="/app16">app16</router-link>
+        <br>
+        <router-link to="/app17">app17</router-link>
+        <br>
+        <router-link to="/app18">app18</router-link>
+        <br>
+        <router-link to="/app19">app19</router-link>
+
+      </div>
+    </el-aside>
+    <el-container>
+      <el-header>路由跳转</el-header>
+      <el-main>
+        <div class="all">
+          <router-view class="r"></router-view>
+        </div>
+      </el-main>
+    </el-container>
+  </el-container>
+
+</template>
+
+<script>
+export default {
+  name: "App21"
+}
+</script>
+
+<style scoped>
+.all {
+  padding: 20px;
+  background: #b5e3f1;
+}
+
+.r {
+  background: cornflowerblue;
+}
+
+.link{
+  background: #42b983;
+  height: 100vh;
+}
+</style>
+```
+
+
+
+main.js
+
+```vue
+import { createApp } from 'vue'
+
+import ElementPlus from 'element-plus'
+import 'element-plus/dist/index.css'
+
+import App from './App21.vue'
+import Router1 from '@/router/Router1'
+
+const app = createApp(App)
+
+app.use(ElementPlus)
+app.use(Router1)
+app.mount('#app')
+```
+
+
+
+
+
+![image-20230620211247690](img/vue学习笔记/image-20230620211247690.png)
+
+
+
+![image-20230620211306896](img/vue学习笔记/image-20230620211306896.png)
+
+
+
+![image-20230620211329275](img/vue学习笔记/image-20230620211329275.png)
+
+
+
+
+
+我们没有使用常规的 a 标签，而是使用一个自定义组件 router-link 来创建链接。这使得 Vue Router 可以在不重新加载页面的情况下更改 URL，处理 URL 的生成以及编码
+
+
+
+
+
+
+
+### js代码
+
+使用`this.$router.push('/')`来实现跳转
+
+
+
+```vue
+<template>
+
+  <el-container>
+    <el-aside width="200px">
+      <div className="link">
+
+        <br>
+        <el-input type="text" size="large" autocomplete="false" v-model="to"/>
+        <br>
+        <el-button type="success" size="large" @click="go">点击跳转</el-button>
+
+      </div>
+    </el-aside>
+    <el-container>
+      <el-header>路由跳转</el-header>
+      <el-main>
+        <div className="all">
+          <router-view className="r"></router-view>
+        </div>
+      </el-main>
+    </el-container>
+  </el-container>
+
+</template>
+
+<script>
+export default {
+  name: "App22",
+  data()
+  {
+    return {
+      to: "/",
+    }
+  },
+  methods:
+      {
+        go()
+        {
+          console.log("跳转到：" + this.to)
+          this.$router.push(this.to);
+        }
+      }
+
+}
+</script>
+
+<style scoped>
+.all {
+  padding: 20px;
+  background: #b5e3f1;
+}
+
+.r {
+  background: cornflowerblue;
+}
+
+.link {
+  background: #42b983;
+  height: 100vh;
+}
+</style>
+```
+
+
+
+![image-20230620212552188](img/vue学习笔记/image-20230620212552188.png)
+
+
+
+![image-20230620212605983](img/vue学习笔记/image-20230620212605983.png)
+
+
+
+![image-20230620212622895](img/vue学习笔记/image-20230620212622895.png)
+
+
+
+![image-20230620212629513](img/vue学习笔记/image-20230620212629513.png)
+
+
+
+
+
+
+
+
+
+## 动态路由
+
