@@ -2951,3 +2951,924 @@ export default {
 
 ## 动态路由
 
+创建Router2.vue
+
+```vue
+<script>
+
+import {createRouter, createWebHashHistory} from 'vue-router'
+
+
+//此数据可以从后端获取
+const routes = [
+  {
+    id: 1,
+    path: '/',
+    component: "App"
+  },
+  {
+    id: 2,
+    path: '/app2',
+    component: "App2"
+  },
+  {
+    id: 3,
+    path: '/app3',
+    component: "App3"
+  },
+  {
+    id: 4,
+    path: '/app4',
+    component: "App4"
+  },
+  {
+    id: 5,
+    path: '/app5',
+    component: "App5"
+  },
+  {
+    id: 6,
+    path: '/app6',
+    component: "App6"
+  },
+  {
+    id: 7,
+    path: '/app7',
+    component: "App7"
+  },
+  {
+    id: 8,
+    path: '/app8',
+    component: "App8"
+  },
+  {
+    id: 9,
+    path: '/app9',
+    component: "App9"
+  },
+  {
+    id: 10,
+    path: '/app10',
+    component: "App10"
+  },
+  {
+    id: 11,
+    path: '/app11',
+    component: "App11"
+  },
+  {
+    id: 12,
+    path: '/app12',
+    component: "App12"
+  },
+  {
+    id: 13,
+    path: '/app13',
+    component: "App13"
+  },
+  {
+    id: 14,
+    path: '/app14',
+    component: "App14"
+  },
+  {
+    id: 15,
+    path: '/app15',
+    component: "App15"
+  },
+  {
+    id: 16,
+    path: '/app16',
+    component: "App16"
+  },
+  {
+    id: 17,
+    path: '/app17',
+    component: "App17"
+  },
+  {
+    id: 18,
+    path: '/app18',
+    component: "App18"
+  },
+  {
+    id: 19,
+    path: '/app19',
+    component: "App19"
+  },
+]
+
+const router = createRouter({
+  //内部提供了 history 模式的实现。为了简单起见，我们在这里使用 hash 模式。
+  history: createWebHashHistory(),
+  routes:[]
+})
+
+
+for (let i = 0; i < routes.length; i++)
+{
+  const r = routes[i];
+  // 动态添加路由
+  // 参数1：父路由名称
+  // 参数2：路由信息对象
+  router.addRoute("a", {
+    path: r.path,
+    name: r.id,
+    //记住符号是 ` 而不是 ' 或者 "
+    component: () => import(`@/${r.component}.vue`)
+  })
+  console.log("添加" + r.path)
+}
+
+export default router
+
+</script>
+```
+
+
+
+修改main.js
+
+```js
+import { createApp } from 'vue'
+
+import ElementPlus from 'element-plus'
+import 'element-plus/dist/index.css'
+
+import App from './App22.vue'
+import Router2 from '@/router/Router2'
+
+const app = createApp(App)
+
+app.use(ElementPlus)
+app.use(Router2)
+app.mount('#app')
+```
+
+
+
+![image-20230620220035396](img/vue学习笔记/image-20230620220035396.png)
+
+
+
+
+
+
+
+![image-20230620220216931](img/vue学习笔记/image-20230620220216931.png)
+
+
+
+
+
+![image-20230620220236976](img/vue学习笔记/image-20230620220236976.png)
+
+
+
+
+
+
+
+
+
+## 捕获所有路由或 404 Not found 路由
+
+常规参数只匹配 url 片段之间的字符，用 `/` 分隔。如果我们想匹配**任意路径**，我们可以使用自定义的 *路径参数* 正则表达式，在 *路径参数* 后面的括号中加入 正则表达式 
+
+
+
+编写404.vue
+
+```vue
+<template>
+  <p>404 not found</p>
+</template>
+
+<script>
+export default {
+  name: "404"
+}
+</script>
+
+<style scoped>
+p {
+  font-size: 5em;
+  color: red;
+}
+</style>
+```
+
+
+
+
+
+```vue
+<script>
+
+import {createRouter, createWebHashHistory} from 'vue-router'
+
+
+//此数据可以从后端获取
+const routes = [
+  {
+    id: 1,
+    path: '/',
+    component: "App"
+  },
+  {
+    id: 2,
+    path: '/app2',
+    component: "App2"
+  },
+  {
+    id: 3,
+    path: '/app3',
+    component: "App3"
+  },
+  {
+    id: 4,
+    path: '/app4',
+    component: "App4"
+  },
+  {
+    id: 5,
+    path: '/app5',
+    component: "App5"
+  },
+  {
+    id: 6,
+    path: '/app6',
+    component: "App6"
+  },
+  {
+    id: 7,
+    path: '/app7',
+    component: "App7"
+  },
+  {
+    id: 8,
+    path: '/app8',
+    component: "App8"
+  },
+  {
+    id: 9,
+    path: '/app9',
+    component: "App9"
+  },
+  {
+    id: 10,
+    path: '/app10',
+    component: "App10"
+  },
+  {
+    id: 11,
+    path: '/app11',
+    component: "App11"
+  },
+  {
+    id: 12,
+    path: '/app12',
+    component: "App12"
+  },
+  {
+    id: 13,
+    path: '/app13',
+    component: "App13"
+  },
+  {
+    id: 14,
+    path: '/app14',
+    component: "App14"
+  },
+  {
+    id: 15,
+    path: '/app15',
+    component: "App15"
+  },
+  {
+    id: 16,
+    path: '/app16',
+    component: "App16"
+  },
+  {
+    id: 17,
+    path: '/app17',
+    component: "App17"
+  },
+  {
+    id: 18,
+    path: '/app18',
+    component: "App18"
+  },
+  {
+    id: 19,
+    path: '/app19',
+    component: "App19"
+  },
+  {
+    id: 999,
+    path: '/:pathMatch(.*)*',
+    component: "views/404"
+  },
+]
+
+const router = createRouter({
+  //内部提供了 history 模式的实现。为了简单起见，我们在这里使用 hash 模式。
+  history: createWebHashHistory(),
+  routes:[]
+})
+
+
+for (let i = 0; i < routes.length; i++)
+{
+  const r = routes[i];
+  // 动态添加路由
+  // 参数1：父路由名称
+  // 参数2：路由信息对象
+  router.addRoute("a", {
+    path: r.path,
+    name: r.id,
+    //记住符号是 ` 而不是 ' 或者 "
+    component: () => import(`@/${r.component}.vue`)
+  })
+  console.log("添加" + r.path)
+}
+
+export default router
+
+</script>
+```
+
+
+
+
+
+![image-20230620221034846](img/vue学习笔记/image-20230620221034846.png)
+
+
+
+![image-20230620221046373](img/vue学习笔记/image-20230620221046373.png)
+
+
+
+
+
+
+
+
+
+## 重置路由
+
+在用户注销时应当重置路由
+
+
+
+```vue
+<script>
+
+import {createRouter, createWebHashHistory} from 'vue-router'
+
+
+//此数据可以从后端获取
+const routes = [
+  {
+    id: 1,
+    path: '/',
+    component: "App"
+  },
+  {
+    id: 2,
+    path: '/app2',
+    component: "App2"
+  },
+  {
+    id: 3,
+    path: '/app3',
+    component: "App3"
+  },
+  {
+    id: 4,
+    path: '/app4',
+    component: "App4"
+  },
+  {
+    id: 5,
+    path: '/app5',
+    component: "App5"
+  },
+  {
+    id: 6,
+    path: '/app6',
+    component: "App6"
+  },
+  {
+    id: 7,
+    path: '/app7',
+    component: "App7"
+  },
+  {
+    id: 8,
+    path: '/app8',
+    component: "App8"
+  },
+  {
+    id: 9,
+    path: '/app9',
+    component: "App9"
+  },
+  {
+    id: 10,
+    path: '/app10',
+    component: "App10"
+  },
+  {
+    id: 11,
+    path: '/app11',
+    component: "App11"
+  },
+  {
+    id: 12,
+    path: '/app12',
+    component: "App12"
+  },
+  {
+    id: 13,
+    path: '/app13',
+    component: "App13"
+  },
+  {
+    id: 14,
+    path: '/app14',
+    component: "App14"
+  },
+  {
+    id: 15,
+    path: '/app15',
+    component: "App15"
+  },
+  {
+    id: 16,
+    path: '/app16',
+    component: "App16"
+  },
+  {
+    id: 17,
+    path: '/app17',
+    component: "App17"
+  },
+  {
+    id: 18,
+    path: '/app18',
+    component: "App18"
+  },
+  {
+    id: 19,
+    path: '/app19',
+    component: "App19"
+  },
+  {
+    id: 999,
+    path: '/:pathMatch(.*)*',
+    component: "views/404"
+  },
+]
+
+const router = createRouter({
+  //内部提供了 history 模式的实现。为了简单起见，我们在这里使用 hash 模式。
+  history: createWebHashHistory(),
+  routes: []
+})
+
+
+for (let i = 0; i < routes.length; i++)
+{
+  const r = routes[i];
+  // 动态添加路由
+  // 参数1：父路由名称
+  // 参数2：路由信息对象
+  router.addRoute("a", {
+    path: r.path,
+    name: r.id,
+    //记住符号是 ` 而不是 ' 或者 "
+    component: () => import(`@/${r.component}.vue`)
+  })
+  console.log("添加" + r.path)
+}
+
+/**
+ * 重置路由
+ */
+export function resetRouter()
+{
+  for (let i = 0; i < routes.length; i++)
+  {
+    const r = routes[i];
+    if (r.id === 999)
+    {
+      break;
+    }
+    router.removeRoute(r.id);
+  }
+}
+
+export default router
+
+</script>
+```
+
+
+
+
+
+```vue
+<template>
+
+  <el-container>
+    <el-aside width="200px">
+      <div className="link">
+
+        <br>
+        <el-input type="text" size="large" autocomplete="false" v-model="to"/>
+        <br>
+        <el-button type="success" size="large" @click="go">点击跳转</el-button>
+        <br>
+        <el-button type="success" size="large" @click="resetRouter">点击重置路由</el-button>
+
+      </div>
+    </el-aside>
+    <el-container>
+      <el-header>路由跳转</el-header>
+      <el-main>
+        <div className="all">
+          <router-view className="r"></router-view>
+        </div>
+      </el-main>
+    </el-container>
+  </el-container>
+
+</template>
+
+<script>
+import {resetRouter} from '@/router/Router2'
+
+export default {
+  name: "App23",
+  data()
+  {
+    return {
+      to: "/",
+    }
+  },
+  methods:
+      {
+        go()
+        {
+          console.log("跳转到：" + this.to)
+          this.$router.push(this.to);
+        },
+        resetRouter()
+        {
+          console.log("重置路由")
+          resetRouter();
+        }
+      }
+
+}
+</script>
+
+<style scoped>
+.all {
+  padding: 20px;
+  background: #b5e3f1;
+}
+
+.r {
+  background: cornflowerblue;
+}
+
+.link {
+  background: #42b983;
+  height: 100vh;
+}
+</style>
+```
+
+
+
+
+
+![image-20230620223638223](img/vue学习笔记/image-20230620223638223.png)
+
+
+
+点击重置后
+
+![image-20230620223655587](img/vue学习笔记/image-20230620223655587.png)
+
+
+
+![image-20230620223704806](img/vue学习笔记/image-20230620223704806.png)
+
+
+
+
+
+
+
+
+
+
+
+## 页面刷新问题
+
+页面刷新后，会导致动态添加的路由失效，解决方法是将路由数据存入 sessionStorage 或者 localStorage 
+
+
+
+```vue
+<script>
+
+import {createRouter, createWebHashHistory} from 'vue-router'
+
+
+//此数据可以从后端获取
+let routes = [
+  {
+    id: 1,
+    path: '/',
+    component: "App"
+  },
+  {
+    id: 2,
+    path: '/app2',
+    component: "App2"
+  },
+  {
+    id: 3,
+    path: '/app3',
+    component: "App3"
+  },
+  {
+    id: 4,
+    path: '/app4',
+    component: "App4"
+  },
+  {
+    id: 5,
+    path: '/app5',
+    component: "App5"
+  },
+  {
+    id: 6,
+    path: '/app6',
+    component: "App6"
+  },
+  {
+    id: 7,
+    path: '/app7',
+    component: "App7"
+  },
+  {
+    id: 8,
+    path: '/app8',
+    component: "App8"
+  },
+  {
+    id: 9,
+    path: '/app9',
+    component: "App9"
+  },
+  {
+    id: 10,
+    path: '/app10',
+    component: "App10"
+  },
+  {
+    id: 11,
+    path: '/app11',
+    component: "App11"
+  },
+  {
+    id: 12,
+    path: '/app12',
+    component: "App12"
+  },
+  {
+    id: 13,
+    path: '/app13',
+    component: "App13"
+  },
+  {
+    id: 14,
+    path: '/app14',
+    component: "App14"
+  },
+  {
+    id: 15,
+    path: '/app15',
+    component: "App15"
+  },
+  {
+    id: 16,
+    path: '/app16',
+    component: "App16"
+  },
+  {
+    id: 17,
+    path: '/app17',
+    component: "App17"
+  },
+  {
+    id: 18,
+    path: '/app18',
+    component: "App18"
+  },
+  {
+    id: 19,
+    path: '/app19',
+    component: "App19"
+  },
+  {
+    id: 999,
+    path: '/:pathMatch(.*)*',
+    component: "views/404"
+  },
+]
+
+const router = createRouter({
+  //内部提供了 history 模式的实现。为了简单起见，我们在这里使用 hash 模式。
+  history: createWebHashHistory(),
+  routes: []
+})
+
+/**
+ * 添加路由
+ * @param array 数组
+ */
+function addRoutes(array)
+{
+  for (let i = 0; i < array.length; i++)
+  {
+    const r = array[i];
+    // 动态添加路由
+    // 参数1：父路由名称
+    // 参数2：路由信息对象
+    router.addRoute("a", {
+      path: r.path,
+      name: r.id,
+      //记住符号是 ` 而不是 ' 或者 "
+      component: () => import(`@/${r.component}.vue`)
+    })
+    console.log("添加" + r.path)
+    routes = array;
+  }
+}
+
+addRoutes(routes);
+
+/**
+ * 重置路由
+ */
+export function resetRouter()
+{
+  for (let i = 0; i < routes.length; i++)
+  {
+    const r = routes[i];
+    if (r.id === 999)
+    {
+      break;
+    }
+    router.removeRoute(r.id);
+  }
+}
+
+/**
+ * 从SessionStorage里加载路由信息
+ */
+export function loadFromSessionStorage()
+{
+  console.log('从SessionStorage里加载路由信息')
+  console.log(router.getRoutes().length)
+
+  const result = JSON.parse(sessionStorage.getItem("router"))
+  console.log(result)
+  addRoutes(result);
+}
+
+/**
+ * 保存路由信息到SessionStorage
+ */
+export function saveToSessionStorage()
+{
+  console.log("保存路由到SessionStorage")
+  sessionStorage.setItem("router", JSON.stringify(routes))
+}
+
+export default router
+
+</script>
+```
+
+
+
+
+
+```vue
+<template>
+
+  <el-container>
+    <el-aside width="200px">
+      <div className="link">
+
+        <br>
+        <el-input type="text" size="large" autocomplete="false" v-model="to"/>
+        <br>
+        <el-button type="success" size="large" @click="go">点击跳转</el-button>
+        <br>
+        <el-button type="success" size="large" @click="resetRouter">点击重置路由</el-button>
+        <br>
+        <el-button type="success" size="large" @click="saveToSessionStorage">保存路由信息</el-button>
+        <br>
+        <el-button type="success" size="large" @click="loadFromSessionStorage">加载路由信息</el-button>
+
+      </div>
+    </el-aside>
+    <el-container>
+      <el-header>路由跳转</el-header>
+      <el-main>
+        <div className="all">
+          <router-view className="r"></router-view>
+        </div>
+      </el-main>
+    </el-container>
+  </el-container>
+
+</template>
+
+<script>
+import {resetRouter, loadFromSessionStorage, saveToSessionStorage} from '@/router/Router2'
+
+export default {
+  name: "App24",
+  data()
+  {
+    return {
+      to: "/",
+    }
+  },
+  methods:
+      {
+        go()
+        {
+          console.log("跳转到：" + this.to)
+          this.$router.push(this.to);
+        },
+        resetRouter()
+        {
+          console.log("重置路由")
+          resetRouter();
+        },
+        loadFromSessionStorage()
+        {
+          loadFromSessionStorage();
+        },
+        saveToSessionStorage()
+        {
+          saveToSessionStorage();
+        }
+      }
+
+}
+</script>
+
+<style scoped>
+.all {
+  padding: 20px;
+  background: #b5e3f1;
+}
+
+.r {
+  background: cornflowerblue;
+}
+
+.link {
+  background: #42b983;
+  height: 100vh;
+}
+</style>
+```
+
+
+
+![image-20230620231619462](img/vue学习笔记/image-20230620231619462.png)
+
+
+
+
+
+
+
+
+
+## 嵌套路由
+
