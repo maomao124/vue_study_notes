@@ -4308,3 +4308,673 @@ app.mount('#app')
 
 ## 编程式导航
 
+### push
+
+在 Vue 实例中，你可以通过 $router 访问路由实例。因此你可以调用 `this.$router.push`
+
+想要导航到不同的 URL，可以使用 router.push 方法。这个方法会向 history 栈添加一个新的记录，所以，当用户点击浏览器后退按钮时，会回到之前的 URL。
+
+当你点击 \<router-link> 时，内部会调用这个方法，所以点击 \<router-link :to="..."> 相当于调用 router.push(...)
+
+
+
+该方法的参数可以是一个字符串路径，或者一个描述地址的对象：
+
+```js
+// 字符串路径
+router.push('/users/eduardo')
+
+// 带有路径的对象
+router.push({ path: '/users/eduardo' })
+
+// 命名的路由，并加上参数，让路由建立 url
+router.push({ name: 'user', params: { username: 'eduardo' } })
+
+// 带查询参数，结果是 /register?plan=private
+router.push({ path: '/register', query: { plan: 'private' } })
+
+// 带 hash，结果是 /about#team
+router.push({ path: '/about', hash: '#team' })
+```
+
+
+
+如果提供了 path，params 会被忽略
+
+```js
+const username = 'eduardo'
+// 我们可以手动建立 url，但我们必须自己处理编码
+router.push(`/user/${username}`) // -> /user/eduardo
+// 同样
+router.push({ path: `/user/${username}` }) // -> /user/eduardo
+// 
+router.push({ name: 'user', params: { username } }) // -> /user/eduardo
+// `params` 不能与 `path` 一起使用
+router.push({ path: '/user', params: { username } }) // -> /user
+```
+
+
+
+
+
+### 替换当前位置
+
+它的作用类似于 `router.push`，唯一不同的是，它在导航时不会向 history 添加新记录
+
+
+
+|              声明式               |        编程式         |
+| :-------------------------------: | :-------------------: |
+| `<router-link :to="..." replace>` | `router.replace(...)` |
+
+
+
+也可以直接在传递给 router.push 的 routeLocation 中增加一个属性 replace: true：
+
+```js
+router.push({ path: '/home', replace: true })
+// 相当于
+router.replace({ path: '/home' })
+```
+
+
+
+
+
+### 横跨历史
+
+该方法采用一个整数作为参数，表示在历史堆栈中前进或后退多少步，类似于 `window.history.go(n)`
+
+
+
+```js
+// 向前移动一条记录，与 router.forward() 相同
+router.go(1)
+
+// 返回一条记录，与 router.back() 相同
+router.go(-1)
+
+// 前进 3 条记录
+router.go(3)
+
+// 如果没有那么多记录，静默失败
+router.go(-100)
+router.go(100)
+```
+
+
+
+
+
+
+
+## 命名路由
+
+除了 `path` 之外，你还可以为任何路由提供 `name`。这有以下优点：
+
+- 没有硬编码的 URL
+- `params` 的自动编码/解码。
+- 防止你在 url 中出现打字错误。
+- 绕过路径排序
+
+
+
+要链接到一个命名的路由，可以向 `router-link` 组件的 `to` 属性传递一个对象：
+
+```js
+<router-link :to="{ name: 'user', params: { username: 'erina' }}">
+  User
+</router-link>
+```
+
+
+
+
+
+
+
+## 命名视图
+
+### 概述
+
+有时候想同时 (同级) 展示多个视图，而不是嵌套展示，例如创建一个布局，有 `sidebar` (侧导航) 和 `main` (主内容) 两个视图，这个时候命名视图就派上用场了。你可以在界面中拥有多个单独命名的视图，而不是只有一个单独的出口。如果 `router-view` 没有设置名字，那么默认为 `default`。
+
+
+
+
+
+### 使用
+
+示例：
+
+```vue
+<router-view class="view left-sidebar" name="LeftSidebar"></router-view>
+<router-view class="view main-content"></router-view>
+<router-view class="view right-sidebar" name="RightSidebar"></router-view>
+```
+
+
+
+一个视图使用一个组件渲染，因此对于同个路由，多个视图就需要多个组件。确保正确使用 `components`
+
+```js
+const router = createRouter({
+  history: createWebHashHistory(),
+  routes: [
+    {
+      path: '/',
+      components: {
+        default: Home,
+        // LeftSidebar: LeftSidebar 的缩写
+        LeftSidebar,
+        // 它们与 `<router-view>` 上的 `name` 属性匹配
+        RightSidebar,
+      },
+    },
+  ],
+})
+```
+
+
+
+
+
+
+
+App26.vue
+
+```vue
+<template>
+
+  <div class="div">
+    <hr>
+    <router-view class="r1" name="r1"></router-view>
+    <hr>
+    <router-view class="r2"></router-view>
+    <hr>
+    <router-view class="r3" name="r3"></router-view>
+    <hr>
+  </div>
+
+</template>
+
+<script>
+export default {
+  name: "App26"
+}
+</script>
+
+<style scoped>
+.div{
+  background: #b5e3f1;
+}
+.r1{
+  background: blueviolet;
+}
+.r2{
+  background: #42b983;
+}
+
+.r3{
+  background: darkorange;
+}
+</style>
+```
+
+
+
+Router4.vue
+
+```vue
+<script>
+
+import {createRouter, createWebHashHistory} from 'vue-router'
+import App from '@/App'
+import App2 from '@/App2'
+import App3 from '@/App3'
+import App4 from '@/App4'
+import App5 from '@/App5'
+import App6 from '@/App6'
+import App7 from '@/App7'
+import App8 from '@/App8'
+import App9 from '@/App9'
+import App10 from '@/App10'
+import App11 from '@/App11'
+import App12 from '@/App12'
+import App13 from '@/App13'
+import App15 from '@/App15'
+import App14 from '@/App14'
+import App16 from '@/App16'
+import App17 from '@/App17'
+import App18 from '@/App18'
+import App19 from '@/App19'
+import NotFound from '@/views/404'
+
+
+const routes = [
+  {
+    path: '/',
+    components:
+        {
+          default: App,
+          r1: App2,
+          r2: App3,
+          r3: App4,
+        }
+  },
+  {
+    path: '/app5',
+    components:
+        {
+          default: App5,
+          r1: App6,
+          r2: App7,
+          r3: App8,
+        }
+  },
+  {
+    path: '/app9',
+    components:
+        {
+          default: App9,
+          r1: App10,
+          r2: App11,
+          r3: App12,
+        }
+  },
+  {
+    path: '/app13',
+    component: App13
+  },
+  {
+    path: '/app14',
+    component: App14
+  },
+  {
+    path: '/app15',
+    component: App15
+  },
+  {
+    path: '/app16',
+    component: App16
+  },
+  {
+    path: '/app17',
+    component: App17
+  },
+  {
+    path: '/app18',
+    component: App18
+  },
+  {
+    path: '/app19',
+    component: App19
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    component: NotFound
+  }
+]
+
+const router = createRouter({
+  //内部提供了 history 模式的实现。为了简单起见，我们在这里使用 hash 模式。
+  history: createWebHashHistory(),
+  routes, // `routes: routes` 的缩写
+})
+
+export default router
+
+</script>
+```
+
+
+
+
+
+更改main.js
+
+![image-20230621230658900](img/vue学习笔记/image-20230621230658900.png)
+
+
+
+```js
+import { createApp } from 'vue'
+
+import ElementPlus from 'element-plus'
+import 'element-plus/dist/index.css'
+
+import App from './App26.vue'
+import Router2 from '@/router/Router4'
+
+const app = createApp(App)
+
+app.use(ElementPlus)
+app.use(Router2)
+app.mount('#app')
+```
+
+
+
+
+
+![image-20230621230723610](img/vue学习笔记/image-20230621230723610.png)
+
+
+
+![image-20230621230746644](img/vue学习笔记/image-20230621230746644.png)
+
+
+
+![image-20230621230836428](img/vue学习笔记/image-20230621230836428.png)
+
+![image-20230621230930756](img/vue学习笔记/image-20230621230930756.png)
+
+
+
+![image-20230621231124104](img/vue学习笔记/image-20230621231124104.png)
+
+
+
+![image-20230621231137279](img/vue学习笔记/image-20230621231137279.png)
+
+
+
+
+
+
+
+### 嵌套命名视图
+
+我们也有可能使用命名视图创建嵌套视图的复杂布局。这时需要用到的嵌套 `router-view` 组件
+
+
+
+```sh
+/settings/emails                                       /settings/profile
++-----------------------------------+                  +------------------------------+
+| UserSettings                      |                  | UserSettings                 |
+| +-----+-------------------------+ |                  | +-----+--------------------+ |
+| | Nav | UserEmailsSubscriptions | |  +------------>  | | Nav | UserProfile        | |
+| |     +-------------------------+ |                  | |     +--------------------+ |
+| |     |                         | |                  | |     | UserProfilePreview | |
+| +-----+-------------------------+ |                  | +-----+--------------------+ |
++-----------------------------------+                  +------------------------------+
+```
+
+
+
+
+
+```html
+<!-- UserSettings.vue -->
+<div>
+  <h1>User Settings</h1>
+  <NavBar />
+  <router-view />
+  <router-view name="helper" />
+</div>
+```
+
+
+
+
+
+```js
+{
+  path: '/settings',
+  // 你也可以在顶级路由就配置命名视图
+  component: UserSettings,
+  children: [{
+    path: 'emails',
+    component: UserEmailsSubscriptions
+  }, {
+    path: 'profile',
+    components: {
+      default: UserProfile,
+      helper: UserProfilePreview
+    }
+  }]
+}
+```
+
+
+
+
+
+
+
+## 重定向
+
+重定向也是通过 routes 配置来完成
+
+
+
+下面例子是从 `/home` 重定向到 `/`：
+
+```JS
+const routes = [{ path: '/home', redirect: '/' }]
+```
+
+
+
+重定向的目标也可以是一个命名的路由：
+
+```JS
+const routes = [{ path: '/home', redirect: { name: 'homepage' } }]
+```
+
+
+
+甚至是一个方法，动态返回重定向目标：
+
+```JS
+const routes = [
+  {
+    // /search/screens -> /search?q=screens
+    path: '/search/:searchText',
+    redirect: to => {
+      // 方法接收目标路由作为参数
+      // return 重定向的字符串路径/路径对象
+      return { path: '/search', query: { q: to.params.searchText } }
+    },
+  },
+  {
+    path: '/search',
+    // ...
+  },
+]
+```
+
+
+
+也可以重定向到相对位置：
+
+```js
+const routes = [
+  {
+    // 将总是把/users/123/posts重定向到/users/123/profile。
+    path: '/users/:id/posts',
+    redirect: to => {
+      // 该函数接收目标路由作为参数
+      // 相对位置不以`/`开头
+      // 或 { path: 'profile'}
+      return 'profile'
+    },
+  },
+]
+```
+
+
+
+
+
+在写 redirect 的时候，可以省略 component 配置，因为它从来没有被直接访问过，所以没有组件要渲染。唯一的例外是嵌套路由：如果一个路由记录有 children 和 redirect 属性，它也应该有 component 属性。
+
+
+
+
+
+
+
+
+
+将所有找不到的页面和/app13页面都重定向到404页面：
+
+
+
+Router5.vue
+
+```vue
+<script>
+
+import {createRouter, createWebHashHistory} from 'vue-router'
+import App from '@/App'
+import App2 from '@/App2'
+import App3 from '@/App3'
+import App4 from '@/App4'
+import App5 from '@/App5'
+import App6 from '@/App6'
+import App7 from '@/App7'
+import App8 from '@/App8'
+import App9 from '@/App9'
+import App10 from '@/App10'
+import App11 from '@/App11'
+import App12 from '@/App12'
+import App13 from '@/App13'
+import App15 from '@/App15'
+import App14 from '@/App14'
+import App16 from '@/App16'
+import App17 from '@/App17'
+import App18 from '@/App18'
+import App19 from '@/App19'
+import NotFound from '@/views/404'
+
+
+const routes = [
+  {
+    path: '/',
+    components:
+        {
+          default: App,
+          r1: App2,
+          r2: App3,
+          r3: App4,
+        }
+  },
+  {
+    path: '/app5',
+    components:
+        {
+          default: App5,
+          r1: App6,
+          r2: App7,
+          r3: App8,
+        }
+  },
+  {
+    path: '/app9',
+    components:
+        {
+          default: App9,
+          r1: App10,
+          r2: App11,
+          r3: App12,
+        }
+  },
+  {
+    path: '/app13',
+    component: App13,
+    redirect:"/404"
+  },
+  {
+    path: '/app14',
+    component: App14
+  },
+  {
+    path: '/app15',
+    component: App15
+  },
+  {
+    path: '/app16',
+    component: App16
+  },
+  {
+    path: '/app17',
+    component: App17
+  },
+  {
+    path: '/app18',
+    component: App18
+  },
+  {
+    path: '/app19',
+    component: App19
+  },
+  {
+    path: '/404',
+    component: NotFound
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    redirect:"/404"
+  }
+]
+
+const router = createRouter({
+  //内部提供了 history 模式的实现。为了简单起见，我们在这里使用 hash 模式。
+  history: createWebHashHistory(),
+  routes, // `routes: routes` 的缩写
+})
+
+export default router
+
+</script>
+```
+
+
+
+main.js
+
+```js
+import { createApp } from 'vue'
+
+import ElementPlus from 'element-plus'
+import 'element-plus/dist/index.css'
+
+import App from './App26.vue'
+import Router2 from '@/router/Router5'
+
+const app = createApp(App)
+
+app.use(ElementPlus)
+app.use(Router2)
+app.mount('#app')
+```
+
+
+
+
+
+![image-20230621234358594](img/vue学习笔记/image-20230621234358594.png)
+
+
+
+![image-20230621234409071](img/vue学习笔记/image-20230621234409071.png)
+
+
+
+![image-20230621234439838](img/vue学习笔记/image-20230621234439838.png)
+
+
+
+![image-20230621234446185](img/vue学习笔记/image-20230621234446185.png)
+
+
+
+
+
+
+
+
+
+## 重定向别名
