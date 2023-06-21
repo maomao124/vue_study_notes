@@ -3872,3 +3872,439 @@ export default {
 
 ## 嵌套路由
 
+一些应用程序的 UI 由多层嵌套的组件组成。在这种情况下，URL 的片段通常对应于特定的嵌套组件结构，例如：
+
+```sh
+/user/johnny/profile                     /user/johnny/posts
++------------------+                  +-----------------+
+| User             |                  | User            |
+| +--------------+ |                  | +-------------+ |
+| | Profile      | |  +------------>  | | Posts       | |
+| |              | |                  | |             | |
+| +--------------+ |                  | +-------------+ |
++------------------+                  +-----------------+
+```
+
+
+
+Router3.vue
+
+```vue
+<script>
+
+import {createRouter, createWebHashHistory} from 'vue-router'
+import App from '@/App'
+import App2 from '@/App2'
+import App3 from '@/App3'
+import App4 from '@/App4'
+import App5 from '@/App5'
+import App6 from '@/App6'
+import App7 from '@/App7'
+import App8 from '@/App8'
+import App9 from '@/App9'
+import App10 from '@/App10'
+import App11 from '@/App11'
+import App12 from '@/App12'
+import App13 from '@/App13'
+import App15 from '@/App15'
+import App14 from '@/App14'
+import App16 from '@/App16'
+import App17 from '@/App17'
+import App18 from '@/App18'
+import App19 from '@/App19'
+import C1 from '@/views/C1'
+import C2 from '@/views/C2'
+import NotFound from '@/views/404.vue'
+
+
+const routes = [
+  {
+    path: '/',
+    component: App
+  },
+  {
+    path: "/c1",
+    component: C1,
+    children:
+        [
+          {
+            path: '/c1/app2',
+            component: App2
+          },
+          {
+            path: '/c1/app3',
+            component: App3
+          },
+          {
+            path: '/c1/app4',
+            component: App4
+          },
+          {
+            path: '/c1/app5',
+            component: App5
+          },
+          {
+            path: '/c1/app6',
+            component: App6
+          },
+          {
+            path: '/c1/app7',
+            component: App7
+          },
+          {
+            path: '/c1/app8',
+            component: App8
+          },
+          {
+            path: '/c1/app9',
+            component: App9
+          },
+          {
+            path: '/c1/app10',
+            component: App10
+          },
+          {
+            path: '/c1/app11',
+            component: App11
+          },
+        ]
+  },
+  {
+    path: "/c2",
+    component: C2,
+    children:
+        [
+          {
+            path: '/c2/app9',
+            component: App9
+          },
+          {
+            path: '/c2/app10',
+            component: App10
+          },
+          {
+            path: '/c2/app11',
+            component: App11
+          },
+          {
+            path: '/c2/app12',
+            component: App12
+          },
+          {
+            path: '/c2/app13',
+            component: App13
+          },
+          {
+            path: '/c2/app14',
+            component: App14
+          },
+          {
+            path: '/c2/app15',
+            component: App15
+          },
+          {
+            path: '/c2/app16',
+            component: App16
+          },
+          {
+            path: '/c2/app17',
+            component: App17
+          },
+          {
+            path: '/c2/app18',
+            component: App18
+          },
+          {
+            path: '/c2/app19',
+            component: App19
+          },
+        ]
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    component: NotFound
+  }
+]
+
+const router = createRouter({
+  //内部提供了 history 模式的实现。为了简单起见，我们在这里使用 hash 模式。
+  history: createWebHashHistory(),
+  routes, // `routes: routes` 的缩写
+})
+
+export default router
+
+</script>
+```
+
+
+
+* 要将组件渲染到这个嵌套的 `router-view` 中，我们需要在路由中配置 `children`
+* 以 / 开头的嵌套路径将被视为根路径。这允许你利用组件嵌套，而不必使用嵌套的 URL
+
+
+
+
+
+C1.vue
+
+```vue
+<template>
+
+  <el-container>
+    <el-container>
+      <el-header>嵌套路由-c1</el-header>
+      <el-main>
+        <div className="all">
+          <router-view className="r"></router-view>
+        </div>
+      </el-main>
+    </el-container>
+  </el-container>
+
+</template>
+
+<script>
+export default {
+  name: "App22",
+  data()
+  {
+    return {
+      to: "/",
+    }
+  },
+  methods:
+      {
+        go()
+        {
+          console.log("跳转到：" + this.to)
+          this.$router.push(this.to);
+        }
+      }
+
+}
+</script>
+
+<style scoped>
+.all {
+  padding: 20px;
+  background: #b5e3f1;
+}
+
+.r {
+  background: cornflowerblue;
+}
+
+.link {
+  background: #42b983;
+  height: 100vh;
+}
+</style>
+```
+
+
+
+C2.vue
+
+```vue
+<template>
+
+  <el-container>
+    <el-container>
+      <el-header>嵌套路由-c2</el-header>
+      <el-main>
+        <div className="all">
+          <router-view className="r"></router-view>
+        </div>
+      </el-main>
+    </el-container>
+  </el-container>
+
+</template>
+
+<script>
+export default {
+  name: "App22",
+  data()
+  {
+    return {
+      to: "/",
+    }
+  },
+  methods:
+      {
+        go()
+        {
+          console.log("跳转到：" + this.to)
+          this.$router.push(this.to);
+        }
+      }
+
+}
+</script>
+
+<style scoped>
+.all {
+  padding: 20px;
+  background: #b5e3f1;
+}
+
+.r {
+  background: cornflowerblue;
+}
+
+.link {
+  background: #42b983;
+  height: 100vh;
+}
+</style>
+```
+
+
+
+
+
+```vue
+<template>
+
+  <el-container>
+    <el-aside width="200px">
+      <div className="link">
+
+        <br>
+        <el-input type="text" size="large" autocomplete="false" v-model="to"/>
+        <br>
+        <el-button type="success" size="large" @click="go">点击跳转</el-button>
+
+      </div>
+    </el-aside>
+    <el-container>
+      <el-header>路由跳转</el-header>
+      <el-main>
+        <div className="all">
+          <router-view className="r"></router-view>
+        </div>
+      </el-main>
+    </el-container>
+  </el-container>
+
+</template>
+
+<script>
+export default {
+  name: "App25",
+  data()
+  {
+    return {
+      to: "/",
+    }
+  },
+  methods:
+      {
+        go()
+        {
+          console.log("跳转到：" + this.to)
+          this.$router.push(this.to);
+        }
+      }
+
+}
+</script>
+
+<style scoped>
+.all {
+  padding: 20px;
+  background: #b5e3f1;
+}
+
+.r {
+  background: coral;
+}
+
+.link {
+  background: #42b983;
+  height: 100vh;
+}
+</style>
+```
+
+
+
+
+
+main.js
+
+![image-20230620234637153](img/vue学习笔记/image-20230620234637153.png)
+
+
+
+```js
+import { createApp } from 'vue'
+
+import ElementPlus from 'element-plus'
+import 'element-plus/dist/index.css'
+
+import App from './App25.vue'
+import Router2 from '@/router/Router3'
+
+const app = createApp(App)
+
+app.use(ElementPlus)
+app.use(Router2)
+app.mount('#app')
+```
+
+
+
+
+
+测试
+
+![image-20230620234718591](img/vue学习笔记/image-20230620234718591.png)
+
+
+
+![image-20230620234746086](img/vue学习笔记/image-20230620234746086.png)
+
+
+
+![image-20230620234800512](img/vue学习笔记/image-20230620234800512.png)
+
+
+
+![image-20230620234839814](img/vue学习笔记/image-20230620234839814.png)
+
+
+
+
+
+![image-20230620234851223](img/vue学习笔记/image-20230620234851223.png)
+
+
+
+
+
+![image-20230620234906161](img/vue学习笔记/image-20230620234906161.png)
+
+
+
+
+
+![image-20230620234930632](img/vue学习笔记/image-20230620234930632.png)
+
+
+
+![image-20230620234941098](img/vue学习笔记/image-20230620234941098.png)
+
+
+
+
+
+
+
+
+
+
+
+## 编程式导航
+
