@@ -5246,5 +5246,218 @@ URL `/search?q=vue` 将传递 `{query: 'vue'}` 作为 props 传给 `SearchUser` 
 
 ## 不同的历史模式
 
+### 概述
 
+在创建路由器实例时，`history` 配置允许我们在不同的历史模式中进行选择
+
+
+
+### Hash 模式
+
+hash 模式是用 `createWebHashHistory()` 创建的
+
+```js
+import { createRouter, createWebHashHistory } from 'vue-router'
+
+const router = createRouter({
+  history: createWebHashHistory(),
+  routes: [
+    //...
+  ],
+})
+```
+
+
+
+它在内部传递的实际 URL 之前使用了一个哈希字符（`#`）。由于这部分 URL 从未被发送到服务器，所以它不需要在服务器层面上进行任何特殊处理。不过，**它在 SEO 中确实有不好的影响**。
+
+vue-router默认hash模式,使用url的哈希(hash)来模拟一个完整的URL，当URL改变时，页面不会重新加载
+
+`#`号后面的参数不会传送给服务器，兼容性好，不会作为路径的一部分发送给服务器，也就是它不会包括在`HTTP`请求体中，对后端完全没有影响
+
+页面刷新时，会停留在当前页面，不会重新加载
+
+
+
+
+
+### HTML5 模式
+
+用 `createWebHistory()` 创建 HTML5 模式，推荐使用这个模式：
+
+```js
+import { createRouter, createWebHistory } from 'vue-router'
+
+const router = createRouter({
+  history: createWebHistory(),
+  routes: [
+    //...
+  ],
+})
+```
+
+
+
+当使用这种历史模式时，URL 会看起来很 "正常"，例如 `https://example.com/user/id`
+
+不过，问题来了。由于我们的应用是一个单页的客户端应用，如果没有适当的服务器配置，用户在浏览器中直接访问 `https://example.com/user/id`，就会得到一个 404 错误。
+
+要解决这个问题，你需要做的就是在你的服务器上添加一个简单的回退路由。如果 URL 不匹配任何静态资源，它应提供与你的应用程序中的 `index.html` 相同的页面
+
+在hash模式下,使用hash符号之前的内容会被包含在请求体中,#号后面的不会发送给服务器
+
+而`history`模式下,前端的`URL`必须和实际向后端发起请求的`URL`保持一致
+
+改变 URL 会引起页面加载
+
+
+
+
+
+Router7.vue
+
+```vue
+<script>
+
+import {createRouter, createWebHistory} from 'vue-router'
+import App from '@/App'
+import App2 from '@/App2'
+import App3 from '@/App3'
+import App4 from '@/App4'
+import App5 from '@/App5'
+import App6 from '@/App6'
+import App7 from '@/App7'
+import App8 from '@/App8'
+import App9 from '@/App9'
+import App10 from '@/App10'
+import App11 from '@/App11'
+import App12 from '@/App12'
+import App13 from '@/App13'
+import App15 from '@/App15'
+import App14 from '@/App14'
+import App16 from '@/App16'
+import App17 from '@/App17'
+import App18 from '@/App18'
+import App19 from '@/App19'
+import NotFound from '@/views/404'
+
+
+const routes = [
+  {
+    path: '/',
+    components:
+        {
+          default: App,
+          r1: App2,
+          r2: App3,
+          r3: App4,
+        },
+    alias: ['/aaa', '/bbb', '/ccc']
+  },
+  {
+    path: '/app5',
+    components:
+        {
+          default: App5,
+          r1: App6,
+          r2: App7,
+          r3: App8,
+        }
+  },
+  {
+    path: '/app9',
+    components:
+        {
+          default: App9,
+          r1: App10,
+          r2: App11,
+          r3: App12,
+        }
+  },
+  {
+    path: '/app13',
+    component: App13,
+    redirect: "/404"
+  },
+  {
+    path: '/app14',
+    component: App14
+  },
+  {
+    path: '/app15',
+    component: App15
+  },
+  {
+    path: '/app16',
+    component: App16
+  },
+  {
+    path: '/app17',
+    component: App17
+  },
+  {
+    path: '/app18',
+    component: App18
+  },
+  {
+    path: '/app19',
+    component: App19,
+    alias: '/table'
+  },
+  {
+    path: '/404',
+    component: NotFound
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    redirect: "/404"
+  }
+]
+
+const router = createRouter({
+  //createWebHistory
+  history: createWebHistory(),
+  routes, // `routes: routes` 的缩写
+})
+
+export default router
+
+</script>
+```
+
+
+
+main.js
+
+```js
+import { createApp } from 'vue'
+
+import ElementPlus from 'element-plus'
+import 'element-plus/dist/index.css'
+
+import App from './App26.vue'
+import Router2 from '@/router/Router7'
+
+const app = createApp(App)
+
+app.use(ElementPlus)
+app.use(Router2)
+app.mount('#app')
+```
+
+
+
+
+
+![image-20230622010253113](img/vue学习笔记/image-20230622010253113.png)
+
+
+
+
+
+
+
+
+
+## 导航守卫
 
