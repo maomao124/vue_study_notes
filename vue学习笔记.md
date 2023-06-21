@@ -4978,3 +4978,273 @@ app.mount('#app')
 
 
 ## 重定向别名
+
+重定向是指当用户访问 `/home` 时，URL 会被 `/` 替换，然后匹配成 `/`
+
+**将 `/` 别名为 `/home`，意味着当用户访问 `/home` 时，URL 仍然是 `/home`，但会被匹配为用户正在访问 `/`**
+
+
+
+上面对应的路由配置为：
+
+```js
+const routes = [{ path: '/', component: Homepage, alias: '/home' }]
+```
+
+
+
+通过别名，你可以自由地将 UI 结构映射到一个任意的 URL，而不受配置的嵌套结构的限制。使别名以 `/` 开头，以使嵌套路径中的路径成为绝对路径。你甚至可以将两者结合起来，用一个数组提供多个别名
+
+
+
+
+
+将 / 目录起别名 ['/aaa', '/bbb', '/ccc']，将 /app19 目录起别名 table
+
+
+
+Router6.vue
+
+```vue
+<script>
+
+import {createRouter, createWebHashHistory} from 'vue-router'
+import App from '@/App'
+import App2 from '@/App2'
+import App3 from '@/App3'
+import App4 from '@/App4'
+import App5 from '@/App5'
+import App6 from '@/App6'
+import App7 from '@/App7'
+import App8 from '@/App8'
+import App9 from '@/App9'
+import App10 from '@/App10'
+import App11 from '@/App11'
+import App12 from '@/App12'
+import App13 from '@/App13'
+import App15 from '@/App15'
+import App14 from '@/App14'
+import App16 from '@/App16'
+import App17 from '@/App17'
+import App18 from '@/App18'
+import App19 from '@/App19'
+import NotFound from '@/views/404'
+
+
+const routes = [
+  {
+    path: '/',
+    components:
+        {
+          default: App,
+          r1: App2,
+          r2: App3,
+          r3: App4,
+        },
+    alias: ['/aaa', '/bbb', '/ccc']
+  },
+  {
+    path: '/app5',
+    components:
+        {
+          default: App5,
+          r1: App6,
+          r2: App7,
+          r3: App8,
+        }
+  },
+  {
+    path: '/app9',
+    components:
+        {
+          default: App9,
+          r1: App10,
+          r2: App11,
+          r3: App12,
+        }
+  },
+  {
+    path: '/app13',
+    component: App13,
+    redirect: "/404"
+  },
+  {
+    path: '/app14',
+    component: App14
+  },
+  {
+    path: '/app15',
+    component: App15
+  },
+  {
+    path: '/app16',
+    component: App16
+  },
+  {
+    path: '/app17',
+    component: App17
+  },
+  {
+    path: '/app18',
+    component: App18
+  },
+  {
+    path: '/app19',
+    component: App19,
+    alias: '/table'
+  },
+  {
+    path: '/404',
+    component: NotFound
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    redirect: "/404"
+  }
+]
+
+const router = createRouter({
+  //内部提供了 history 模式的实现。为了简单起见，我们在这里使用 hash 模式。
+  history: createWebHashHistory(),
+  routes, // `routes: routes` 的缩写
+})
+
+export default router
+
+</script>
+```
+
+
+
+```js
+import { createApp } from 'vue'
+
+import ElementPlus from 'element-plus'
+import 'element-plus/dist/index.css'
+
+import App from './App26.vue'
+import Router2 from '@/router/Router6'
+
+const app = createApp(App)
+
+app.use(ElementPlus)
+app.use(Router2)
+app.mount('#app')
+```
+
+
+
+
+
+![image-20230621235722863](img/vue学习笔记/image-20230621235722863.png)
+
+
+
+![image-20230621235735100](img/vue学习笔记/image-20230621235735100.png)
+
+![image-20230621235744808](img/vue学习笔记/image-20230621235744808.png)
+
+
+
+![image-20230621235759731](img/vue学习笔记/image-20230621235759731.png)
+
+
+
+
+
+
+
+
+
+
+
+
+
+## 路由组件传参
+
+组件中使用 `$route` 会与路由紧密耦合，这限制了组件的灵活性，因为它只能用于特定的 URL。虽然这不一定是件坏事，但我们可以通过 `props` 配置来解除这种行为
+
+
+
+我们可以将下面的代码
+
+```js
+const User = {
+  template: '<div>User {{ $route.params.id }}</div>'
+}
+const routes = [{ path: '/user/:id', component: User }]
+```
+
+替换成
+
+```js
+const User = {
+  // 请确保添加一个与路由参数完全相同的 prop 名
+  props: ['id'],
+  template: '<div>User {{ id }}</div>'
+}
+const routes = [{ path: '/user/:id', component: User, props: true }]
+```
+
+
+
+当 `props` 设置为 `true` 时，`route.params` 将被设置为组件的 props
+
+
+
+对于有命名视图的路由，你必须为每个命名视图定义 `props` 配置：
+
+```js
+const routes = [
+  {
+    path: '/user/:id',
+    components: { default: User, sidebar: Sidebar },
+    props: { default: true, sidebar: false }
+  }
+]
+```
+
+
+
+当 `props` 是一个对象时，它将原样设置为组件 props
+
+```js
+const routes = [
+  {
+    path: '/promotion/from-newsletter',
+    component: Promotion,
+    props: { newsletterPopup: false }
+  }
+]
+```
+
+
+
+你可以创建一个返回 props 的函数。这允许你将参数转换为其他类型
+
+```js
+const routes = [
+  {
+    path: '/search',
+    component: SearchUser,
+    props: route => ({ query: route.query.q })
+  }
+]
+```
+
+
+
+URL `/search?q=vue` 将传递 `{query: 'vue'}` 作为 props 传给 `SearchUser` 组件
+
+
+
+
+
+
+
+
+
+## 不同的历史模式
+
+
+
