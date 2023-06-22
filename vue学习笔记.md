@@ -6979,3 +6979,347 @@ Vue 可能会自动复用看起来相似的组件，从而忽略了任何过渡�
 
 ## 滚动行为
 
+使用前端路由，当切换到新路由时，想要页面滚到顶部，或者是保持原先的滚动位置，就像重新加载页面那样。 vue-router 能做到，而且更好，它让你可以自定义路由切换时页面如何滚动。
+
+
+
+**注意: 这个功能只在支持 history.pushState 的浏览器中可用。**
+
+
+
+当创建一个 Router 实例，你可以提供一个 `scrollBehavior` 方法：
+
+```js
+const router = createRouter({
+  history: createWebHashHistory(),
+  routes: [...],
+  scrollBehavior (to, from, savedPosition) {
+    // return 期望滚动到哪个的位置
+  }
+})
+```
+
+
+
+`scrollBehavior` 函数接收 `to`和` from` 路由对象
+
+`savedPosition`，只有当这是一个 `popstate` 导航时才可用（由浏览器的后退/前进按钮触发）
+
+
+
+该函数可以返回一个 `ScrollToOptions` 位置对象:
+
+```js
+const router = createRouter({
+  scrollBehavior(to, from, savedPosition) {
+    // 始终滚动到顶部
+    return { top: 0 }
+  },
+})
+```
+
+
+
+可以通过 `el` 传递一个 CSS 选择器或一个 DOM 元素。在这种情况下，`top` 和 `left` 将被视为该元素的相对偏移量：
+
+```js
+const router = createRouter({
+  scrollBehavior(to, from, savedPosition) {
+    // 始终在元素 #main 上方滚动 10px
+    return {
+      // 也可以这么写
+      // el: document.getElementById('main'),
+      el: '#main',
+      top: -10,
+    }
+  },
+})
+```
+
+
+
+如果返回一个 falsy 的值，或者是一个空对象，那么不会发生滚动。
+
+
+
+按下 后退/前进 按钮时，就会像浏览器的原生表现那样：
+
+```js
+const router = createRouter({
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition
+    } else {
+      return { top: 0 }
+    }
+  },
+})
+```
+
+
+
+有时候，我们需要在页面中滚动之前稍作等待。例如，当处理过渡时，我们希望等待过渡结束后再滚动。要做到这一点，你可以返回一个 Promise，它可以返回所需的位置描述符。下面是一个例子，我们在滚动前等待 500ms：
+
+```js
+const router = createRouter({
+  scrollBehavior(to, from, savedPosition) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve({ left: 0, top: 0 })
+      }, 500)
+    })
+  },
+})
+```
+
+
+
+
+
+
+
+```vue
+<script>
+
+import {createRouter, createWebHashHistory} from 'vue-router'
+import App from '@/App'
+import App2 from '@/App2'
+import App3 from '@/App3'
+import App4 from '@/App4'
+import App5 from '@/App5'
+import App6 from '@/App6'
+import App7 from '@/App7'
+import App8 from '@/App8'
+import App9 from '@/App9'
+import App10 from '@/App10'
+import App11 from '@/App11'
+import App12 from '@/App12'
+import App13 from '@/App13'
+import App15 from '@/App15'
+import App14 from '@/App14'
+import App16 from '@/App16'
+import App17 from '@/App17'
+import App18 from '@/App18'
+import App19 from '@/App19'
+import App_27 from '@/App27'
+import App28 from '@/App28'
+import NotFound from '@/views/404'
+
+function f1()
+{
+  console.log("第一个路由独享的守卫")
+  return true;
+}
+
+function f2()
+{
+  console.log("第二个路由独享的守卫")
+  return true;
+}
+
+const routes = [
+  {
+    path: '/',
+    components:
+        {
+          default: App,
+          r1: App2,
+          r2: App3,
+          r3: App4,
+        },
+    alias: ['/aaa', '/bbb', '/ccc']
+  },
+  {
+    path: '/app5',
+    components:
+        {
+          default: App5,
+          r1: App6,
+          r2: App7,
+          r3: App8,
+        },
+    beforeEnter: [f1, f2]
+  },
+  {
+    path: '/app9',
+    components:
+        {
+          default: App9,
+          r1: App10,
+          r2: App11,
+          r3: App12,
+        },
+    beforeEnter: (to, from) =>
+    {
+      console.log("从" + from.path + "到" + to.path)
+      //0.5的概率放行
+      if (Math.random() > 0.5)
+      {
+        console.log("放行")
+        return true
+      }
+      console.log("不放行")
+      return false
+    }
+  },
+  {
+    path: '/app13',
+    component: App13,
+    redirect: "/404"
+  },
+  {
+    path: '/app14',
+    component: App14,
+    beforeEnter: [f1, f2]
+  },
+  {
+    path: '/app15',
+    component: App15
+  },
+  {
+    path: '/app16',
+    component: App16
+  },
+  {
+    path: '/app17',
+    component: App17
+  },
+  {
+    path: '/app18',
+    component: App18,
+  },
+  {
+    path: '/app19',
+    component: App19,
+    alias: '/table'
+  },
+  {
+    path: '/app27',
+    component: App_27,
+    meta: {a: 131234, b: 666666}
+  },
+  {
+    path: '/app28',
+    component: App28,
+  },
+  {
+    path: '/404',
+    component: NotFound
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    redirect: "/404"
+  }
+]
+
+const router = createRouter({
+  //内部提供了 history 模式的实现。为了简单起见，我们在这里使用 hash 模式。
+  history: createWebHashHistory(),
+  routes, // `routes: routes` 的缩写
+  scrollBehavior(to, from, savedPosition)
+  {
+    console.log(savedPosition)
+    //return {top: 2000, left: 0}
+
+    // 滚动到锚点
+    if (to.hash)
+    {
+      return {
+        selector: to.hash,
+        // 平滑滚动
+        behavior: 'smooth',
+      }
+    }
+
+    return new Promise((resolve, reject) =>
+    {
+      setTimeout(() =>
+      {
+        resolve({left: 0, top: 2000})
+      }, 1000)
+    })
+  }
+})
+
+
+export default router
+
+</script>
+```
+
+
+
+```vue
+<template>
+  <div>
+
+    <el-table
+        :data="tableData"
+        style="width: 100%">
+      <el-table-column
+          prop="id"
+          label="学号"
+          width="180">
+      </el-table-column>
+      <el-table-column
+          prop="name"
+          label="姓名"
+          width="180">
+      </el-table-column>
+      <el-table-column
+          prop="sex"
+          label="性别"
+          width="180">
+      </el-table-column>
+      <el-table-column
+          prop="age"
+          label="年龄"
+          width="180">
+      </el-table-column>
+    </el-table>
+
+  </div>
+</template>
+
+<script>
+import {ElMessage} from 'element-plus'
+
+export default {
+  name: "App19",
+  data()
+  {
+    return {
+      tableData: (function ()
+      {
+        const data = [];
+        for (let i = 0; i < 500; i++)
+        {
+          data.push({
+            id: 100001 + i,
+            name: "姓名" + (i + 1),
+            sex: Math.random() > 0.5 ? "男" : "女",
+            age: Math.round(Math.random() * 10 + 10)
+          })
+        }
+        ElMessage({
+          type: 'success',
+          message: "加载完成"
+        })
+        return data;
+      }())
+    }
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+
+
+
+
