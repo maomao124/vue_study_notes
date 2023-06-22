@@ -8308,3 +8308,116 @@ export default {
 
 
 ### mapGetters 辅助函数
+
+注意，getter 在通过方法访问时，每次都会去进行调用，而不会缓存结果。
+
+```js
+import { mapGetters } from 'vuex'
+
+export default {
+  // ...
+  computed: {
+  // 使用对象展开运算符将 getter 混入 computed 对象中
+    ...mapGetters([
+      'doneTodosCount',
+      'anotherGetter',
+      // ...
+    ])
+  }
+}
+```
+
+
+
+如果你想将一个 getter 属性另取一个名字，使用对象形式：
+
+```js
+...mapGetters({
+  // 把 `this.doneCount` 映射为 `this.$store.getters.doneTodosCount`
+  doneCount: 'doneTodosCount'
+})
+```
+
+
+
+```vue
+<template>
+  <div>
+
+    <h1>count数量：{{ this.$store.getters.getCount2 }}</h1>
+    <br>
+
+    <h1>名字：{{ this.$store.getters.getName2 }}</h1>
+    <br>
+
+    <h1>年龄：{{ this.$store.getters.getAge2 }}</h1>
+    <br>
+
+    <el-button type="success" size="large" @click="f1">count自增</el-button>
+    <br>
+    <el-input type="text" size="large" v-model="this.name2" @change="f2"></el-input>
+
+    <br>
+    <el-input type="number" size="large" autocomplete="年龄" v-model="this.age2" @change="f3"></el-input>
+
+  </div>
+</template>
+
+<script>
+
+import {mapGetters, mapState} from 'vuex'
+
+export default {
+  name: "App29",
+  data()
+  {
+    return {
+      name2: "",
+      age2: 0,
+    }
+  },
+  methods:
+      {
+        f1()
+        {
+          this.$store.commit("increment")
+        },
+        f2()
+        {
+          console.log(this.name2)
+          this.$store.commit("updateName", this.name2)
+        },
+        f3()
+        {
+          console.log(this.age2)
+          this.$store.commit("updateAge", this.age2)
+        }
+      },
+  computed: {
+    add()
+    {
+      console.log("todo");
+    },
+    //...mapState(['count', 'name', 'age'])
+    ...mapGetters(['getCount2', 'getName2', 'getAge2'])
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+
+
+
+
+
+
+## Mutation
+
+
+
