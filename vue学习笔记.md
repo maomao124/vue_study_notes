@@ -2429,6 +2429,8 @@ ue的单页面应用是基于路由和组件的，路由用于设定访问路径
 
 
 
+**vue2和vue3会有所不同**
+
 
 
 
@@ -2950,6 +2952,74 @@ export default {
 
 
 ## 动态路由
+
+对路由的添加通常是通过 routes 选项来完成的，但是在某些情况下，你可能想在应用程序已经运行的时候添加或删除路由。
+
+动态路由主要通过两个函数实现。`router.addRoute()` 和 `router.removeRoute()`。它们**只**注册一个新的路由，也就是说，如果新增加的路由与当前位置相匹配，就需要你用 `router.push()` 或 `router.replace()` 来**手动导航**，才能显示该新路由
+
+
+
+有几个不同的方法来删除现有的路由：
+
+1. 通过添加一个名称冲突的路由。如果添加与现有途径名称相同的途径，会先删除路由，再添加路由：
+
+```js
+router.addRoute({ path: '/about', name: 'about', component: About })
+// 这将会删除之前已经添加的路由，因为他们具有相同的名字且名字必须是唯一的
+router.addRoute({ path: '/other', name: 'about', component: Other })
+```
+
+
+
+2. 通过调用 `router.addRoute()` 返回的回调
+3. 通过使用 `router.removeRoute()` 按名称删除路由：
+
+```js
+router.addRoute({ path: '/about', name: 'about', component: About })
+// 删除路由
+router.removeRoute('about')
+```
+
+
+
+当路由被删除时，**所有的别名和子路由也会被同时删除**
+
+
+
+要将嵌套路由添加到现有的路由中，可以将路由的 *name* 作为第一个参数传递给 `router.addRoute()`，这将有效地添加路由，就像通过 `children` 添加的一样：
+
+```js
+router.addRoute({ name: 'admin', path: '/admin', component: Admin })
+router.addRoute('admin', { path: 'settings', component: AdminSettings })
+```
+
+相当于：
+
+```js
+router.addRoute({
+  name: 'admin',
+  path: '/admin',
+  component: Admin,
+  children: [{ path: 'settings', component: AdminSettings }],
+})
+```
+
+
+
+Vue Router 提供了两个功能来查看现有的路由：
+
+* `router.hasRoute()`：检查路由是否存在。
+* `router.getRoutes()`：获取一个包含所有路由记录的数组。
+
+
+
+
+
+
+
+
+
+
 
 创建Router2.vue
 
@@ -7322,4 +7392,354 @@ export default {
 
 
 
+
+
+
+## 动态菜单
+
+```html
+<script>
+const options = {
+    mounted() {
+        const serverRoutes = sessionStorage.getItem('serverRoutes');
+        const array = JSON.parse(serverRoutes);
+        const map = new Map();
+        for(const obj of array) {
+            map.set(obj.id, obj);
+        }
+        const top = [];
+        for(const obj of array) {
+            const parent = map.get(obj.pid);
+            if(parent) {
+                parent.children ??= [];
+                parent.children.push(obj);
+            } else {
+                top.push(obj);
+            }
+        }
+        this.top = top;
+    },
+    data() {
+        return {
+            top: []
+        }
+    }
+}
+export default options;
+</script>
+```
+
+
+
+
+
+```html
+<el-menu router background-color="#545c64" text-color="#fff" active-text-color="#ffd04b" :unique-opened="true">
+    <template v-for="m1 of top">
+<el-submenu v-if="m1.children" :key="m1.id" :index="m1.path">
+    <span slot="title">
+        <i :class="m1.icon"></i> {{m1.name}}
+        </span>
+    <el-menu-item v-for="m2 of m1.children" :key="m2.id" :index="m2.path">
+        <span slot="title">
+            <i :class="m2.icon"></i> {{m2.name}}
+        </span>
+        </el-menu-item>
+        </el-submenu>
+<el-menu-item v-else :key="m1.id" :index="m1.path">
+    <span slot="title">
+        <i :class="m1.icon"></i> {{m1.name}}
+        </span>
+        </el-menu-item>
+    </template>
+</el-menu>
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Vuex
+
+## 概述
+
+uex 是一个专门为 Vue.js 应用程序开发的**状态管理模式**，它采用集中式存储管理应用的所有组件状态，并以相应的规则保证状态以一种可预测的方式发生变化。可以理解为：将多个组件共享的变量全部存储在一个对象里面，然后将这个对象放在顶层的 Vue 实例中，让其他组件可以使用，它最大的特点是响应式。
+
+一般情况下，我们会在 Vuex 中存放一些需要在多个界面中进行共享的信息。比如用户的登录状态、用户名称、头像、地理位置信息、商品的收藏、购物车中的物品等，这些状态信息，我们可以放在统一的地方，对它进行保存和管理。
+
+与之对比 localStorage 与 sessionStorage 也能共享数据，但缺点是数据并非响应式
+
+
+
+让我们从一个简单的 Vue 计数应用开始：
+
+```js
+const Counter = {
+  // 状态
+  data () {
+    return {
+      count: 0
+    }
+  },
+  // 视图
+  template: `
+    <div>{{ count }}</div>
+  `,
+  // 操作
+  methods: {
+    increment () {
+      this.count++
+    }
+  }
+}
+
+createApp(Counter).mount('#app')
+```
+
+
+
+这个状态自管理应用包含以下几个部分：
+
+- **状态**，驱动应用的数据源；
+- **视图**，以声明方式将**状态**映射到视图；
+- **操作**，响应在**视图**上的用户输入导致的状态变化。
+
+
+
+但是，当我们的应用遇到**多个组件共享状态**时，单向数据流的简洁性很容易被破坏：
+
+- 多个视图依赖于同一状态。
+- 来自不同视图的行为需要变更同一状态。
+
+
+
+对于问题一，传参的方法对于多层嵌套的组件将会非常繁琐，并且对于兄弟组件间的状态传递无能为力。对于问题二，我们经常会采用父子组件直接引用或者通过事件来变更和同步状态的多份拷贝。以上的这些模式非常脆弱，通常会导致无法维护的代码。
+
+因此，我们为什么不把组件的共享状态抽取出来，以一个全局单例模式管理呢？在这种模式下，我们的组件树构成了一个巨大的“视图”，不管在树的哪个位置，任何组件都能获取状态或者触发行为！
+
+通过定义和隔离状态管理中的各种概念并通过强制规则维持视图和状态间的独立性，我们的代码将会变得更结构化且易维护。
+
+这就是 Vuex 背后的基本思想
+
+
+
+
+
+
+
+## 教程
+
+https://vuex.vuejs.org/zh/installation.html
+
+
+
+**vue2和vue3会有所不同**
+
+
+
+## 安装
+
+命令：
+
+```sh
+npm install vuex@next --save
+```
+
+
+
+```sh
+PS D:\程序\2023Q3\vue-test> npm install vuex@next --save
+npm WARN optional SKIPPING OPTIONAL DEPENDENCY: fsevents@2.3.2 (node_modules\fsevents):
+npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for fsevents@2.3.2: wanted {"os":"darwin","arch":"any"} (current: {"os":"win32","arch":"x64"})
+
++ vuex@4.0.2
+added 1 package from 1 contributor and audited 1003 packages in 8.203s
+
+96 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+
+PS D:\程序\2023Q3\vue-test>
+```
+
+
+
+如果在package.json中看到了`"vuex": "^xxx"`，则安装成功
+
+![image-20230622210344492](img/vue学习笔记/image-20230622210344492.png)
+
+
+
+
+
+
+
+
+
+
+
+## 入门
+
+创建src/store/index.js，内容如下：
+
+```js
+import {createStore} from 'vuex'
+
+// 创建一个新的 store 实例
+const store = createStore({
+    state()
+    {
+        return {
+            count: 0,
+            name: '',
+            age: 18
+        }
+    },
+    mutations: {
+        increment(state)
+        {
+            state.count++
+        },
+        updateName(state, name)
+        {
+            state.name = name;
+        },
+        updateAge(state, age)
+        {
+            state.age = age;
+        }
+    }
+})
+
+export default store;
+```
+
+
+
+在 Vue 组件中， 可以通过 `this.$store` 访问store实例
+
+mutations 方法不能直接调用，只能通过 `store.commit(mutation方法名, 参数)` 来间接调用
+
+
+
+App29.vue
+
+```vue
+<template>
+  <div>
+
+    <h1>count数量：{{ $store.state.count }}</h1>
+    <br>
+
+    <h1>名字：{{ $store.state.name }}</h1>
+    <br>
+
+    <h1>年龄：{{ $store.state.age }}</h1>
+    <br>
+
+    <el-button type="success" size="large" @click="f1">count自增</el-button>
+    <br>
+    <el-input type="text" size="large" v-model="name" @change="f2"></el-input>
+
+    <br>
+    <el-input type="number" size="large" autocomplete="年龄" v-model="age" @change="f3"></el-input>
+
+  </div>
+</template>
+
+<script>
+export default {
+  name: "App29",
+  data()
+  {
+    return {
+      name: "",
+      age: 0,
+    }
+  },
+  methods:
+      {
+        f1()
+        {
+          this.$store.commit("increment")
+        },
+        f2()
+        {
+          console.log(this.name)
+          this.$store.commit("updateName", this.name)
+        },
+        f3()
+        {
+          console.log(this.age)
+          this.$store.commit("updateAge", this.age)
+        }
+      }
+}
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+main.js
+
+![image-20230622223400030](img/vue学习笔记/image-20230622223400030.png)
+
+
+
+```js
+import {createApp} from 'vue'
+
+import ElementPlus from 'element-plus'
+import 'element-plus/dist/index.css'
+
+import App from './App29.vue'
+import Router2 from '@/router/Router11'
+import Store from '@/store/index'
+
+const app = createApp(App)
+
+app.use(ElementPlus)
+app.use(Router2)
+app.use(Store)
+app.mount('#app')
+```
+
+
+
+
+
+
+
+![image-20230622223436252](img/vue学习笔记/image-20230622223436252.png)
+
+
+
+![image-20230622223508894](img/vue学习笔记/image-20230622223508894.png)
+
+
+
+由于 store 中的状态是响应式的，在组件中调用 store 中的状态简单到仅需要在计算属性中返回即可。触发变化也仅仅是在组件的 methods 中提交 mutation。
+
+
+
+
+
+
+
+## State
 
