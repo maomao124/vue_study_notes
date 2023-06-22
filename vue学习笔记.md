@@ -6532,3 +6532,450 @@ export default {
 
 ## 路由元信息
 
+有时，你可能希望将任意信息附加到路由上，如过渡名称、谁可以访问路由等。这些事情可以通过接收属性对象的`meta`属性来实现，并且它可以在路由地址和导航守卫上都被访问到。定义路由的时候你可以这样配置 `meta` 字段：
+
+```js
+const routes = [
+  {
+    path: '/posts',
+    component: PostsLayout,
+    children: [
+      {
+        path: 'new',
+        component: PostsNew,
+        // 只有经过身份验证的用户才能创建帖子
+        meta: { requiresAuth: true }
+      },
+      {
+        path: ':id',
+        component: PostsDetail
+        // 任何人都可以阅读文章
+        meta: { requiresAuth: false }
+      }
+    ]
+  }
+]
+```
+
+
+
+`routes` 配置中的每个路由对象为 **路由记录**。路由记录可以是嵌套的，因此，当一个路由匹配成功后，它可能匹配多个路由记录。
+
+例如，根据上面的路由配置，`/posts/new` 这个 URL 将会匹配父路由记录 (`path: '/posts'`) 以及子路由记录 (`path: 'new'`)。
+
+
+
+一个路由匹配到的所有路由记录会暴露为 `$route` 对象(还有在导航守卫中的路由对象)的`$route.matched` 数组。我们需要遍历这个数组来检查路由记录中的 `meta` 字段，但是 Vue Router 还为你提供了一个 `$route.meta` 方法，它是一个非递归合并**所有 `meta`** 字段的（从父字段到子字段）的方法
+
+
+
+```js
+router.beforeEach((to, from) => {
+  // 而不是去检查每条路由记录
+  // to.matched.some(record => record.meta.requiresAuth)
+  if (to.meta.requiresAuth && !auth.isLoggedIn()) {
+    // 此路由需要授权，请检查是否已登录
+    // 如果没有，则重定向到登录页面
+    return {
+      path: '/login',
+      // 保存我们所在的位置，以便以后再来
+      query: { redirect: to.fullPath },
+    }
+  }
+})
+```
+
+
+
+
+
+```vue
+<template>
+  <h1>组件内的守卫</h1>
+  <h2>id={{ $route.query.id }}</h2>
+  <h2>a={{ $route.meta.a }}</h2>
+  <h2>b={{ $route.meta.b }}</h2>
+</template>
+
+<script>
+import {ElMessage} from 'element-plus'
+
+
+export default {
+  name: "App27",
+  data()
+  {
+    return {
+      id: this.$route.query.id
+    }
+  },
+  beforeRouteEnter(to, from)
+  {
+    // 在渲染该组件的对应路由被验证前调用
+    // 不能获取组件实例 `this` ！
+    // 因为当守卫执行时，组件实例还没被创建！
+    console.log("执行 beforeRouteEnter 方法")
+    console.log(to.meta.a)
+    console.log(to.meta.b)
+  },
+  beforeRouteUpdate: (to, from) =>
+  {
+    // 在当前路由改变，但是该组件被复用时调用
+    // 举例来说，对于一个带有动态参数的路径 `/users/:id`，在 `/users/1` 和 `/users/2` 之间跳转的时候，
+    // 由于会渲染同样的 `UserDetails` 组件，因此组件实例会被复用。而这个钩子就会在这个情况下被调用。
+    // 因为在这种情况发生的时候，组件已经挂载好了，导航守卫可以访问组件实例 `this`
+    console.log("执行 beforeRouteUpdate 方法")
+
+  },
+  beforeRouteLeave(to, from)
+  {
+    // 在导航离开渲染该组件的对应路由时调用
+    // 与 `beforeRouteUpdate` 一样，它可以访问组件实例 `this`
+    console.log("执行 beforeRouteLeave 方法")
+    ElMessage.info({
+      message: "即将离开/app27",
+      center: true,
+    })
+    console.log(typeof this.id)
+    if (this.id === undefined || this.id !== '123')
+    {
+      ElMessage.error({
+        message: "id 参数不为123，无法离开",
+        center: true,
+      })
+      return false
+    }
+    else
+    {
+      ElMessage.success({
+        message: "成功离开/app27",
+        center: true,
+      })
+      return true
+    }
+  },
+
+}
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+
+
+```vue
+<script>
+
+import {createRouter, createWebHashHistory} from 'vue-router'
+import App from '@/App'
+import App2 from '@/App2'
+import App3 from '@/App3'
+import App4 from '@/App4'
+import App5 from '@/App5'
+import App6 from '@/App6'
+import App7 from '@/App7'
+import App8 from '@/App8'
+import App9 from '@/App9'
+import App10 from '@/App10'
+import App11 from '@/App11'
+import App12 from '@/App12'
+import App13 from '@/App13'
+import App15 from '@/App15'
+import App14 from '@/App14'
+import App16 from '@/App16'
+import App17 from '@/App17'
+import App18 from '@/App18'
+import App19 from '@/App19'
+import App_27 from '@/App27'
+import NotFound from '@/views/404'
+
+function f1()
+{
+  console.log("第一个路由独享的守卫")
+  return true;
+}
+
+function f2()
+{
+  console.log("第二个路由独享的守卫")
+  return true;
+}
+
+const routes = [
+  {
+    path: '/',
+    components:
+        {
+          default: App,
+          r1: App2,
+          r2: App3,
+          r3: App4,
+        },
+    alias: ['/aaa', '/bbb', '/ccc']
+  },
+  {
+    path: '/app5',
+    components:
+        {
+          default: App5,
+          r1: App6,
+          r2: App7,
+          r3: App8,
+        },
+    beforeEnter: [f1, f2]
+  },
+  {
+    path: '/app9',
+    components:
+        {
+          default: App9,
+          r1: App10,
+          r2: App11,
+          r3: App12,
+        },
+    beforeEnter: (to, from) =>
+    {
+      console.log("从" + from.path + "到" + to.path)
+      //0.5的概率放行
+      if (Math.random() > 0.5)
+      {
+        console.log("放行")
+        return true
+      }
+      console.log("不放行")
+      return false
+    }
+  },
+  {
+    path: '/app13',
+    component: App13,
+    redirect: "/404"
+  },
+  {
+    path: '/app14',
+    component: App14,
+    beforeEnter: [f1, f2]
+  },
+  {
+    path: '/app15',
+    component: App15
+  },
+  {
+    path: '/app16',
+    component: App16
+  },
+  {
+    path: '/app17',
+    component: App17
+  },
+  {
+    path: '/app18',
+    component: App18,
+  },
+  {
+    path: '/app19',
+    component: App19,
+    alias: '/table'
+  },
+  {
+    path: '/app27',
+    component: App_27,
+    meta: {a: 131234, b: 666666}
+  },
+  {
+    path: '/404',
+    component: NotFound
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    redirect: "/404"
+  }
+]
+
+const router = createRouter({
+  //内部提供了 history 模式的实现。为了简单起见，我们在这里使用 hash 模式。
+  history: createWebHashHistory(),
+  routes, // `routes: routes` 的缩写
+})
+
+
+export default router
+
+</script>
+```
+
+
+
+
+
+![image-20230622144912208](img/vue学习笔记/image-20230622144912208.png)
+
+![image-20230622144921496](img/vue学习笔记/image-20230622144921496.png)
+
+
+
+
+
+
+
+## 数据获取
+
+### 概述
+
+有时候，进入某个路由后，需要从服务器获取数据。例如，在渲染用户信息时，你需要从服务器获取用户的数据。我们可以通过两种方式来实现：
+
+- **导航完成之后获取**：先完成导航，然后在接下来的组件生命周期钩子中获取数据。在数据获取期间显示“加载中”之类的指示。
+- **导航完成之前获取**：导航完成前，在路由进入的守卫中获取数据，在数据获取成功后执行导航。
+
+从技术角度讲，两种方式都不错 ，就看你想要的用户体验是哪种。
+
+
+
+
+
+### 导航完成后获取数据
+
+当你使用这种方式时，我们会马上导航和渲染组件，然后在组件的 created 钩子中获取数据。这让我们有机会在数据获取期间展示一个 loading 状态，还可以在不同视图间展示不同的 loading 状态。
+
+
+
+假设我们有一个 `Post` 组件，需要基于 `$route.params.id` 获取文章数据：
+
+```vue
+<template>
+  <div class="post">
+    <div v-if="loading" class="loading">Loading...</div>
+
+    <div v-if="error" class="error">{{ error }}</div>
+
+    <div v-if="post" class="content">
+      <h2>{{ post.title }}</h2>
+      <p>{{ post.body }}</p>
+    </div>
+  </div>
+</template>
+```
+
+
+
+```js
+export default {
+  data() {
+    return {
+      loading: false,
+      post: null,
+      error: null,
+    }
+  },
+  created() {
+    // watch 路由的参数，以便再次获取数据
+    this.$watch(
+      () => this.$route.params,
+      () => {
+        this.fetchData()
+      },
+      // 组件创建完后获取数据，
+      // 此时 data 已经被 observed 了
+      { immediate: true }
+    )
+  },
+  methods: {
+    fetchData() {
+      this.error = this.post = null
+      this.loading = true
+      // replace `getPost` with your data fetching util / API wrapper
+      getPost(this.$route.params.id, (err, post) => {
+        this.loading = false
+        if (err) {
+          this.error = err.toString()
+        } else {
+          this.post = post
+        }
+      })
+    },
+  },
+}
+```
+
+
+
+
+
+### 在导航完成前获取数据
+
+通过这种方式，我们在导航转入新的路由前获取数据。我们可以在接下来的组件的 `beforeRouteEnter` 守卫中获取数据，当数据获取成功后只调用 `next` 方法
+
+在为后面的视图获取数据时，用户会停留在当前的界面，因此建议在数据获取期间，显示一些进度条或者别的指示。如果数据获取失败，同样有必要展示一些全局的错误提醒。
+
+
+
+```js
+export default {
+  data() {
+    return {
+      post: null,
+      error: null,
+    }
+  },
+  beforeRouteEnter(to, from, next) {
+    getPost(to.params.id, (err, post) => {
+      next(vm => vm.setData(err, post))
+    })
+  },
+  // 路由改变前，组件就已经渲染完了
+  // 逻辑稍稍不同
+  async beforeRouteUpdate(to, from) {
+    this.post = null
+    try {
+      this.post = await getPost(to.params.id)
+    } catch (error) {
+      this.error = error.toString()
+    }
+  },
+}
+```
+
+
+
+
+
+
+
+
+
+## 过渡动效
+
+想要在你的路径组件上使用转场，并对导航进行动画处理，需要使用 v-slot API：
+
+```vue
+<router-view v-slot="{ Component }">
+  <transition name="fade">
+    <component :is="Component" />
+  </transition>
+</router-view>
+```
+
+
+
+Vue 可能会自动复用看起来相似的组件，从而忽略了任何过渡。幸运的是，可以添加一个 key 属性来强制过渡。这也允许你在相同路由上使用不同的参数触发过渡：
+
+```vue
+<router-view v-slot="{ Component, route }">
+  <transition name="fade">
+    <component :is="Component" :key="route.path" />
+  </transition>
+</router-view>
+```
+
+
+
+
+
+
+
+## 滚动行为
+
