@@ -7743,3 +7743,568 @@ app.mount('#app')
 
 ## State
 
+### 在 Vue 组件中获得 Vuex 状态
+
+由于 Vuex 的状态存储是响应式的，从 store 实例中读取状态最简单的方法就是在计算属性中返回某个状态
+
+```vue
+<template>
+  <div>
+
+    <h1>count数量：{{ count }}</h1>
+    <br>
+
+    <h1>名字：{{ $store.state.name }}</h1>
+    <br>
+
+    <h1>年龄：{{ $store.state.age }}</h1>
+    <br>
+
+    <el-button type="success" size="large" @click="f1">count自增</el-button>
+    <br>
+    <el-input type="text" size="large" v-model="name" @change="f2"></el-input>
+
+    <br>
+    <el-input type="number" size="large" autocomplete="年龄" v-model="age" @change="f3"></el-input>
+
+  </div>
+</template>
+
+<script>
+export default {
+  name: "App29",
+  data()
+  {
+    return {
+      name: "",
+      age: 0,
+    }
+  },
+  methods:
+      {
+        f1()
+        {
+          this.$store.commit("increment")
+        },
+        f2()
+        {
+          console.log(this.name)
+          this.$store.commit("updateName", this.name)
+        },
+        f3()
+        {
+          console.log(this.age)
+          this.$store.commit("updateAge", this.age)
+        }
+      },
+  computed: {
+    count()
+    {
+      return this.$store.state.count
+    },
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+
+
+### mapState 辅助函数
+
+当一个组件需要获取多个状态的时候，将这些状态都声明为计算属性会有些重复和冗余。为了解决这个问题，我们可以使用 `mapState` 辅助函数帮助我们生成计算属性
+
+当映射的计算属性的名称与 state 的子节点名称相同时，我们也可以给 `mapState` 传一个字符串数组
+
+
+
+```js
+computed: mapState([
+  // 映射 this.count 为 store.state.count
+  'count'
+])
+```
+
+
+
+```vue
+<template>
+  <div>
+
+    <h1>count数量：{{ count }}</h1>
+    <br>
+
+    <h1>名字：{{ name }}</h1>
+    <br>
+
+    <h1>年龄：{{ age }}</h1>
+    <br>
+
+    <el-button type="success" size="large" @click="f1">count自增</el-button>
+    <br>
+    <el-input type="text" size="large" v-model="this.name2" @change="f2"></el-input>
+
+    <br>
+    <el-input type="number" size="large" autocomplete="年龄" v-model="this.age2" @change="f3"></el-input>
+
+  </div>
+</template>
+
+<script>
+
+import {mapState} from 'vuex'
+
+export default {
+  name: "App29",
+  data()
+  {
+    return {
+      name2: "",
+      age2: 0,
+    }
+  },
+  methods:
+      {
+        f1()
+        {
+          this.$store.commit("increment")
+        },
+        f2()
+        {
+          console.log(this.name2)
+          this.$store.commit("updateName", this.name2)
+        },
+        f3()
+        {
+          console.log(this.age2)
+          this.$store.commit("updateAge", this.age2)
+        }
+      },
+  computed: mapState(['count', 'name', 'age'])
+}
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+
+
+### 对象展开运算符
+
+mapState 函数返回的是一个对象。我们如何将它与局部计算属性混合使用呢？通常，我们需要使用一个工具函数将多个对象合并为一个，以使我们可以将最终对象传给 computed 属性。但是自从有了对象展开运算符，我们可以极大地简化写法
+
+
+
+```vue
+<template>
+  <div>
+
+    <h1>count数量：{{ count }}</h1>
+    <br>
+
+    <h1>名字：{{ name }}</h1>
+    <br>
+
+    <h1>年龄：{{ age }}</h1>
+    <br>
+
+    <el-button type="success" size="large" @click="f1">count自增</el-button>
+    <br>
+    <el-input type="text" size="large" v-model="this.name2" @change="f2"></el-input>
+
+    <br>
+    <el-input type="number" size="large" autocomplete="年龄" v-model="this.age2" @change="f3"></el-input>
+
+  </div>
+</template>
+
+<script>
+
+import {mapState} from 'vuex'
+
+export default {
+  name: "App29",
+  data()
+  {
+    return {
+      name2: "",
+      age2: 0,
+    }
+  },
+  methods:
+      {
+        f1()
+        {
+          this.$store.commit("increment")
+        },
+        f2()
+        {
+          console.log(this.name2)
+          this.$store.commit("updateName", this.name2)
+        },
+        f3()
+        {
+          console.log(this.age2)
+          this.$store.commit("updateAge", this.age2)
+        }
+      },
+  computed: {
+    add()
+    {
+      console.log("todo");
+    },
+    ...mapState(['count', 'name', 'age'])
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+
+
+
+
+## Getter
+
+### 概述
+
+有时候我们需要从 store 中的 state 中派生出一些状态，例如对列表进行过滤并计数：
+
+```js
+computed: {
+  doneTodosCount () {
+    return this.$store.state.todos.filter(todo => todo.done).length
+  }
+}
+```
+
+
+
+如果有多个组件需要用到此属性，我们要么复制这个函数，或者抽取到一个共享函数然后在多处导入它
+
+无论哪种方式都不是很理想。
+
+
+
+Vuex 允许我们在 store 中定义“getter”
+
+**从 Vue 3.0 开始，getter 的结果不再像计算属性一样会被缓存起来。**
+
+
+
+```js
+import {createStore} from 'vuex'
+
+// 创建一个新的 store 实例
+const store = createStore({
+    state()
+    {
+        return {
+            count: 0,
+            name: '',
+            age: 18
+        }
+    },
+    mutations: {
+        increment(state)
+        {
+            state.count++
+        },
+        updateName(state, name)
+        {
+            state.name = name;
+        },
+        updateAge(state, age)
+        {
+            state.age = age;
+        }
+    },
+    getters:
+        {
+            getCount(state)
+            {
+                if (state.count > 10)
+                {
+                    console.log("大于10，返回10")
+                    return 10;
+                }
+                return state.count;
+            },
+            getName(state)
+            {
+                return state.name;
+            },
+            getAge(state)
+            {
+                return state.age;
+            }
+        }
+})
+
+export default store;
+```
+
+
+
+
+
+### 通过属性访问
+
+Getter 会暴露为 `store.getters` 对象
+
+
+
+```js
+import {createStore} from 'vuex'
+
+// 创建一个新的 store 实例
+const store = createStore({
+    state()
+    {
+        return {
+            count: 0,
+            name: '',
+            age: 18
+        }
+    },
+    mutations: {
+        increment(state)
+        {
+            state.count++
+        },
+        updateName(state, name)
+        {
+            state.name = name;
+        },
+        updateAge(state, age)
+        {
+            state.age = age;
+        }
+    },
+    getters:
+        {
+            getCount2(state)
+            {
+                if (state.count > 10)
+                {
+                    console.log("大于10，返回10")
+                    return 10;
+                }
+                return state.count;
+            },
+            getName2(state)
+            {
+                console.log("取name ：" + state.name)
+                return state.name;
+            },
+            getAge2(state)
+            {
+                console.log("取age ：" + state.age)
+                return state.age;
+            }
+        }
+})
+
+export default store;
+```
+
+
+
+Getter 也可以接受其他 getter 作为第二个参数
+
+
+
+
+
+### 通过方法访问
+
+也可以通过让 getter 返回一个函数，来实现给 getter 传参
+
+
+
+```js
+getters: {
+  // ...
+  getTodoById: (state) => (id) => {
+    return state.todos.find(todo => todo.id === id)
+  }
+}
+```
+
+
+
+```js
+store.getters.getTodoById(2) // -> { id: 2, text: '...', done: false }
+```
+
+
+
+
+
+```js
+import {createStore} from 'vuex'
+
+// 创建一个新的 store 实例
+const store = createStore({
+    state()
+    {
+        return {
+            count: 0,
+            name: '',
+            age: 18
+        }
+    },
+    mutations: {
+        increment(state)
+        {
+            state.count++
+        },
+        updateName(state, name)
+        {
+            state.name = name;
+        },
+        updateAge(state, age)
+        {
+            state.age = age;
+        }
+    },
+    getters:
+        {
+            getCount2(state)
+            {
+                if (state.count > 10)
+                {
+                    console.log("大于10，返回10")
+                    return 10;
+                }
+                return state.count;
+            },
+            getName2(state)
+            {
+                console.log("取name ：" + state.name)
+                return state.name;
+            },
+            getAge2(state)
+            {
+                console.log("取age ：" + state.age)
+                return state.age;
+            },
+            getCount3: (state) => (name) =>
+            {
+                console.log("当前名字：" + name)
+                if (state.count > 10)
+                {
+                    console.log("大于10，返回10")
+                    return 10;
+                }
+                return state.count;
+            },
+            getName3: (state) => (age) =>
+            {
+                console.log("当前年龄：" + age)
+                console.log("取name ：" + state.name)
+                return state.name;
+            },
+            getAge3: (state) => (count) =>
+            {
+                console.log("当前计数：" + count)
+                console.log("取age ：" + state.age)
+                return state.age;
+            },
+        }
+})
+
+export default store;
+
+```
+
+
+
+```vue
+<template>
+  <div>
+
+    <h1>count数量：{{ this.$store.getters.getCount3(this.name2) }}</h1>
+    <br>
+
+    <h1>名字：{{ this.$store.getters.getName3(this.age2) }}</h1>
+    <br>
+
+    <h1>年龄：{{ this.$store.getters.getAge3(this.count) }}</h1>
+    <br>
+
+    <el-button type="success" size="large" @click="f1">count自增</el-button>
+    <br>
+    <el-input type="text" size="large" v-model="this.name2" @change="f2"></el-input>
+
+    <br>
+    <el-input type="number" size="large" autocomplete="年龄" v-model="this.age2" @change="f3"></el-input>
+
+  </div>
+</template>
+
+<script>
+
+import {mapState} from 'vuex'
+
+export default {
+  name: "App29",
+  data()
+  {
+    return {
+      name2: "",
+      age2: 0,
+    }
+  },
+  methods:
+      {
+        f1()
+        {
+          this.$store.commit("increment")
+        },
+        f2()
+        {
+          console.log(this.name2)
+          this.$store.commit("updateName", this.name2)
+        },
+        f3()
+        {
+          console.log(this.age2)
+          this.$store.commit("updateAge", this.age2)
+        }
+      },
+  computed: {
+    add()
+    {
+      console.log("todo");
+    },
+    ...mapState(['count', 'name', 'age'])
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
+
+```
+
+
+
+
+
+### mapGetters 辅助函数
