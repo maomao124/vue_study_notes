@@ -9236,3 +9236,378 @@ store.dispatch({
 
 
 
+
+
+### 在组件中分发 Action
+
+在组件中使用 `this.$store.dispatch('xxx')` 分发 action，或者使用 `mapActions` 辅助函数将组件的 methods 映射为 `store.dispatch` 调用（需要先在根节点注入 `store`）
+
+
+
+```vue
+<template>
+  <div>
+
+    <h1>count数量：{{ this.$store.getters.getCount2 }}</h1>
+    <br>
+
+    <h1>名字：{{ this.$store.getters.getName2 }}</h1>
+    <br>
+
+    <h1>年龄：{{ this.$store.getters.getAge2 }}</h1>
+    <br>
+
+    <el-button type="success" size="large" @click="incrementAsync">count自增</el-button>
+    <br>
+    <el-input type="text" size="large" v-model="this.name2" @change="f2"></el-input>
+
+    <br>
+    <el-input type="number" size="large" autocomplete="年龄" v-model="this.age2" @change="f3"></el-input>
+
+  </div>
+</template>
+
+<script>
+
+import {mapActions, mapGetters, mapState} from 'vuex'
+import {ADD_COUNT, UPDATE_AGE, UPDATE_NAME} from '@/store/mutation-types'
+import {INCREMENT_ASYNC} from '@/store/actions-types'
+
+export default {
+  name: "App29",
+  data()
+  {
+    return {
+      name2: "",
+      age2: 0,
+    }
+  },
+  methods:
+      {
+        f1()
+        {
+          this.$store.dispatch(INCREMENT_ASYNC)
+        },
+        f2()
+        {
+          console.log(this.name2)
+          this.$store.commit({
+            type: UPDATE_NAME,
+            name: this.name2
+          })
+        },
+        f3()
+        {
+          console.log(this.age2)
+          this.$store.commit({
+            type: UPDATE_AGE,
+            age: this.age2
+          })
+        },
+        ...mapActions([INCREMENT_ASYNC])
+      },
+  computed: {
+    add()
+    {
+      console.log("todo");
+    },
+    //...mapState(['count', 'name', 'age'])
+    ...mapGetters(['getCount2', 'getName2', 'getAge2'])
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+
+
+### 组合 Action
+
+`store.dispatch` 可以处理被触发的 action 的处理函数返回的 Promise，并且 `store.dispatch` 仍旧返回 Promise：
+
+```js
+actions: {
+  actionA ({ commit }) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        commit('someMutation')
+        resolve()
+      }, 1000)
+    })
+  }
+}
+```
+
+
+
+```js
+store.dispatch('actionA').then(() => {
+  // ...
+})
+```
+
+
+
+也可以：
+
+```js
+actions: {
+  // ...
+  actionB ({ dispatch, commit }) {
+    return dispatch('actionA').then(() => {
+      commit('someOtherMutation')
+    })
+  }
+}
+```
+
+
+
+
+
+
+
+```js
+import {createStore} from 'vuex'
+import {ADD_COUNT, UPDATE_AGE, UPDATE_NAME} from '@/store/mutation-types'
+import {INCREMENT_ASYNC} from '@/store/actions-types'
+
+// 创建一个新的 store 实例
+const store = createStore({
+    state()
+    {
+        return {
+            count: 0,
+            name: '',
+            age: 18
+        }
+    },
+    mutations: {
+        /*increment(state)
+        {
+            state.count++
+        },
+        updateName(state, name)
+        {
+            state.name = name;
+        },
+        updateAge(state, age)
+        {
+            state.age = age;
+        }*/
+        increment(state)
+        {
+            state.count++
+        },
+        updateName(state, payload)
+        {
+            state.name = payload.name;
+        },
+        updateAge(state, payload)
+        {
+            state.age = payload.age;
+        },
+        [ADD_COUNT](state)
+        {
+            state.count++
+        },
+        [UPDATE_NAME](state, payload)
+        {
+            state.name = payload.name;
+        },
+        [UPDATE_AGE](state, payload)
+        {
+            state.age = payload.age;
+        },
+    },
+    getters:
+        {
+            getCount2(state)
+            {
+                if (state.count > 10)
+                {
+                    console.log("大于10，返回10")
+                    return 10;
+                }
+                return state.count;
+            },
+            getName2(state)
+            {
+                console.log("取name ：" + state.name)
+                return state.name;
+            },
+            getAge2(state)
+            {
+                console.log("取age ：" + state.age)
+                return state.age;
+            },
+            getCount3: (state) => (name) =>
+            {
+                console.log("当前名字：" + name)
+                if (state.count > 10)
+                {
+                    console.log("大于10，返回10")
+                    return 10;
+                }
+                return state.count;
+            },
+            getName3: (state) => (age) =>
+            {
+                console.log("当前年龄：" + age)
+                console.log("取name ：" + state.name)
+                return state.name;
+            },
+            getAge3: (state) => (count) =>
+            {
+                console.log("当前计数：" + count)
+                console.log("取age ：" + state.age)
+                return state.age;
+            },
+        },
+    actions:
+        {
+            [INCREMENT_ASYNC]({commit})
+            {
+                console.log("开始异步增加count")
+                setTimeout(() =>
+                {
+                    console.log("增加count")
+                    commit('increment')
+                }, 1000)
+            },
+            [INCREMENT_ASYNC + "2"]({commit})
+            {
+                return new Promise(((resolve, reject) =>
+                {
+                    setTimeout(() =>
+                    {
+                        //0.5的概率成功
+                        if (Math.random() > 0.5)
+                        {
+                            commit('increment')
+                            resolve()
+                        }
+                        else
+                        {
+                            reject("失败");
+                        }
+                    }, 1000)
+                }))
+            }
+        }
+})
+
+export default store;
+```
+
+
+
+```vue
+<template>
+  <div>
+
+    <h1>count数量：{{ this.$store.getters.getCount2 }}</h1>
+    <br>
+
+    <h1>名字：{{ this.$store.getters.getName2 }}</h1>
+    <br>
+
+    <h1>年龄：{{ this.$store.getters.getAge2 }}</h1>
+    <br>
+
+    <el-button type="success" size="large" @click="f1">count自增</el-button>
+    <br>
+    <el-input type="text" size="large" v-model="this.name2" @change="f2"></el-input>
+
+    <br>
+    <el-input type="number" size="large" autocomplete="年龄" v-model="this.age2" @change="f3"></el-input>
+
+  </div>
+</template>
+
+<script>
+
+import {mapActions, mapGetters, mapState} from 'vuex'
+import {ADD_COUNT, UPDATE_AGE, UPDATE_NAME} from '@/store/mutation-types'
+import {INCREMENT_ASYNC} from '@/store/actions-types'
+
+export default {
+  name: "App29",
+  data()
+  {
+    return {
+      name2: "",
+      age2: 0,
+    }
+  },
+  methods:
+      {
+        f1()
+        {
+          //this.$store.dispatch(INCREMENT_ASYNC)
+          this.$store.dispatch(INCREMENT_ASYNC + "2").then(() =>
+          {
+            console.log("调用成功")
+          }).catch((error) =>
+          {
+            //console.log(error)
+            console.log("调用失败")
+          })
+        },
+        f2()
+        {
+          console.log(this.name2)
+          this.$store.commit({
+            type: UPDATE_NAME,
+            name: this.name2
+          })
+        },
+        f3()
+        {
+          console.log(this.age2)
+          this.$store.commit({
+            type: UPDATE_AGE,
+            age: this.age2
+          })
+        },
+        ...mapActions([INCREMENT_ASYNC, INCREMENT_ASYNC + "2"])
+      },
+  computed: {
+    add()
+    {
+      console.log("todo");
+    },
+    //...mapState(['count', 'name', 'age'])
+    ...mapGetters(['getCount2', 'getName2', 'getAge2'])
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230624002355178](img/vue学习笔记/image-20230624002355178.png)
+
+
+
+![image-20230624002406511](img/vue学习笔记/image-20230624002406511.png)
+
+
+
+
+
+
+
+
+
+## Module
+
