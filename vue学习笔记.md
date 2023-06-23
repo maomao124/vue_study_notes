@@ -8419,5 +8419,515 @@ export default {
 
 ## Mutation
 
+### 概述
 
+更改 Vuex 的 store 中的状态的唯一方法是提交 mutation。Vuex 中的 mutation 非常类似于事件：每个 mutation 都有一个字符串的**事件类型 (type)\**和一个\**回调函数 (handler)**。这个回调函数就是我们实际进行状态更改的地方，并且它会接受 state 作为第一个参数
+
+
+
+不能直接调用一个 mutation 处理函数。这个选项更像是事件注册：“当触发一个类型为 `increment` 的 mutation 时，调用此函数。”要唤醒一个 mutation 处理函数
+
+```js
+store.commit('increment')
+```
+
+
+
+
+
+### 提交载荷
+
+可以向 `store.commit` 传入额外的参数，即 mutation 的**载荷（payload）**
+
+```js
+mutations: {
+        increment(state)
+        {
+            state.count++
+        },
+        updateName(state, name)
+        {
+            state.name = name;
+        },
+        updateAge(state, age)
+        {
+            state.age = age;
+        }
+    },
+```
+
+
+
+```js
+this.$store.commit("updateName", this.name2)
+```
+
+
+
+在大多数情况下，载荷应该是一个对象，这样可以包含多个字段并且记录的 mutation 会更易读：
+
+```js
+mutations: {
+  increment (state, payload) {
+    state.count += payload.amount
+  }
+}
+```
+
+
+
+```js
+store.commit('increment', {
+  amount: 10
+})
+```
+
+
+
+
+
+### 对象风格的提交方式
+
+提交 mutation 的另一种方式是直接使用包含 `type` 属性的对象：
+
+```js
+store.commit({
+  type: 'increment',
+  amount: 10
+})
+```
+
+
+
+当使用对象风格的提交方式，整个对象都作为载荷传给 mutation 函数，因此处理函数保持不变：
+
+```js
+mutations: {
+  increment (state, payload) {
+    state.count += payload.amount
+  }
+}
+```
+
+
+
+
+
+```js
+import {createStore} from 'vuex'
+
+// 创建一个新的 store 实例
+const store = createStore({
+    state()
+    {
+        return {
+            count: 0,
+            name: '',
+            age: 18
+        }
+    },
+    mutations: {
+        /*increment(state)
+        {
+            state.count++
+        },
+        updateName(state, name)
+        {
+            state.name = name;
+        },
+        updateAge(state, age)
+        {
+            state.age = age;
+        }*/
+        increment(state)
+        {
+            state.count++
+        },
+        updateName(state, payload)
+        {
+            state.name = payload.name;
+        },
+        updateAge(state, payload)
+        {
+            state.age = payload.age;
+        }
+    },
+    getters:
+        {
+            getCount2(state)
+            {
+                if (state.count > 10)
+                {
+                    console.log("大于10，返回10")
+                    return 10;
+                }
+                return state.count;
+            },
+            getName2(state)
+            {
+                console.log("取name ：" + state.name)
+                return state.name;
+            },
+            getAge2(state)
+            {
+                console.log("取age ：" + state.age)
+                return state.age;
+            },
+            getCount3: (state) => (name) =>
+            {
+                console.log("当前名字：" + name)
+                if (state.count > 10)
+                {
+                    console.log("大于10，返回10")
+                    return 10;
+                }
+                return state.count;
+            },
+            getName3: (state) => (age) =>
+            {
+                console.log("当前年龄：" + age)
+                console.log("取name ：" + state.name)
+                return state.name;
+            },
+            getAge3: (state) => (count) =>
+            {
+                console.log("当前计数：" + count)
+                console.log("取age ：" + state.age)
+                return state.age;
+            },
+        }
+})
+
+export default store;
+```
+
+
+
+
+
+```vue
+<template>
+  <div>
+
+    <h1>count数量：{{ this.$store.getters.getCount2 }}</h1>
+    <br>
+
+    <h1>名字：{{ this.$store.getters.getName2 }}</h1>
+    <br>
+
+    <h1>年龄：{{ this.$store.getters.getAge2 }}</h1>
+    <br>
+
+    <el-button type="success" size="large" @click="f1">count自增</el-button>
+    <br>
+    <el-input type="text" size="large" v-model="this.name2" @change="f2"></el-input>
+
+    <br>
+    <el-input type="number" size="large" autocomplete="年龄" v-model="this.age2" @change="f3"></el-input>
+
+  </div>
+</template>
+
+<script>
+
+import {mapGetters, mapState} from 'vuex'
+
+export default {
+  name: "App29",
+  data()
+  {
+    return {
+      name2: "",
+      age2: 0,
+    }
+  },
+  methods:
+      {
+        f1()
+        {
+          this.$store.commit({
+            type: 'increment'
+          })
+        },
+        f2()
+        {
+          console.log(this.name2)
+          this.$store.commit({
+            type: 'updateName',
+            name: this.name2
+          })
+        },
+        f3()
+        {
+          console.log(this.age2)
+          this.$store.commit({
+            type: 'updateAge',
+            age: this.age2
+          })
+        }
+      },
+  computed: {
+    add()
+    {
+      console.log("todo");
+    },
+    //...mapState(['count', 'name', 'age'])
+    ...mapGetters(['getCount2', 'getName2', 'getAge2'])
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+
+
+![image-20230623232241677](img/vue学习笔记/image-20230623232241677.png)
+
+
+
+
+
+
+
+### 使用常量替代 Mutation 事件类型
+
+使用常量替代 mutation 事件类型在各种 Flux 实现中是很常见的模式。这样可以使 linter 之类的工具发挥作用，同时把这些常量放在单独的文件中可以让你的代码合作者对整个 app 包含的 mutation 一目了然：
+
+```js
+// mutation-types.js
+export const SOME_MUTATION = 'SOME_MUTATION'
+```
+
+
+
+```js
+// store.js
+import { createStore } from 'vuex'
+import { SOME_MUTATION } from './mutation-types'
+
+const store = createStore({
+  state: { ... },
+  mutations: {
+    // 我们可以使用 ES2015 风格的计算属性命名功能
+    // 来使用一个常量作为函数名
+    [SOME_MUTATION] (state) {
+      // 修改 state
+    }
+  }
+})
+```
+
+
+
+
+
+mutation-types.js
+
+```js
+export const UPDATE_NAME = "updateName2";
+
+export const UPDATE_AGE = "updateAge2";
+
+export const ADD_COUNT = "increment2";
+```
+
+
+
+
+
+```js
+import {createStore} from 'vuex'
+import {ADD_COUNT, UPDATE_AGE, UPDATE_NAME} from '@/store/mutation-types'
+
+// 创建一个新的 store 实例
+const store = createStore({
+    state()
+    {
+        return {
+            count: 0,
+            name: '',
+            age: 18
+        }
+    },
+    mutations: {
+        /*increment(state)
+        {
+            state.count++
+        },
+        updateName(state, name)
+        {
+            state.name = name;
+        },
+        updateAge(state, age)
+        {
+            state.age = age;
+        }*/
+        increment(state)
+        {
+            state.count++
+        },
+        updateName(state, payload)
+        {
+            state.name = payload.name;
+        },
+        updateAge(state, payload)
+        {
+            state.age = payload.age;
+        },
+        [ADD_COUNT](state)
+        {
+            state.count++
+        },
+        [UPDATE_NAME](state, payload)
+        {
+            state.name = payload.name;
+        },
+        [UPDATE_AGE](state, payload)
+        {
+            state.age = payload.age;
+        },
+    },
+    getters:
+        {
+            getCount2(state)
+            {
+                if (state.count > 10)
+                {
+                    console.log("大于10，返回10")
+                    return 10;
+                }
+                return state.count;
+            },
+            getName2(state)
+            {
+                console.log("取name ：" + state.name)
+                return state.name;
+            },
+            getAge2(state)
+            {
+                console.log("取age ：" + state.age)
+                return state.age;
+            },
+            getCount3: (state) => (name) =>
+            {
+                console.log("当前名字：" + name)
+                if (state.count > 10)
+                {
+                    console.log("大于10，返回10")
+                    return 10;
+                }
+                return state.count;
+            },
+            getName3: (state) => (age) =>
+            {
+                console.log("当前年龄：" + age)
+                console.log("取name ：" + state.name)
+                return state.name;
+            },
+            getAge3: (state) => (count) =>
+            {
+                console.log("当前计数：" + count)
+                console.log("取age ：" + state.age)
+                return state.age;
+            },
+        }
+})
+
+export default store;
+```
+
+
+
+```vue
+<template>
+  <div>
+
+    <h1>count数量：{{ this.$store.getters.getCount2 }}</h1>
+    <br>
+
+    <h1>名字：{{ this.$store.getters.getName2 }}</h1>
+    <br>
+
+    <h1>年龄：{{ this.$store.getters.getAge2 }}</h1>
+    <br>
+
+    <el-button type="success" size="large" @click="f1">count自增</el-button>
+    <br>
+    <el-input type="text" size="large" v-model="this.name2" @change="f2"></el-input>
+
+    <br>
+    <el-input type="number" size="large" autocomplete="年龄" v-model="this.age2" @change="f3"></el-input>
+
+  </div>
+</template>
+
+<script>
+
+import {mapGetters, mapState} from 'vuex'
+import {ADD_COUNT, UPDATE_AGE, UPDATE_NAME} from '@/store/mutation-types'
+
+export default {
+  name: "App29",
+  data()
+  {
+    return {
+      name2: "",
+      age2: 0,
+    }
+  },
+  methods:
+      {
+        f1()
+        {
+          this.$store.commit({
+            type: ADD_COUNT
+          })
+        },
+        f2()
+        {
+          console.log(this.name2)
+          this.$store.commit({
+            type: UPDATE_NAME,
+            name: this.name2
+          })
+        },
+        f3()
+        {
+          console.log(this.age2)
+          this.$store.commit({
+            type: UPDATE_AGE,
+            age: this.age2
+          })
+        }
+      },
+  computed: {
+    add()
+    {
+      console.log("todo");
+    },
+    //...mapState(['count', 'name', 'age'])
+    ...mapGetters(['getCount2', 'getName2', 'getAge2'])
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+
+
+
+
+
+
+## Action
 
