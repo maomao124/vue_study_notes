@@ -8931,3 +8931,308 @@ export default {
 
 ## Action
 
+### 概述
+
+Action 类似于 mutation，不同在于：
+
+- Action 提交的是 mutation，而不是直接变更状态。
+- Action 可以包含任意异步操作。
+
+
+
+```js
+const store = createStore({
+  state: {
+    count: 0
+  },
+  mutations: {
+    increment (state) {
+      state.count++
+    }
+  },
+  actions: {
+    increment (context) {
+      context.commit('increment')
+    }
+  }
+})
+```
+
+
+
+Action 函数接受一个与 store 实例具有相同方法和属性的 context 对象，因此你可以调用 `context.commit` 提交一个 mutation，或者通过 `context.state` 和 `context.getters` 来获取 state 和 getters。
+
+
+
+我们会经常用到 ES2015 的参数解构来简化代码（特别是我们需要调用 commit 很多次的时候）：
+
+```js
+actions: {
+  increment ({ commit }) {
+    commit('increment')
+  }
+}
+```
+
+
+
+
+
+### 分发 Action
+
+Action 通过 `store.dispatch` 方法触发：
+
+```js
+store.dispatch('increment')
+```
+
+
+
+**mutation 必须同步执行**，Action 就不受约束，我们可以在 action 内部执行**异步**操作
+
+```js
+actions: {
+  incrementAsync ({ commit }) {
+    setTimeout(() => {
+      commit('increment')
+    }, 1000)
+  }
+}
+```
+
+
+
+
+
+actions-types.js
+
+```js
+export const INCREMENT_ASYNC = "incrementAsync"
+```
+
+
+
+```js
+import {createStore} from 'vuex'
+import {ADD_COUNT, UPDATE_AGE, UPDATE_NAME} from '@/store/mutation-types'
+import {INCREMENT_ASYNC} from '@/store/actions-types'
+
+// 创建一个新的 store 实例
+const store = createStore({
+    state()
+    {
+        return {
+            count: 0,
+            name: '',
+            age: 18
+        }
+    },
+    mutations: {
+        /*increment(state)
+        {
+            state.count++
+        },
+        updateName(state, name)
+        {
+            state.name = name;
+        },
+        updateAge(state, age)
+        {
+            state.age = age;
+        }*/
+        increment(state)
+        {
+            state.count++
+        },
+        updateName(state, payload)
+        {
+            state.name = payload.name;
+        },
+        updateAge(state, payload)
+        {
+            state.age = payload.age;
+        },
+        [ADD_COUNT](state)
+        {
+            state.count++
+        },
+        [UPDATE_NAME](state, payload)
+        {
+            state.name = payload.name;
+        },
+        [UPDATE_AGE](state, payload)
+        {
+            state.age = payload.age;
+        },
+    },
+    getters:
+        {
+            getCount2(state)
+            {
+                if (state.count > 10)
+                {
+                    console.log("大于10，返回10")
+                    return 10;
+                }
+                return state.count;
+            },
+            getName2(state)
+            {
+                console.log("取name ：" + state.name)
+                return state.name;
+            },
+            getAge2(state)
+            {
+                console.log("取age ：" + state.age)
+                return state.age;
+            },
+            getCount3: (state) => (name) =>
+            {
+                console.log("当前名字：" + name)
+                if (state.count > 10)
+                {
+                    console.log("大于10，返回10")
+                    return 10;
+                }
+                return state.count;
+            },
+            getName3: (state) => (age) =>
+            {
+                console.log("当前年龄：" + age)
+                console.log("取name ：" + state.name)
+                return state.name;
+            },
+            getAge3: (state) => (count) =>
+            {
+                console.log("当前计数：" + count)
+                console.log("取age ：" + state.age)
+                return state.age;
+            },
+        },
+    actions:
+        {
+            [INCREMENT_ASYNC]({commit})
+            {
+                console.log("开始异步增加count")
+                setTimeout(() =>
+                {
+                    console.log("增加count")
+                    commit('increment')
+                }, 1000)
+            }
+        }
+})
+
+export default store;
+```
+
+
+
+
+
+```vue
+<template>
+  <div>
+
+    <h1>count数量：{{ this.$store.getters.getCount2 }}</h1>
+    <br>
+
+    <h1>名字：{{ this.$store.getters.getName2 }}</h1>
+    <br>
+
+    <h1>年龄：{{ this.$store.getters.getAge2 }}</h1>
+    <br>
+
+    <el-button type="success" size="large" @click="f1">count自增</el-button>
+    <br>
+    <el-input type="text" size="large" v-model="this.name2" @change="f2"></el-input>
+
+    <br>
+    <el-input type="number" size="large" autocomplete="年龄" v-model="this.age2" @change="f3"></el-input>
+
+  </div>
+</template>
+
+<script>
+
+import {mapGetters, mapState} from 'vuex'
+import {ADD_COUNT, UPDATE_AGE, UPDATE_NAME} from '@/store/mutation-types'
+import {INCREMENT_ASYNC} from '@/store/actions-types'
+
+export default {
+  name: "App29",
+  data()
+  {
+    return {
+      name2: "",
+      age2: 0,
+    }
+  },
+  methods:
+      {
+        f1()
+        {
+          this.$store.dispatch(INCREMENT_ASYNC)
+        },
+        f2()
+        {
+          console.log(this.name2)
+          this.$store.commit({
+            type: UPDATE_NAME,
+            name: this.name2
+          })
+        },
+        f3()
+        {
+          console.log(this.age2)
+          this.$store.commit({
+            type: UPDATE_AGE,
+            age: this.age2
+          })
+        }
+      },
+  computed: {
+    add()
+    {
+      console.log("todo");
+    },
+    //...mapState(['count', 'name', 'age'])
+    ...mapGetters(['getCount2', 'getName2', 'getAge2'])
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230623235452677](img/vue学习笔记/image-20230623235452677.png)
+
+
+
+
+
+
+
+Actions 支持同样的载荷方式和对象方式进行分发：
+
+```js
+// 以载荷形式分发
+store.dispatch('incrementAsync', {
+  amount: 10
+})
+
+// 以对象形式分发
+store.dispatch({
+  type: 'incrementAsync',
+  amount: 10
+})
+```
+
+
+
+
+
