@@ -6,6 +6,84 @@
 
 
 
+# 概述
+
+Vue (发音为 /vjuː/，类似 view) 是一款用于构建用户界面的 JavaScript 框架。它基于标准 HTML、CSS 和 JavaScript 构建，并提供了一套声明式的、组件化的编程模型，帮助你高效地开发用户界面。无论是简单还是复杂的界面，Vue 都可以胜任。
+
+- **声明式渲染**：Vue 基于标准 HTML 拓展了一套模板语法，使得我们可以声明式地描述最终输出的 HTML 和 JavaScript 状态之间的关系。
+- **响应性**：Vue 会自动跟踪 JavaScript 状态并在其发生变化时响应式地更新 DOM。
+
+
+
+## 特点
+
+Vue 是一个框架，也是一个生态。其功能覆盖了大部分前端开发常见的需求。但 Web 世界是十分多样化的，不同的开发者在 Web 上构建的东西可能在形式和规模上会有很大的不同。考虑到这一点，Vue 的设计非常注重灵活性和“可以被逐步集成”这个特点。根据你的需求场景，你可以用不同的方式使用 Vue：
+
+- 无需构建步骤，渐进式增强静态的 HTML
+- 在任何页面中作为 Web Components 嵌入
+- 单页应用 (SPA)
+- 全栈 / 服务端渲染 (SSR)
+- Jamstack / 静态站点生成 (SSG)
+- 开发桌面端、移动端、WebGL，甚至是命令行终端中的界面
+
+
+
+
+
+
+
+## 官网
+
+https://cn.vuejs.org/
+
+
+
+
+
+## 单文件组件
+
+在大多数启用了构建工具的 Vue 项目中，我们可以使用一种类似 HTML 格式的文件来书写 Vue 组件，它被称为**单文件组件** (也被称为 `*.vue` 文件，英文 Single-File Components，缩写为 **SFC**)。顾名思义，Vue 的单文件组件会将一个组件的逻辑 (JavaScript)，模板 (HTML) 和样式 (CSS) 封装在同一个文件里。
+
+```vue
+<template>
+  <button @click="count++">Count is: {{ count }}</button>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      count: 0,
+    }
+  }
+}
+</script>
+
+
+
+<style scoped>
+button {
+  font-weight: bold;
+}
+</style>
+```
+
+
+
+
+
+## 选项式API和组合式API
+
+使用选项式 API，我们可以用包含多个选项的对象来描述组件的逻辑，例如 `data`、`methods` 和 `mounted`。选项所定义的属性都会暴露在函数内部的 `this` 上，它会指向当前的组件实例
+
+通过组合式 API，我们可以使用导入的 API 函数来描述组件逻辑。在单文件组件中，组合式 API 通常会与 \<script setup> 搭配使用。这个 setup attribute 是一个标识，告诉 Vue 需要在编译时进行一些处理，让我们可以更简洁地使用组合式 API。比如，\<script setup> 中的导入和顶层变量/函数都能够在模板中直接使用。
+
+
+
+
+
+
+
 
 
 
@@ -645,6 +723,100 @@ export default {
 
 
 
+### 事件修饰符
+
+在处理事件时调用 `event.preventDefault()` 或 `event.stopPropagation()` 是很常见的。尽管我们可以直接在方法内调用，但如果方法能更专注于数据逻辑而不用去处理 DOM 事件的细节会更好。
+
+为解决这一问题，Vue 为 `v-on` 提供了**事件修饰符**。修饰符是用 `.` 表示的指令后缀，包含以下这些：
+
+- `.stop`
+- `.prevent`
+- `.self`
+- `.capture`
+- `.once`
+- `.passive`
+
+
+
+```html
+<!-- 单击事件将停止传递 -->
+<a @click.stop="doThis"></a>
+
+<!-- 提交事件将不再重新加载页面 -->
+<form @submit.prevent="onSubmit"></form>
+
+<!-- 修饰语可以使用链式书写 -->
+<a @click.stop.prevent="doThat"></a>
+```
+
+
+
+
+
+### 按键修饰符
+
+在监听键盘事件时，我们经常需要检查特定的按键。Vue 允许在 `v-on` 或 `@` 监听按键事件时添加按键修饰符。
+
+```html
+<!-- 仅在 `key` 为 `Enter` 时调用 `submit` -->
+<input @keyup.enter="submit" />
+```
+
+可以直接使用 `KeyboardEvent.key` 暴露的按键名称作为修饰符，但需要转为 kebab-case 形式。
+
+
+
+
+
+### 按键别名
+
+Vue 为一些常用的按键提供了别名：
+
+- `.enter`
+- `.tab`
+- `.delete` (捕获“Delete”和“Backspace”两个按键)
+- `.esc`
+- `.space`
+- `.up`
+- `.down`
+- `.left`
+- `.right`
+
+
+
+你可以使用以下系统按键修饰符来触发鼠标或键盘事件监听器，只有当按键被按下时才会触发。
+
+- `.ctrl`
+- `.alt`
+- `.shift`
+- `.meta`
+
+
+
+> 在 Mac 键盘上，meta 是 Command 键。在 Windows 键盘上，meta 键是 Windows 键
+
+
+
+
+
+### 鼠标按键修饰符
+
+- `.left`
+- `.right`
+- `.middle`
+
+这些修饰符将处理程序限定为由特定鼠标按键触发的事件。
+
+
+
+
+
+
+
+
+
+
+
 ## 双向绑定
 
 当改变html代码时，js代码中的数据并没有变化
@@ -1063,6 +1235,10 @@ v-if渲染后的页面代码：
 v-show渲染后的页面代码：
 
 ![image-20230619153753444](img/vue学习笔记/image-20230619153753444.png)
+
+
+
+总的来说，`v-if` 有更高的切换开销，而 `v-show` 有更高的初始渲染开销。因此，如果需要频繁切换，则使用 `v-show` 较好；如果在运行时绑定条件很少改变，则 `v-if` 会更合适
 
 
 
@@ -9937,4 +10113,113 @@ store.registerModule(['nested', 'myModule'], {
 
 
 ## 组合式API
+
+可以通过调用 `useStore` 函数，来在 `setup` 钩子函数中访问 store。这与在组件中使用选项式 API 访问 `this.$store` 是等效的
+
+```js
+import { useStore } from 'vuex'
+
+export default {
+  setup () {
+    const store = useStore()
+  }
+}
+```
+
+
+
+为了访问 state 和 getter，需要创建 `computed` 引用以保留响应性，这与在选项式 API 中创建计算属性等效。
+
+```js
+import { computed } from 'vue'
+import { useStore } from 'vuex'
+
+export default {
+  setup () {
+    const store = useStore()
+
+    return {
+      // 在 computed 函数中访问 state
+      count: computed(() => store.state.count),
+
+      // 在 computed 函数中访问 getter
+      double: computed(() => store.getters.double)
+    }
+  }
+}
+```
+
+
+
+要使用 mutation 和 action 时，只需要在 `setup` 钩子函数中调用 `commit` 和 `dispatch` 函数
+
+```js
+import { useStore } from 'vuex'
+
+export default {
+  setup () {
+    const store = useStore()
+
+    return {
+      // 使用 mutation
+      increment: () => store.commit('increment'),
+
+      // 使用 action
+      asyncIncrement: () => store.dispatch('asyncIncrement')
+    }
+  }
+}
+```
+
+
+
+
+
+## 严格模式
+
+开启严格模式，仅需在创建 store 的时候传入 `strict: true`：
+
+```js
+const store = createStore({
+  // ...
+  strict: true
+})
+```
+
+
+
+在严格模式下，无论何时发生了状态变更且不是由 mutation 函数引起的，将会抛出错误。这能保证所有的状态变更都能被调试工具跟踪到。
+
+**不要在发布环境下启用严格模式**，有性能损失
+
+
+
+
+
+
+
+## 双向绑定的计算属性
+
+```js
+<input v-model="message">
+```
+
+```js
+computed: {
+  message: {
+    get () {
+      return this.$store.state.obj.message
+    },
+    set (value) {
+      this.$store.commit('updateMessage', value)
+    }
+  }
+}
+```
+
+
+
+
+
+
 
