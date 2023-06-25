@@ -1923,6 +1923,688 @@ export default {
 
 # 侦听器
 
+## 概述
+
+计算属性允许我们声明性地计算衍生值。然而在有些情况下，我们需要在状态变化时执行一些“副作用”：例如更改 DOM，或是根据异步操作的结果去修改另一处的状态。
+
+Vue侦听器是提供给开发者可以用来监测某些数据的变化，从而针对这些数据的变化进行某些操作
+
+侦听器本质上是一个函数，如果要监听哪一个数据的变化，就把那个数据作为函数名
+
+
+
+
+
+## 示例
+
+在选项式 API 中，我们可以使用 watch 选项在每次响应式属性发生变化时触发一个函数。
+
+
+
+```vue
+<template>
+
+  <div>
+    <h2>uuid: {{ uuid }}</h2>
+    <el-button type="success" size="large" @click="uuid=generateUUID()">点击更改uuid</el-button>
+    <br>
+    <br>
+    <el-input v-model="count" type="number" style="width: 200px"/>
+  </div>
+
+</template>
+
+<script>
+
+export default {
+  name: "App39",
+  data()
+  {
+    return {
+      uuid: '',
+      count: 100
+    }
+  },
+  watch:
+      {
+        uuid()
+        {
+          console.log("检测到uuid更改，当前uuid为" + this.uuid)
+        },
+        count()
+        {
+          console.log("检测到count更改，当前count为" + this.count)
+        }
+      },
+  methods:
+      {
+        generateUUID()
+        {
+          let d = new Date().getTime()
+          if (window.performance && typeof window.performance.now === "function")
+          {
+            d += performance.now(); //use high-precision timer if available
+          }
+          return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c)
+          {
+            const r = (d + Math.random() * 16) % 16 | 0
+            d = Math.floor(d / 16);
+            return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+          });
+        }
+      },
+  mounted()
+  {
+    const uuid = this.generateUUID();
+    console.log(uuid)
+    this.uuid = uuid
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+
+
+![image-20230625130638357](img/vue学习笔记/image-20230625130638357.png)
+
+
+
+![image-20230625130650686](img/vue学习笔记/image-20230625130650686.png)
+
+
+
+
+
+## 深层侦听器
+
+`watch` 默认是浅层的：被侦听的属性，仅在被赋新值时，才会触发回调函数，而嵌套属性的变化不会触发
+
+```vue
+<template>
+
+  <div>
+    <h2>uuid: {{ data.uuid }}</h2>
+    <el-button type="success" size="large" @click="data.uuid=generateUUID()">点击更改uuid</el-button>
+    <br>
+    <br>
+    <el-input v-model="data.count" type="number" style="width: 200px"/>
+  </div>
+
+</template>
+
+<script>
+
+export default {
+  name: "App40",
+  data()
+  {
+    return {
+      data: {
+        uuid: '',
+        count: 100
+      }
+    }
+  },
+  watch:
+      {
+        data()
+        {
+          console.log("检测到uuid或者count更改，当前uuid为" + this.data.uuid)
+          console.log("检测到uuid或者count更改，当前count为" + this.data.count)
+        },
+      },
+  methods:
+      {
+        generateUUID()
+        {
+          let d = new Date().getTime()
+          if (window.performance && typeof window.performance.now === "function")
+          {
+            d += performance.now(); //use high-precision timer if available
+          }
+          return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c)
+          {
+            const r = (d + Math.random() * 16) % 16 | 0
+            d = Math.floor(d / 16);
+            return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+          });
+        }
+      },
+  mounted()
+  {
+    const uuid = this.generateUUID();
+    console.log(uuid)
+    this.data.uuid = uuid
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
+
+```
+
+
+
+![image-20230625131135534](img/vue学习笔记/image-20230625131135534.png)
+
+
+
+![image-20230625131142159](img/vue学习笔记/image-20230625131142159.png)
+
+
+
+
+
+如果想侦听所有嵌套的变更，你需要深层侦听器
+
+深度侦听需要遍历被侦听对象中的所有嵌套的属性，当用于大型数据结构时，开销很大。因此请只在必要时才使用它，并且要留意性能。
+
+
+
+```vue
+<template>
+
+  <div>
+    <h2>uuid: {{ data.uuid }}</h2>
+    <el-button type="success" size="large" @click="data.uuid=generateUUID()">点击更改uuid</el-button>
+    <br>
+    <br>
+    <el-input v-model="data.count" type="number" style="width: 200px"/>
+  </div>
+
+</template>
+
+<script>
+
+export default {
+  name: "App41",
+  data()
+  {
+    return {
+      data: {
+        uuid: '',
+        count: 100
+      }
+    }
+  },
+  watch:
+      {
+        data:
+            {
+              handler(newValue, oldValue)
+              {
+                // 注意：在嵌套的变更中，
+                // 只要没有替换对象本身，
+                // 那么这里的 `newValue` 和 `oldValue` 相同
+                console.log(newValue, oldValue)
+                console.log("检测到uuid或者count更改，当前uuid为" + this.data.uuid)
+                console.log("检测到uuid或者count更改，当前count为" + this.data.count)
+              },
+              deep: true
+            },
+      },
+  methods:
+      {
+        generateUUID()
+        {
+          let d = new Date().getTime()
+          if (window.performance && typeof window.performance.now === "function")
+          {
+            d += performance.now(); //use high-precision timer if available
+          }
+          return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c)
+          {
+            const r = (d + Math.random() * 16) % 16 | 0
+            d = Math.floor(d / 16);
+            return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+          });
+        }
+      },
+  mounted()
+  {
+    const uuid = this.generateUUID();
+    console.log(uuid)
+    this.data.uuid = uuid
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230625132443789](img/vue学习笔记/image-20230625132443789.png)
+
+
+
+![image-20230625132455296](img/vue学习笔记/image-20230625132455296.png)
+
+
+
+
+
+
+
+## 即时回调的侦听器
+
+`watch` 默认是懒执行的：仅当数据源变化时，才会执行回调。但在某些场景中，我们希望在创建侦听器时，立即执行一遍回调。举例来说，我们想请求一些初始数据，然后在相关状态更改时重新请求数据。
+
+我们可以用一个对象来声明侦听器，这个对象有 `handler` 方法和 `immediate: true` 选项，这样便能强制回调函数立即执行
+
+
+
+回调函数的初次执行就发生在 `created` 钩子之前。Vue 此时已经处理了 `data`、`computed` 和 `methods` 选项
+
+
+
+```vue
+<template>
+
+  <div>
+    <h2>uuid: {{ data.uuid }}</h2>
+    <el-button type="success" size="large" @click="data.uuid=generateUUID()">点击更改uuid</el-button>
+    <br>
+    <br>
+    <el-input v-model="data.count" type="number" style="width: 200px"/>
+  </div>
+
+</template>
+
+<script>
+
+export default {
+  name: "App42",
+  data()
+  {
+    return {
+      data: {
+        uuid: '',
+        count: 100
+      }
+    }
+  },
+  watch:
+      {
+        data:
+            {
+              handler(newValue, oldValue)
+              {
+                // 注意：在嵌套的变更中，
+                // 只要没有替换对象本身，
+                // 那么这里的 `newValue` 和 `oldValue` 相同
+                console.log(newValue, oldValue)
+                console.log("检测到uuid或者count更改，当前uuid为" + this.data.uuid)
+                console.log("检测到uuid或者count更改，当前count为" + this.data.count)
+              },
+              deep: true,
+              immediate: true
+            },
+      },
+  methods:
+      {
+        generateUUID()
+        {
+          let d = new Date().getTime()
+          if (window.performance && typeof window.performance.now === "function")
+          {
+            d += performance.now(); //use high-precision timer if available
+          }
+          return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c)
+          {
+            const r = (d + Math.random() * 16) % 16 | 0
+            d = Math.floor(d / 16);
+            return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+          });
+        }
+      },
+  mounted()
+  {
+    console.log("mounted方法执行")
+    const uuid = this.generateUUID();
+    console.log(uuid)
+    this.data.uuid = uuid
+  },
+  created()
+  {
+    console.log("created方法执行")
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+
+
+![image-20230625133051829](img/vue学习笔记/image-20230625133051829.png)
+
+
+
+
+
+## 回调的触发时机
+
+当你更改了响应式状态，它可能会同时触发 Vue 组件更新和侦听器回调。
+
+默认情况下，用户创建的侦听器回调，都会在 Vue 组件更新**之前**被调用。这意味着你在侦听器回调中访问的 DOM 将是被 Vue 更新之前的状态。
+
+如果想在侦听器回调中能访问被 Vue 更新**之后**的 DOM，你需要指明 `flush: 'post'` 选项
+
+
+
+```js
+ watch: {
+    key: {
+      handler() {},
+      flush: 'post'
+    }
+  }
+```
+
+
+
+
+
+
+
+## 命令式地创建
+
+我们也可以使用组件实例的 `$watch()` 方法来命令式地创建一个侦听器
+
+
+
+```vue
+<template>
+
+  <div>
+    <h2>uuid: {{ data.uuid }}</h2>
+    <el-button type="success" size="large" @click="data.uuid=generateUUID()">点击更改uuid</el-button>
+    <br>
+    <br>
+    <el-input v-model="data.count" type="number" style="width: 200px"/>
+    <br>
+    <el-input v-model="age" type="number" style="width: 200px"/>
+    <br>
+    <br>
+    <el-button type="success" size="large" @click="createWatch">点击创建age的watch</el-button>
+    <br>
+  </div>
+
+</template>
+
+<script>
+
+export default {
+  name: "App42",
+  data()
+  {
+    return {
+      data: {
+        uuid: '',
+        count: 100
+      },
+      age: 18,
+    }
+  },
+  watch:
+      {
+        data:
+            {
+              handler(newValue, oldValue)
+              {
+                // 注意：在嵌套的变更中，
+                // 只要没有替换对象本身，
+                // 那么这里的 `newValue` 和 `oldValue` 相同
+                console.log(newValue, oldValue)
+                console.log("检测到uuid或者count更改，当前uuid为" + this.data.uuid)
+                console.log("检测到uuid或者count更改，当前count为" + this.data.count)
+              },
+              deep: true,
+              immediate: true
+            },
+      },
+  methods:
+      {
+        generateUUID()
+        {
+          let d = new Date().getTime()
+          if (window.performance && typeof window.performance.now === "function")
+          {
+            d += performance.now(); //use high-precision timer if available
+          }
+          return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c)
+          {
+            const r = (d + Math.random() * 16) % 16 | 0
+            d = Math.floor(d / 16);
+            return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+          });
+        },
+        createWatch()
+        {
+          this.$watch('age', (newAge) =>
+          {
+            //console.log(newAge)
+            console.log("检测到age更改，当前uuid为" + this.age)
+          })
+        }
+      },
+  mounted()
+  {
+    console.log("mounted方法执行")
+    const uuid = this.generateUUID();
+    console.log(uuid)
+    this.data.uuid = uuid
+  },
+  created()
+  {
+    console.log("created方法执行")
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+
+
+![image-20230625133836079](img/vue学习笔记/image-20230625133836079.png)
+
+![image-20230625133845940](img/vue学习笔记/image-20230625133845940.png)
+
+
+
+
+
+![image-20230625133858510](img/vue学习笔记/image-20230625133858510.png)
+
+
+
+![image-20230625133905521](img/vue学习笔记/image-20230625133905521.png)
+
+
+
+
+
+
+
+
+
+
+
+## 停止侦听器
+
+用 `watch` 选项或者 `$watch()` 实例方法声明的侦听器，会在宿主组件卸载时自动停止。因此，在大多数场景下，你无需关心怎么停止它。
+
+在少数情况下，你的确需要在组件卸载之前就停止一个侦听器，这时可以调用 `$watch()` API 返回的函数
+
+```js
+const unwatch = this.$watch('foo', callback)
+
+// ...当该侦听器不再需要时
+unwatch()
+```
+
+
+
+
+
+```vue
+<template>
+
+  <div>
+    <h2>uuid: {{ data.uuid }}</h2>
+    <el-button type="success" size="large" @click="data.uuid=generateUUID()">点击更改uuid</el-button>
+    <br>
+    <br>
+    <el-input v-model="data.count" type="number" style="width: 200px"/>
+    <br>
+    <el-input v-model="age" type="number" style="width: 200px"/>
+    <br>
+    <br>
+    <el-button type="success" size="large" @click="createWatch">点击创建age的watch</el-button>
+    <br>
+    <br>
+    <el-button type="success" size="large" @click="removeWatch">点击移除age的watch</el-button>
+  </div>
+
+</template>
+
+<script>
+
+export default {
+  name: "App42",
+  data()
+  {
+    return {
+      data: {
+        uuid: '',
+        count: 100
+      },
+      age: 18,
+      unwatch: () =>
+      {
+        console.log("当前还未注册age的监听器")
+      }
+    }
+  },
+  watch:
+      {
+        data:
+            {
+              handler(newValue, oldValue)
+              {
+                // 注意：在嵌套的变更中，
+                // 只要没有替换对象本身，
+                // 那么这里的 `newValue` 和 `oldValue` 相同
+                console.log(newValue, oldValue)
+                console.log("检测到uuid或者count更改，当前uuid为" + this.data.uuid)
+                console.log("检测到uuid或者count更改，当前count为" + this.data.count)
+              },
+              deep: true,
+              immediate: true
+            },
+      },
+  methods:
+      {
+        generateUUID()
+        {
+          let d = new Date().getTime()
+          if (window.performance && typeof window.performance.now === "function")
+          {
+            d += performance.now(); //use high-precision timer if available
+          }
+          return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c)
+          {
+            const r = (d + Math.random() * 16) % 16 | 0
+            d = Math.floor(d / 16);
+            return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+          });
+        },
+        createWatch()
+        {
+          this.unwatch = this.$watch('age', (newAge) =>
+          {
+            //console.log(newAge)
+            console.log("检测到age更改，当前uuid为" + this.age)
+          })
+        },
+        removeWatch()
+        {
+          //console.log(typeof this.unwatch)
+          console.log("移除age的监听器")
+          this.unwatch()
+          this.unwatch = () =>
+          {
+            console.log("当前还未注册age的监听器")
+          }
+        }
+      },
+  mounted()
+  {
+    console.log("mounted方法执行")
+    const uuid = this.generateUUID();
+    console.log(uuid)
+    this.data.uuid = uuid
+  },
+  created()
+  {
+    console.log("created方法执行")
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+
+
+![image-20230625134720088](img/vue学习笔记/image-20230625134720088.png)
+
+
+
+![image-20230625134742212](img/vue学习笔记/image-20230625134742212.png)
+
+![image-20230625134750140](img/vue学习笔记/image-20230625134750140.png)
+
+
+
+![image-20230625134802543](img/vue学习笔记/image-20230625134802543.png)
+
+
+
+![image-20230625134812046](img/vue学习笔记/image-20230625134812046.png)
+
+
+
+
+
+
+
+
+
 
 
 
