@@ -11305,3 +11305,691 @@ computed: {
 
 # Vue进阶
 
+## 组件注册
+
+一个 Vue 组件在使用前需要先被注册，这样 Vue 才能在渲染模板时找到其对应的实现。组件注册有两种方式：全局注册和局部注册。
+
+
+
+### 全局注册
+
+`app.component()` 方法，让组件在当前 Vue 应用中全局可用
+
+```js
+import MyComponent from './App.vue'
+
+app.component('MyComponent', MyComponent)
+```
+
+```js
+app
+  .component('ComponentA', ComponentA)
+  .component('ComponentB', ComponentB)
+  .component('ComponentC', ComponentC)
+```
+
+
+
+全局注册的组件可以在此应用的任意组件的模板中使用
+
+
+
+### 局部注册
+
+全局注册虽然很方便，但有以下几个问题：
+
+* 全局注册，但并没有被使用的组件无法在生产打包时被自动移除，如果你全局注册了一个组件，即使它并没有被实际使用，它仍然会出现在打包后的 JS 文件中
+* 全局注册在大型项目中使项目的依赖关系变得不那么明确，在父组件中使用子组件时，不太容易定位子组件的实现
+
+
+
+局部注册需要使用 `components` 选项
+
+**局部注册的组件在后代组件中并不可用**
+
+```vue
+<script>
+import ComponentA from './ComponentA.vue'
+
+export default {
+  components: {
+    ComponentA
+  }
+}
+</script>
+
+<template>
+  <ComponentA />
+</template>
+```
+
+
+
+
+
+
+
+## 组件自定义事件
+
+### 概述
+
+自定义事件顾名思义就是自己打造的事件，包含事件名，事件回调等，定义好之后去给组件使用。
+
+组件的自定义事件是一种组件间的通信方式，它适用于子组件向父组件传递数据或行为。
+
+
+
+### 原理图
+
+![image-20230626002409220](img/vue学习笔记/image-20230626002409220.png)
+
+
+
+
+
+
+
+### 触发与监听事件
+
+在组件的模板表达式中，可以直接使用 `$emit` 方法触发自定义事件
+
+```js
+<!-- MyComponent -->
+<button @click="$emit('someEvent')">click me</button>
+```
+
+
+
+`$emit()` 方法在组件实例上也同样以 `this.$emit()` 的形式可用
+
+```js
+export default {
+  methods: {
+    submit() {
+      this.$emit('someEvent')
+    }
+  }
+}
+```
+
+
+
+
+
+
+
+子组件C1.vue
+
+```vue
+<template>
+
+  <div class="c1">
+    <p>子组件内容</p>
+    <el-button type="success" @click="send">点击触发自定义事件demo</el-button>
+    <br>
+    <br>
+    <el-button type="success" @click="$emit('demo2')">点击触发自定义事件demo2</el-button>
+  </div>
+
+</template>
+
+<script>
+export default {
+  name: "C1",
+  methods:
+      {
+        send()
+        {
+          this.$emit('demo')
+        }
+      }
+}
+</script>
+
+<style scoped>
+.c1 {
+  width: 200px;
+  height: 200px;
+  background: darksalmon;
+}
+</style>
+```
+
+
+
+
+
+父组件：
+
+```vue
+<template>
+  <div>
+    <!--没有注册demo2-->
+    <c1 @demo="f1"></c1>
+    <br>
+    <br>
+    <c1 @demo="f2" @demo2="f3"></c1>
+  </div>
+</template>
+
+<script>
+import {ElMessage} from 'element-plus'
+import c1 from '@/components/C1'
+
+export default {
+  name: "App48",
+  components: {
+    c1: c1,
+  },
+  methods:
+      {
+        f1()
+        {
+          console.log("f1")
+          ElMessage.success({
+            message: "触发自定义demo事件 f1",
+            center: true
+          })
+        },
+        f2()
+        {
+          console.log("f2")
+          ElMessage.success({
+            message: "触发自定义demo事件 f2",
+            center: true
+          })
+        },
+        f3()
+        {
+          console.log("f3")
+          ElMessage.success({
+            message: "触发自定义demo2事件 f3",
+            center: true
+          })
+        }
+      }
+}
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+
+
+![image-20230626004548702](img/vue学习笔记/image-20230626004548702.png)
+
+
+
+![image-20230626004558196](img/vue学习笔记/image-20230626004558196.png)
+
+
+
+
+
+
+
+
+
+### 事件参数
+
+有时候我们会需要在触发事件时附带一个特定的值，我们可以给 `$emit` 提供一个额外的参数
+
+```vue
+<button @click="$emit('increaseBy', 1)">
+  Increase by 1
+</button>
+```
+
+
+
+然后我们在父组件中监听事件
+
+```vue
+<MyButton @increase-by="increaseCount" />
+```
+
+```js
+methods: {
+  increaseCount(n) {
+    this.count += n
+  }
+}
+```
+
+
+
+所有传入 `$emit()` 的额外参数都会被直接传向监听器。举例来说，`$emit('foo', 1, 2, 3)` 触发后，监听器函数将会收到这三个参数值
+
+
+
+子组件C2.vue
+
+```vue
+<template>
+
+  <div class="c2">
+    <p>子组件内容</p>
+    <el-input v-model="name"></el-input>
+    <br>
+    <el-input v-model="address"></el-input>
+    <br>
+    <el-button type="success" @click="send">点击触发自定义事件commit</el-button>
+  </div>
+
+</template>
+
+<script>
+export default {
+  name: "C2",
+  data()
+  {
+    return {
+      name: '',
+      address: ''
+    }
+  },
+  methods:
+      {
+        send()
+        {
+          console.log("子组件向父组件传值：", this.name, this.address)
+          this.$emit('commit', this.name, this.address)
+        }
+      }
+}
+</script>
+
+<style scoped>
+.c2 {
+  width: 400px;
+  height: 200px;
+  background: dodgerblue;
+}
+</style>
+```
+
+
+
+
+
+```vue
+<template>
+  <div>
+    <c2 @commit="f1"></c2>
+    <br>
+    <c2 @commit="f2"></c2>
+    <br>
+    <br>
+    <h2>第一个子组件的值：{{data1}}</h2>
+    <h2>第二个子组件的值：{{data2}}</h2>
+  </div>
+</template>
+
+<script>
+import {ElMessage} from 'element-plus'
+import c2 from '@/components/C2'
+
+export default {
+  name: "App49",
+  components: {
+    c2
+  },
+  data()
+  {
+    return {
+      data1: {
+        name: '',
+        address: ''
+      },
+      data2: {
+        name: '',
+        address: ''
+      }
+    }
+  },
+  methods:
+      {
+        f1(name, address)
+        {
+          console.log("f1", name, address)
+          ElMessage.success({
+            message: "触发自定义commit事件f1，值：" + name + " , " + address,
+            center: true
+          })
+          this.data1 = {
+            name: name,
+            address: address
+          }
+        },
+        f2(name, address)
+        {
+          console.log("f2", name, address)
+          ElMessage.success({
+            message: "触发自定义commit事件f2，值：" + name + " , " + address,
+            center: true
+          })
+          this.data2 = {
+            name: name,
+            address: address
+          }
+        },
+      }
+}
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230626010857431](img/vue学习笔记/image-20230626010857431.png)
+
+
+
+![image-20230626010921991](img/vue学习笔记/image-20230626010921991.png)
+
+
+
+![image-20230626010946493](img/vue学习笔记/image-20230626010946493.png)
+
+
+
+![image-20230626010954135](img/vue学习笔记/image-20230626010954135.png)
+
+
+
+![image-20230626011035052](img/vue学习笔记/image-20230626011035052.png)
+
+
+
+![image-20230626011041386](img/vue学习笔记/image-20230626011041386.png)
+
+
+
+
+
+
+
+### 声明触发的事件
+
+组件可以显式地通过 [`emits`](https://cn.vuejs.org/api/options-state.html#emits) 选项来声明它要触发的事件：
+
+```js
+export default {
+  emits: ['inFocus', 'submit']
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+## 自定义指令
+
+### 概述
+
+除了 Vue 内置的一系列指令 (比如 `v-model` 或 `v-show`) 之外，Vue 还允许你注册自定义的指令 (Custom Directives)。
+
+自定义指令分为全局指令和局部指令，当全局指令和局部指令同名时以局部指令为准。
+
+
+
+
+
+### 全局自定义指令
+
+通过Vue.directive(id,definition)方法可以注册一个全局自定义指令，该方法可以接收两个参数：指令ID和定义对象。指令ID是指令的唯一标识，定义对象是定义的指令的钩子函数
+
+
+
+main.js
+
+```js
+import {createApp} from 'vue'
+
+import ElementPlus from 'element-plus'
+import 'element-plus/dist/index.css'
+
+import App from './App50.vue'
+import Router2 from '@/router/Router11'
+import Store from '@/store/index'
+
+const app = createApp(App)
+
+app.use(ElementPlus)
+app.use(Router2)
+app.use(Store)
+app.directive('focus', {
+    //当被绑定的元素插入DOM中时执行
+    mounted: function (el)
+    {
+        //使元素自动获得焦点
+        console.log(el, "获取焦点")
+        el.focus();
+    }
+})
+app.mount('#app')
+
+```
+
+
+
+使用：
+
+```vue
+<template>
+
+  <input type="text" value="200"/>
+  <br>
+  <input type="text" value="100" v-focus/>
+
+</template>
+
+<script>
+export default {
+  name: "App50"
+}
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230626222523199](img/vue学习笔记/image-20230626222523199.png)
+
+
+
+![image-20230626222531018](img/vue学习笔记/image-20230626222531018.png)
+
+
+
+
+
+
+
+### 局部自定义指令
+
+通过Vue实例中的directive选项可以注册一个局部自定义指令。
+
+自动添加背景颜色功能：
+
+```vue
+<template>
+  <div>
+    <h2 v-background="'#cccccc'">hello</h2>
+    <h2 v-background="'#ffaa00'">hello</h2>
+    <h2 v-background="'#ffaacc'">hello</h2>
+    <h2 v-background="'red'">hello</h2>
+    <h2 v-background="'skyblue'">hello</h2>
+    <h2 v-background="'#00ffaa'">hello</h2>
+  </div>
+</template>
+
+<script>
+export default {
+  name: "App51",
+  directives:
+      {
+        background: {
+          beforeMount: function (el, binding, vnode, prevVnode)
+          {
+            console.log(el, binding.value)
+            el.style.background = binding.value;
+          }
+        }
+      }
+}
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230626223548228](img/vue学习笔记/image-20230626223548228.png)
+
+
+
+
+
+![image-20230626223604911](img/vue学习笔记/image-20230626223604911.png)
+
+
+
+
+
+
+
+### 指令钩子函数
+
+一个指令的定义对象可以提供几种钩子函数 (都是可选的)：
+
+```js
+// 在绑定元素的 attribute 前
+  // 或事件监听器应用前调用
+  created(el, binding, vnode, prevVnode) {},
+  // 在元素被插入到 DOM 前调用
+  beforeMount(el, binding, vnode, prevVnode) {},
+  // 在绑定元素的父组件
+  // 及他自己的所有子节点都挂载完成后调用
+  mounted(el, binding, vnode, prevVnode) {},
+  // 绑定元素的父组件更新前调用
+  beforeUpdate(el, binding, vnode, prevVnode) {},
+  // 在绑定元素的父组件
+  // 及他自己的所有子节点都更新后调用
+  updated(el, binding, vnode, prevVnode) {},
+  // 绑定元素的父组件卸载前调用
+  beforeUnmount(el, binding, vnode, prevVnode) {},
+  // 绑定元素的父组件卸载后调用
+  unmounted(el, binding, vnode, prevVnode) {}
+```
+
+
+
+
+
+指令的钩子会传递以下几种参数：
+
+- `el`：指令绑定到的元素。这可以用于直接操作 DOM。
+- `binding`：一个对象，包含以下属性。
+  - `value`：传递给指令的值。例如在 `v-my-directive="1 + 1"` 中，值是 `2`。
+  - `oldValue`：之前的值，仅在 `beforeUpdate` 和 `updated` 中可用。无论值是否更改，它都可用。
+  - `arg`：传递给指令的参数 (如果有的话)。例如在 `v-my-directive:foo` 中，参数是 `"foo"`。
+  - `modifiers`：一个包含修饰符的对象 (如果有的话)。例如在 `v-my-directive.foo.bar` 中，修饰符对象是 `{ foo: true, bar: true }`。
+  - `instance`：使用该指令的组件实例。
+  - `dir`：指令的定义对象。
+- `vnode`：代表绑定元素的底层 VNode。
+- `prevNode`：之前的渲染中代表指令所绑定元素的 VNode。仅在 `beforeUpdate` 和 `updated` 钩子中可用。
+
+
+
+
+
+
+
+### 简化形式
+
+仅仅需要在 `mounted` 和 `updated` 上实现相同的行为，除此之外并不需要其他钩子
+
+```html
+<div v-color="color"></div>
+```
+
+```js
+app.directive('color', (el, binding) => {
+  // 这会在 `mounted` 和 `updated` 时都调用
+  el.style.color = binding.value
+})
+```
+
+
+
+
+
+### 对象字面量
+
+可以向它传递一个 JavaScript 对象字面量
+
+```html
+<div v-demo="{ color: 'white', text: 'hello!' }"></div>
+```
+
+```js
+app.directive('demo', (el, binding) => {
+  console.log(binding.value.color) // => "white"
+  console.log(binding.value.text) // => "hello!"
+})
+```
+
+
+
+
+
+
+
+
+
+## 插件
+
+### 概述
+
+插件 (Plugins) 是一种能为 Vue 添加全局功能的工具代码。
+
+一个插件可以是一个拥有 `install()` 方法的对象，也可以直接是一个安装函数本身。
+
+
+
+插件没有严格定义的使用范围，但是插件发挥作用的常见场景主要包括以下几种：
+
+* 通过 app.component() 和 app.directive() 注册一到多个全局组件或自定义指令
+* 通过 app.provide() 使一个资源可被注入进整个应用
+* 向 app.config.globalProperties 中添加一些全局实例属性或方法
+* 功能库
+
+
+
+
+
+### 示例
+
+
+
+
+
