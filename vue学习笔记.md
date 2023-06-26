@@ -11989,7 +11989,218 @@ app.directive('demo', (el, binding) => {
 
 ### 示例
 
+src/plugins/i18n.js：
+
+```js
+export default {
+    install: (app, options) =>
+    {
+        //注入一个全局可用的 $translate() 方法
+        app.config.globalProperties.$translate = (key) =>
+        {
+            //获取 `options` 对象的深层属性
+            //使用 `key` 作为索引
+            return key.split('.').reduce((o, i) =>
+            {
+                if (o)
+                {
+                    console.log(o[i])
+                    return o[i]
+                }
+            }, options)
+        }
+    }
+}
+```
 
 
 
+main.js
+
+```js
+import {createApp} from 'vue'
+
+import ElementPlus from 'element-plus'
+import 'element-plus/dist/index.css'
+
+import App from './App52.vue'
+import Router2 from '@/router/Router11'
+import Store from '@/store/index'
+import i18n from '@/plugins/i18n'
+
+const app = createApp(App)
+
+app.use(ElementPlus)
+app.use(Router2)
+app.use(Store)
+app.use(i18n, {
+    a:
+        {
+            a1: "hello1",
+            a2: "hello2",
+            a3: "hello3",
+        },
+    b:
+        {
+            b1: "world1",
+            b2: "world2",
+            b3: "world3",
+        }
+})
+app.mount('#app')
+```
+
+
+
+```vue
+<template>
+  <h2>{{ $translate('a.a1') }}</h2>
+  <h2>{{ $translate('a.a2') }}</h2>
+  <h2>{{ $translate('a.a3') }}</h2>
+  <h2>{{ $translate('b.b1') }}</h2>
+  <h2>{{ $translate('b.b2') }}</h2>
+  <h2>{{ $translate('b.b3') }}</h2>
+
+</template>
+
+<script>
+export default {
+  name: "App52"
+}
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+
+
+![image-20230626225946722](img/vue学习笔记/image-20230626225946722.png)
+
+
+
+![image-20230626225954602](img/vue学习笔记/image-20230626225954602.png)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# 组合式 API
+
+## 概述
+
+Vue 的组件可以按两种不同的风格书写：选项式 API 和组合式 API。
+
+组合式 API (Composition API) 是一系列 API 的集合，使我们可以使用函数而不是声明选项的方式书写 Vue 组件。
+
+涵盖了以下方面的 API：
+
+- [响应式 API](https://cn.vuejs.org/api/reactivity-core.html)：例如 `ref()` 和 `reactive()`，使我们可以直接创建响应式状态、计算属性和侦听器。
+- [生命周期钩子](https://cn.vuejs.org/api/composition-api-lifecycle.html)：例如 `onMounted()` 和 `onUnmounted()`，使我们可以在组件各个生命周期阶段添加逻辑。
+- [依赖注入](https://cn.vuejs.org/api/composition-api-dependency-injection.html)：例如 `provide()` 和 `inject()`，使我们可以在使用响应式 API 时，利用 Vue 的依赖注入系统。
+
+
+
+
+
+想要使用组合式API，需要加上`<script setup>`
+
+
+
+选项式API：
+
+```vue
+<script>
+export default {
+  // data() 返回的属性将会成为响应式的状态
+  // 并且暴露在 `this` 上
+  data() {
+    return {
+      count: 0
+    }
+  },
+
+  // methods 是一些用来更改状态与触发更新的函数
+  // 它们可以在模板中作为事件处理器绑定
+  methods: {
+    increment() {
+      this.count++
+    }
+  },
+
+  // 生命周期钩子会在组件生命周期的各个不同阶段被调用
+  // 例如这个函数就会在组件挂载完成后被调用
+  mounted() {
+    console.log(`The initial count is ${this.count}.`)
+  }
+}
+</script>
+
+<template>
+  <button @click="increment">Count is: {{ count }}</button>
+</template>
+```
+
+
+
+组合式 API：
+
+```vue
+<script setup>
+import { ref, onMounted } from 'vue'
+
+// 响应式状态
+const count = ref(0)
+
+// 用来修改状态、触发更新的函数
+function increment() {
+  count.value++
+}
+
+// 生命周期钩子
+onMounted(() => {
+  console.log(`The initial count is ${count.value}.`)
+})
+</script>
+
+<template>
+  <button @click="increment">Count is: {{ count }}</button>
+</template>
+```
+
+
+
+
+
+
+
+## 为什么要有组合式 API？
+
+* 更好的逻辑复用：而组合式 API 解决了 mixins 的所有缺陷
+* 更灵活的代码组织：选项式 API 在单个组件的逻辑复杂到一定程度时，会面临一些无法忽视的限制，这些限制主要体现在需要处理多个逻辑关注点的组件中，使用组合式 API可以很轻松地将这一组代码移动到一个外部文件中，不再需要为了抽象而重新组织代码，大大降低了重构成本，这在长期维护的大型项目中非常关键
+* 更好的类型推导：越来越多的开发者开始使用 TypeScript 书写更健壮可靠的代码，选项式 API 是在 2013 年被设计出来的，那时并没有把类型推导考虑进去，相比之下，组合式 API 主要利用基本的变量和函数，它们本身就是类型友好的。用组合式 API 重写的代码可以享受到完整的类型推导，不需要书写太多类型标注
+* 更小的生产包体积：搭配 `<script setup>` 使用组合式 API 比等价情况下的选项式 API 更高效，对代码压缩也更友好。这是由于 `<script setup>` 形式书写的组件模板被编译为了一个内联函数，和 `<script setup>` 中的代码位于同一作用域。不像选项式 API 需要依赖 `this` 上下文对象访问属性，被编译的模板可以直接访问 `<script setup>` 中定义的变量，无需从实例中代理。这对代码压缩更友好，因为本地变量的名字可以被压缩，但对象的属性名则不能
+
+
+
+
+
+
+
+## 响应式 API
+
+### ref()
 
