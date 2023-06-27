@@ -12204,3 +12204,531 @@ onMounted(() => {
 
 ### ref()
 
+接受一个内部值，返回一个响应式的、可更改的 ref 对象，此对象只有一个指向其内部值的属性 .value
+
+ref 对象是可更改的，也就是说你可以为 .value 赋予新的值。它也是响应式的，即所有对 .value 的操作都将被追踪
+
+
+
+```vue
+<template>
+  <div>
+    <h1>a:{{ a }}</h1>
+    <h1>b:{{ b }}</h1>
+  </div>
+</template>
+
+<script setup>
+
+import {ref} from 'vue'
+
+const a = ref(120);
+console.log(a.value)
+const b = ref("hello");
+console.log(b)
+console.log(b.value)
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230627001338196](img/vue学习笔记/image-20230627001338196.png)
+
+
+
+
+
+![image-20230627001356764](img/vue学习笔记/image-20230627001356764.png)
+
+
+
+
+
+### reactive()
+
+返回一个对象的响应式代理。
+
+如果将一个对象赋值给 ref，那么这个对象将通过 reactive() 转为具有深层次响应式的对象。这也意味着如果对象中包含了嵌套的 ref，它们将被深层地解包
+
+当访问到某个响应式数组或 Map 这样的原生集合类型中的 ref 元素时，不会执行 ref 的解包
+
+将一个 ref 赋值给一个 reactive 属性时，该 ref 会被自动解包
+
+
+
+```vue
+<template>
+
+  <div>
+    <h1>test1:{{ test1 }}</h1>
+    <h1>test1.a:{{ test1.a }}</h1>
+    <h1>test1.b:{{ test1.b }}</h1>
+
+    <h1>test2:{{ test2 }}</h1>
+    <h1>test2.a:{{ test2.a }}</h1>
+    <h1>test2.b:{{ test2.b }}</h1>
+  </div>
+
+</template>
+
+<script setup>
+
+import {reactive, ref} from 'vue'
+
+const test1 = ref({a: 1, b: 2})
+console.log(test1.value)
+test1.value.a++;
+test1.value.b++;
+
+const test2 = reactive({a: 5, b: 6})
+console.log(test2)
+test2.a++
+test2.b++
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+
+
+![image-20230627002727405](img/vue学习笔记/image-20230627002727405.png)
+
+
+
+![image-20230627002757757](img/vue学习笔记/image-20230627002757757.png)
+
+
+
+
+
+
+
+ref 的解包：
+
+```vue
+<template>
+
+  <div>
+    <h1>{{ count }}</h1>
+    <h1>{{ obj.count }}</h1>
+  </div>
+
+</template>
+
+<script setup>
+
+import {reactive, ref} from 'vue'
+
+const count = ref(1)
+const obj = reactive({count})
+
+// ref 会被解包
+console.log(obj.count === count.value) // true
+
+// 会更新 `obj.count`
+count.value++
+console.log(count.value) // 2
+console.log(obj.count) // 2
+
+// 也会更新 `count` ref
+obj.count++
+console.log(obj.count) // 3
+console.log(count.value) // 3
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230627003034090](img/vue学习笔记/image-20230627003034090.png)
+
+
+
+
+
+
+
+```vue
+<template>
+
+  <div>
+    <h1>{{ books[1].value }}</h1>
+    <h1>{{ map.get('count').value }}</h1>
+    <h1>{{ obj.count }}</h1>
+    <h1>{{ count }}</h1>
+  </div>
+
+</template>
+
+<script setup>
+
+import {reactive, ref} from 'vue'
+
+//当访问到某个响应式数组或 Map 这样的原生集合类型中的 ref 元素时，不会执行 ref 的解包
+const books = reactive([ref('1'), ref('2'), ref('3')])
+// 这里需要 .value
+console.log(books[0].value)
+
+const map = reactive(new Map([['count', ref(100)]]))
+// 这里需要 .value
+console.log(map.get('count').value)
+
+
+//将一个 ref 赋值给一个 reactive 属性时，该 ref 会被自动解包
+const count = ref(1000)
+const obj = reactive({})
+
+obj.count = count
+
+console.log(obj.count) // 1000
+console.log(obj.count === count.value) // true
+console.log(count)
+console.log(obj.count)
+
+</script>
+
+<style scoped>
+
+</style>
+
+```
+
+
+
+![image-20230627003950588](img/vue学习笔记/image-20230627003950588.png)
+
+
+
+
+
+![image-20230627003957866](img/vue学习笔记/image-20230627003957866.png)
+
+
+
+
+
+
+
+### computed()
+
+接受一个 getter 函数，返回一个只读的响应式 ref 对象。该 ref 通过 .value 暴露 getter 函数的返回值。它也可以接受一个带有 get 和 set 函数的对象来创建一个可写的 ref 对象。
+
+创建一个只读的计算属性 ref：
+
+```js
+const count = ref(1)
+const plusOne = computed(() => count.value + 1)
+
+console.log(plusOne.value) // 2
+
+plusOne.value++ // 错误
+```
+
+
+
+创建一个可写的计算属性 ref：
+
+```js
+const count = ref(1)
+const plusOne = computed({
+  get: () => count.value + 1,
+  set: (val) => {
+    count.value = val - 1
+  }
+})
+
+plusOne.value = 1
+console.log(count.value) // 0
+```
+
+
+
+
+
+```vue
+<template>
+  <div>
+    <h2>{{ plus }}</h2>
+    <h2>{{ plus2 }}</h2>
+  </div>
+</template>
+
+<script setup>
+
+import {computed, ref} from 'vue'
+
+const count1 = ref(100)
+const count2 = ref(300)
+console.log(count1.value)
+console.log(count2.value)
+const plus = computed(() =>
+{
+  return count1.value + count2.value;
+})
+
+console.log(plus.value)
+
+try
+{
+  plus.value++;
+}
+catch (e)
+{
+  console.log(e)
+}
+
+const count3 = ref(200)
+const count4 = ref(600)
+const plus2 = computed({
+  get: () =>
+  {
+    return count3.value + count4.value;
+  },
+  set: (v) =>
+  {
+    count3.value = v;
+    count4.value = v;
+  }
+})
+console.log(plus2.value)
+plus2.value++
+console.log(plus2.value)
+
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230627135756013](img/vue学习笔记/image-20230627135756013.png)
+
+
+
+![image-20230627135803906](img/vue学习笔记/image-20230627135803906.png)
+
+
+
+
+
+
+
+### readonly()
+
+接受一个对象 (不论是响应式还是普通的) 或是一个 ref，返回一个原值的只读代理
+
+只读代理是深层的：对任何嵌套属性的访问都将是只读的。它的 ref 解包行为与 reactive() 相同，但解包得到的值是只读的。
+
+
+
+```vue
+<template>
+  <div>
+    <h2>count: {{ readonly1.count }}</h2>
+    <h2>a.a1: {{ readonly1.a.a1 }}</h2>
+    <h2>a.a2: {{ readonly1.a.a2 }}</h2>
+
+  </div>
+</template>
+
+<script setup>
+import {readonly} from 'vue'
+
+const readonly1 = readonly({count: 1, a: {a1: 1000, a2: 30243}})
+
+console.log(readonly1.count)
+console.log(readonly1.a.a1)
+console.log(readonly1.a.a2)
+try
+{
+  readonly1.count++;
+}
+catch (e)
+{
+  console.log(e)
+}
+try
+{
+  readonly1.a.a1++;
+}
+catch (e)
+{
+  console.log(e)
+}
+try
+{
+  readonly1.a.a2++;
+}
+catch (e)
+{
+  console.log(e)
+}
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230627140452256](img/vue学习笔记/image-20230627140452256.png)
+
+
+
+![image-20230627140502771](img/vue学习笔记/image-20230627140502771.png)
+
+
+
+
+
+
+
+
+
+### watchEffect()
+
+立即运行一个函数，同时响应式地追踪其依赖，并在依赖更改时重新执行。
+
+第一个参数就是要运行的函数
+
+第二个参数是一个可选的选项，可以用来调整刷新时机或调试依赖
+
+默认情况下，侦听器将在组件渲染之前执行。设置 flush: 'post' 将会使侦听器延迟到组件渲染之后再执行
+
+在某些特殊情况下 (例如要使缓存失效)，可能有必要在响应式依赖发生改变时立即触发侦听器。这可以通过设置 flush: 'sync' 来实现
+
+
+
+```vue
+<template>
+
+  <h1>{{ count }}</h1>
+  <br><br>
+  <button type="button" @click="plusOne">点击count+1</button>
+
+</template>
+
+<script setup>
+
+import {ref, watchEffect} from 'vue'
+
+const count = ref(100)
+
+function plusOne()
+{
+  count.value++;
+}
+
+watchEffect(() =>
+{
+  console.log("count变化")
+  console.log(count.value)
+})
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230627142558091](img/vue学习笔记/image-20230627142558091.png)
+
+
+
+![image-20230627142605834](img/vue学习笔记/image-20230627142605834.png)
+
+
+
+
+
+停止侦听器：
+
+```vue
+<template>
+
+  <h1>{{ count }}</h1>
+  <br><br>
+  <button type="button" @click="plusOne">点击count+1</button>
+  <br>
+  <button type="button" @click="stop">点击取消监听</button>
+
+</template>
+
+<script setup>
+
+import {ref, watchEffect} from 'vue'
+
+const count = ref(100)
+
+function plusOne()
+{
+  count.value++;
+}
+
+const stop = watchEffect(() =>
+{
+  console.log("count变化")
+  console.log(count.value)
+})
+
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230627142739503](img/vue学习笔记/image-20230627142739503.png)
+
+
+
+![image-20230627142745682](img/vue学习笔记/image-20230627142745682.png)
+
+
+
+
+
+
+
+### watchPostEffect()
+
+watchEffect() 使用 flush: 'post' 选项时的别名
+
+
+
+
+
+### watchSyncEffect()
+
+watchEffect() 使用 flush: 'sync' 选项时的别名
+
+
+
+
+
+### watch()
