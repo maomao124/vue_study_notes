@@ -12732,3 +12732,110 @@ watchEffect() 使用 flush: 'sync' 选项时的别名
 
 
 ### watch()
+
+侦听一个或多个响应式数据源，并在数据源变化时调用所给的回调函数
+
+watch() 默认是懒侦听的，即仅在侦听源发生变化时才执行回调函数
+
+第一个参数是侦听器的**源**。这个来源可以是以下几种：
+
+- 一个函数，返回一个值
+- 一个 ref
+- 一个响应式对象
+- 由以上类型的值组成的数组
+
+
+
+第二个参数是在发生变化时要调用的回调函数。这个回调函数接受三个参数：新值、旧值，以及一个用于注册副作用清理的回调函数
+
+第三个可选的参数是一个对象，支持以下这些选项：
+
+- **`immediate`**：在侦听器创建时立即触发回调。第一次调用时旧值是 `undefined`。
+- **`deep`**：如果源是对象，强制深度遍历，以便在深层级变更时触发回调。
+- **`flush`**：调整回调函数的刷新时机。
+- **`onTrack / onTrigger`**：调试侦听器的依赖。
+
+
+
+与 watchEffect() 相比，watch() 使我们可以：
+
+- 懒执行副作用；
+- 更加明确是应该由哪个状态触发侦听器重新执行；
+- 可以访问所侦听状态的前一个值和当前值。
+
+
+
+
+
+```vue
+<template>
+
+  <h1>{{ count }}</h1>
+  <br><br>
+  <button type="button" @click="plusOne">点击count+1</button>
+  <br>
+  <button type="button" @click="stop">点击取消监听</button>
+
+</template>
+
+<script setup>
+
+import {ref, watch} from 'vue'
+
+const count = ref(100)
+
+function plusOne()
+{
+  count.value++;
+}
+
+const stop = watch(count, (newValue, oldValue) =>
+{
+  console.log("监听到count变化", newValue, oldValue)
+})
+
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+
+
+![image-20230627144029434](img/vue学习笔记/image-20230627144029434.png)
+
+
+
+![image-20230627144035203](img/vue学习笔记/image-20230627144035203.png)
+
+
+
+
+
+
+
+
+
+## 工具函数
+
+* isRef()：检查某个值是否为 ref
+* unref()：如果参数是 ref，则返回内部值，否则返回参数本身
+* toRef()：可以将值、refs 或 getters 规范化为 refs，也可以基于响应式对象上的一个属性，创建一个对应的 ref。这样创建的 ref 与其源属性保持同步：改变源属性的值将更新 ref 的值，反之亦然
+* toValue()：将值、refs 或 getters 规范化为值。这与 unref() 类似，不同的是此函数也会规范化 getter 函数。如果参数是一个 getter，它将会被调用并且返回它的返回值
+* toRefs()：将一个响应式对象转换为一个普通对象，这个普通对象的每个属性都是指向源对象相应属性的 ref。每个单独的 ref 都是使用 toRef() 创建的
+* isProxy()：检查一个对象是否是由 reactive()、readonly()、shallowReactive() 或 shallowReadonly() 创建的代理
+* isReactive()：检查一个对象是否是由 reactive() 或 shallowReactive() 创建的代理
+* isReadonly()：检查传入的值是否为只读对象
+
+
+
+
+
+
+
+## 生命周期钩子
+
