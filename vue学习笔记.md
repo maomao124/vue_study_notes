@@ -12839,3 +12839,155 @@ const stop = watch(count, (newValue, oldValue) =>
 
 ## 生命周期钩子
 
+可以参考 <a href="#生命周期">生命周期</a>
+
+
+
+### onMounted()
+
+注册一个回调函数，在组件挂载完成后执行
+
+
+
+### onUpdated()
+
+注册一个回调函数，在组件因为响应式状态变更而更新其 DOM 树之后调用
+
+
+
+### onUnmounted()
+
+注册一个回调函数，在组件实例被卸载之后调用
+
+
+
+### onBeforeMount()
+
+注册一个钩子，在组件被挂载之前被调用
+
+
+
+### onBeforeUpdate()
+
+注册一个钩子，在组件即将因为响应式状态变更而更新其 DOM 树之前调用
+
+
+
+### onBeforeUnmount()
+
+注册一个钩子，在组件实例被卸载之前调用。
+
+
+
+### onErrorCaptured()
+
+注册一个钩子，在捕获了后代组件传递的错误时调用
+
+
+
+### onActivated()
+
+注册一个回调函数，若组件实例是 \<KeepAlive> 缓存树的一部分，当组件被插入到 DOM 中时调用。
+
+
+
+### onDeactivated()
+
+注册一个回调函数，若组件实例是 \<KeepAlive> 缓存树的一部分，当组件从 DOM 中被移除时调用。
+
+
+
+
+
+
+
+### 示例
+
+```vue
+<template>
+  <div>
+    <h1>{{ count }}</h1>
+    <br><br>
+    <button type="button" @click="count++">点击count+1</button>
+  </div>
+</template>
+
+<script setup>
+
+import {
+  onActivated, onBeforeMount, onBeforeUnmount, onBeforeUpdate,
+  onDeactivated, onErrorCaptured, onMounted, onUnmounted,
+  onUpdated, ref
+} from 'vue'
+
+const count = ref(100)
+
+onMounted(() =>
+{
+  console.log("onMounted")
+})
+
+onUpdated(() =>
+{
+  console.log("onUpdated")
+})
+
+onUnmounted(() =>
+{
+  console.log("onUnmounted")
+})
+
+onBeforeMount(() =>
+{
+  console.log("onBeforeMount")
+})
+
+onBeforeUpdate(() =>
+{
+  console.log("onBeforeUpdate")
+})
+
+onBeforeUnmount(() =>
+{
+  console.log("onBeforeUnmount")
+})
+
+onErrorCaptured(() =>
+{
+  console.log("onErrorCaptured")
+})
+
+onActivated(() =>
+{
+  console.log("onActivated")
+})
+
+onDeactivated(() =>
+{
+  console.log("onDeactivated")
+})
+
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230627151133286](img/vue学习笔记/image-20230627151133286.png)
+
+
+
+
+
+
+
+
+
+
+
+## 依赖注入
+
