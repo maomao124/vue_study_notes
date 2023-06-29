@@ -13867,7 +13867,793 @@ console.log(toUpperCase2())
 
 
 
+
+
 ## 泛型
+
+下面的几个类型声明显然有一定的相似性
+
+```typescript
+interface RefString {
+  value: string
+}
+
+interface RefNumber {
+  value: number
+}
+
+interface RefBoolean {
+  value: boolean
+}
+
+const r1: RefString = { value: 'hello' }
+const r2: RefNumber = { value: 123 }
+const r3: RefBoolean = { value: true }
+```
+
+
+
+可以改进为：
+
+```vue
+<template>
+
+</template>
+
+<script lang="ts" setup>
+
+interface Ref<T>
+{
+  value: T,
+
+  /**
+   * 得到value值
+   */
+  getValue(): T
+}
+
+const r1: Ref<string> = {
+  value: 'hello', getValue()
+  {
+    return this.value
+  }
+}
+const r2: Ref<number> = {
+  value: 123, getValue()
+  {
+    return this.value
+  }
+}
+const r3: Ref<boolean> = {
+  value: true, getValue()
+  {
+    return this.value
+  }
+}
+
+console.log(r1.getValue())
+console.log(r2.getValue())
+console.log(r3.getValue())
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230629150636259](img/vue学习笔记/image-20230629150636259.png)
+
+
+
+![image-20230629150655351](img/vue学习笔记/image-20230629150655351.png)
+
+
+
+![image-20230629150713882](img/vue学习笔记/image-20230629150713882.png)
+
+
+
+![image-20230629150738827](img/vue学习笔记/image-20230629150738827.png)
+
+
+
+
+
+
+
+
+
+函数定义也支持泛型：
+
+```vue
+<template>
+
+</template>
+
+<script lang="ts" setup>
+
+function ref<T>(arg: T): T
+{
+  return arg;
+}
+
+console.log(ref("hello"))
+console.log(ref(12345))
+console.log(ref(true))
+console.log(ref(null))
+console.log(ref(undefined))
+
+console.log(typeof ref("hello"))
+console.log(typeof ref(12345))
+console.log(typeof ref(true))
+console.log(typeof ref(null))
+console.log(typeof ref(undefined))
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230629151208135](img/vue学习笔记/image-20230629151208135.png)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## 类
+
+### 基本语法
+
+```vue
+<template>
+  <div>
+    <h2>{{stu1}}</h2>
+    <h2>{{stu2}}</h2>
+    <h2>{{stu3}}</h2>
+    <h2>{{stu4}}</h2>
+
+
+  </div>
+</template>
+
+<script setup lang="ts">
+
+/**
+ * 学生类
+ */
+class Student
+{
+  /**
+   * id
+   */
+  id: number;
+  /**
+   * 姓名
+   */
+  name: string;
+  /**
+   * 性别
+   */
+  sex: string;
+
+
+  /**
+   * 无参构造方法
+   */
+  constructor();
+  /**
+   *
+   * @param id 学生学号
+   */
+  constructor(id: number);
+  /**
+   *
+   * @param id 学生学号
+   * @param name 姓名
+   */
+  constructor(id: number, name: string);
+  /**
+   *
+   * @param id 学生学号
+   * @param name 姓名
+   * @param sex 性别
+   */
+  constructor(id: number, name: string, sex: string);
+  /**
+   *
+   * @param id 学生学号
+   * @param name 姓名
+   * @param sex 性别
+   */
+  constructor(id?: number, name?: string, sex?: string)
+  {
+    console.log("构造方法被调用了")
+    this.id = id ? id : 10001
+    this.name = name ? name : "张三"
+    this.sex = sex ? sex : "男"
+  }
+}
+
+const stu1: Student = new Student()
+console.log(stu1)
+
+const stu2: Student = new Student(102222)
+console.log(stu2)
+
+const stu3: Student = new Student(102223, "李四")
+console.log(stu3)
+
+const stu4: Student = new Student(102224, "王五", '女')
+console.log(stu4)
+
+console.log(stu4.name)
+
+</script>
+
+<style scoped>
+
+</style>
+
+```
+
+
+
+
+
+![image-20230629153623294](img/vue学习笔记/image-20230629153623294.png)
+
+
+
+![image-20230629153630371](img/vue学习笔记/image-20230629153630371.png)
+
+
+
+
+
+
+
+js 中的 class，并不等价于 java 中的 class，它还是基于原型实现的
+
+
+
+
+
+### 访问修饰符
+
+有三类：
+
+* public
+* protected
+* private
+
+
+
+默认为 public，可以自由的访问程序里定义的成员
+
+当成员被标记成 private时，它就不能在声明它的类的外部访问
+
+protected修饰符与 private修饰符的行为很相似，但有一点不同， protected成员在派生类中仍然可以访问
+
+
+
+可以参考java
+
+
+
+```vue
+<template>
+  <div>
+    <h2>{{ stu4 }}</h2>
+  </div>
+</template>
+
+<script setup lang="ts">
+
+/**
+ * 学生类
+ */
+class Student
+{
+  /**
+   * id
+   */
+  private id: number;
+  /**
+   * 姓名
+   */
+  protected name: string;
+  /**
+   * 性别
+   */
+  public sex: string;
+
+
+  /**
+   * 无参构造方法
+   */
+  constructor();
+  /**
+   *
+   * @param id 学生学号
+   */
+  constructor(id: number);
+  /**
+   *
+   * @param id 学生学号
+   * @param name 姓名
+   */
+  constructor(id: number, name: string);
+  /**
+   *
+   * @param id 学生学号
+   * @param name 姓名
+   * @param sex 性别
+   */
+  constructor(id: number, name: string, sex: string);
+  /**
+   *
+   * @param id 学生学号
+   * @param name 姓名
+   * @param sex 性别
+   */
+  constructor(id?: number, name?: string, sex?: string)
+  {
+    console.log("构造方法被调用了")
+    this.id = id ? id : 10001
+    this.name = name ? name : "张三"
+    this.sex = sex ? sex : "男"
+  }
+}
+
+const stu4: Student = new Student(102224, "王五", '女')
+
+console.log(stu4)
+
+//Property 'id' is private and only accessible within class 'Student'.
+console.log(stu4.id)
+//Property 'name' is protected and only accessible within class 'Student' and its subclasses.
+console.log(stu4.name)
+console.log(stu4.sex)
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230629154421047](img/vue学习笔记/image-20230629154421047.png)
+
+
+
+
+
+![image-20230629154427471](img/vue学习笔记/image-20230629154427471.png)
+
+
+
+
+
+![image-20230629154500561](img/vue学习笔记/image-20230629154500561.png)
+
+
+
+
+
+
+
+### 只读属性
+
+readonly 是 typescript 特有的，表示该属性只读
+
+```vue
+<template>
+
+</template>
+
+<script lang="ts" setup>
+
+class User
+{
+  /**
+   * 用户编号，只读
+   */
+  readonly id: number;
+  /**
+   * 用户名称
+   */
+  name: string | undefined;
+
+  constructor()
+  {
+    this.id = 10001;
+  }
+}
+
+const user: User = new User();
+//Cannot assign to 'id' because it is a read-only property.
+user.id = 10002;
+user.name = "张三";
+
+console.log(user.id)
+console.log(user.name)
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230629155057713](img/vue学习笔记/image-20230629155057713.png)
+
+
+
+
+
+
+
+### 方法
+
+```vue
+<template>
+
+</template>
+
+<script lang="ts" setup>
+
+class User
+{
+  /**
+   * 用户编号，只读
+   */
+  readonly id: number;
+  /**
+   * 用户名称
+   */
+  name: string | undefined;
+
+  constructor()
+  {
+    this.id = 10001;
+  }
+
+  /**
+   * 转字符串
+   */
+  toString()
+  {
+    return "用户编号：" + this.id + ",用户名称：" + this.name
+  }
+
+  /**
+   * 转json
+   */
+  toJson()
+  {
+    return JSON.stringify(this);
+  }
+
+}
+
+const user: User = new User();
+user.name = "张三";
+
+console.log(user.id)
+console.log(user.name)
+
+console.log(user.toString())
+console.log(user.toJson())
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230629155458362](img/vue学习笔记/image-20230629155458362.png)
+
+
+
+
+
+
+
+### get和set
+
+```vue
+<template>
+
+</template>
+
+<script setup lang="ts">
+
+class Student
+{
+  private _id: number;
+  private _name: string;
+
+  get name(): string
+  {
+    console.log("调用name 的get方法")
+    return this._name;
+  }
+
+  set name(value: string)
+  {
+    console.log("调用name 的set方法")
+    this._name = value;
+  }
+
+  get id(): number
+  {
+    console.log("调用id 的get方法")
+
+    return this._id;
+  }
+
+  set id(value: number)
+  {
+    console.log("调用id 的set方法")
+    this._id = value;
+  }
+
+  constructor()
+  {
+    this._id = 10001
+    this._name = "";
+  }
+}
+
+const student: Student = new Student();
+
+//Property '_id' is private and only accessible within class 'Student'.
+//console.log(student._id)
+//Property '_name' is private and only accessible within class 'Student'.
+//console.log(student._name)
+
+student.id = 99999;
+student.name = "李四"
+
+console.log(student.id)
+console.log(student.name)
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230629160333745](img/vue学习笔记/image-20230629160333745.png)
+
+
+
+
+
+
+
+### 类与接口
+
+```vue
+<template>
+  <div>
+    <h2>
+      {{userService.getLoginUser()}}
+    </h2>
+  </div>
+</template>
+
+<script setup lang="ts">
+
+/**
+ * 实体类
+ */
+interface User
+{
+  id: number;
+  name: string;
+}
+
+/**
+ * 接口
+ */
+interface UserService
+{
+  /**
+   * 登录
+   */
+  login(user: User): void
+
+  /**
+   * 得到当前登录人的信息
+   */
+  getLoginUser(): User
+}
+
+/**
+ * 实现类
+ */
+class UserServiceImpl implements UserService
+{
+  getLoginUser(): User
+  {
+    return {id: 100001, name: '张三'};
+  }
+
+  login(user: User): void
+  {
+    console.log(user)
+  }
+}
+
+const userService: UserService = new UserServiceImpl();
+
+const loginUser = userService.getLoginUser();
+console.log(loginUser)
+userService.login(loginUser);
+
+console.log()
+
+</script>
+
+<style scoped>
+
+</style>
+
+```
+
+
+
+![image-20230629230457143](img/vue学习笔记/image-20230629230457143.png)
+
+![image-20230629230544553](img/vue学习笔记/image-20230629230544553.png)
+
+
+
+
+
+
+
+
+
+### 继承与接口
+
+```vue
+<template>
+  <div>
+  </div>
+</template>
+
+<script setup lang="ts">
+
+interface Flyable
+{
+  fly(): void
+}
+
+class Animal
+{
+  name: string;
+
+  constructor(name: string)
+  {
+    this.name = name
+  }
+}
+
+class Bird extends Animal implements Flyable
+{
+  fly()
+  {
+    console.log(`${this.name}在飞翔`)
+  }
+}
+
+const b: Flyable & Animal = new Bird("小黄鸟")
+b.fly()
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230629231213300](img/vue学习笔记/image-20230629231213300.png)
+
+
+
+
+
+
+
+
+
+
+
+### 方法重写
+
+```vue
+<template>
+  <div>
+  </div>
+</template>
+
+<script setup lang="ts">
+
+class C1
+{
+  study()
+  {
+    console.log("C1 study")
+  }
+}
+
+class C2 extends C1
+{
+  study()
+  {
+    super.study();
+    console.log("C2 study")
+  }
+}
+
+let c: C1 = new C2()
+c.study();
+
+c = new C1()
+c.study();
+
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230629231836112](img/vue学习笔记/image-20230629231836112.png)
+
+
+
+
+
+
+
+
 
 
 
@@ -13917,6 +14703,18 @@ vite是下一代前端开发与构建工具。Vite意在提供开箱即用的配
 * 优化的构建：可选 “多页应用” 或 “库” 模式的预配置 Rollup 构建
 * 通用的插件：在开发和构建之间共享 Rollup-superset 插件接口
 * 完全类型化的API：灵活的 API 和完整 TypeScript 类型
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
