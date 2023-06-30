@@ -14687,7 +14687,7 @@ c.study();
 
 
 
-# vite
+# Vite
 
 ## 概述
 
@@ -14710,7 +14710,285 @@ vite是下一代前端开发与构建工具。Vite意在提供开箱即用的配
 
 
 
+## 官网和文档
 
+* 官网：https://vitejs.cn/
+* Vite3文档：https://cn.vitejs.dev/guide/
+* Vite2文档：https://vitejs.cn/guide/
+
+
+
+
+
+## Vite和Webpack区别
+
+Vite 优势：
+
+* **vite 开发服务器启动速度比 webpack 快**。webpack 会先打包，然后启动开发服务器，请求服务器时直接给予打包结果，vite 在启动开发服务器时不需要打包，也就意味着不需要分析模块的依赖、不需要编译，因此启动速度非常快
+* **vite 热更新比 webpack 快**。当改动了一个模块后，vite仅需让浏览器重新请求该模块即可
+* **vite 使用esbuild(Go 编写) 预构建依赖**，比 webpack 的 nodejs，快
+
+
+
+Vite 劣势：
+
+* 生态不及webpack，加载器、插件不够丰富
+* 打包到生产环境时，vite使用传统的 rollup进行打包
+* 项目的开发浏览器要支持 ES Module，而且不能识别 CommonJS 语法
+
+
+
+
+
+
+
+## 创建项目
+
+vite3：
+
+```sh
+npm init vite
+```
+
+
+
+vite2：
+
+```sh
+npm init vite@2
+```
+
+
+
+* Vite2 需要 Node.js 版本 >= 12.0.0
+
+* Vite3 需要 Node.js 版本 14.18+，16+
+
+
+
+
+
+输入项目名称：
+
+![image-20230630204545724](img/vue学习笔记/image-20230630204545724.png)
+
+
+
+选择vue：
+
+![image-20230630204611917](img/vue学习笔记/image-20230630204611917.png)
+
+
+
+
+
+选择语言，js或者ts
+
+![image-20230630204637565](img/vue学习笔记/image-20230630204637565.png)
+
+
+
+创建完成：
+
+![image-20230630204704673](img/vue学习笔记/image-20230630204704673.png)
+
+
+
+
+
+安装：
+
+```sh
+PS D:\程序\2023Q3> npm init vite@2
+npx: installed 6 in 8.509s
+√ Project name: ... vite-test
+√ Select a framework: » vue
+√ Select a variant: » vue-ts
+
+Scaffolding project in D:\程序\2023Q3\vite-test...
+
+Done. Now run:
+
+  cd vite-test
+  npm install
+  npm run dev
+
+PS D:\程序\2023Q3> cd .\vite-test\
+PS D:\程序\2023Q3\vite-test> ls
+
+
+    目录: D:\程序\2023Q3\vite-test
+
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d-----         2023/6/30     20:46                .vscode
+d-----         2023/6/30     20:46                public
+d-----         2023/6/30     20:46                src
+-a----        1985/10/26     16:15            253 .gitignore
+-a----        1985/10/26     16:15            337 index.html
+-a----         2023/6/30     20:46            368 package.json
+-a----        1985/10/26     16:15           1377 README.md
+-a----        1985/10/26     16:15            491 tsconfig.json
+-a----        1985/10/26     16:15            142 tsconfig.node.json
+-a----        1985/10/26     16:15            156 vite.config.ts
+
+
+PS D:\程序\2023Q3\vite-test> npm install
+
+> esbuild@0.14.54 postinstall D:\程序\2023Q3\vite-test\node_modules\esbuild
+> node install.js
+
+npm notice created a lockfile as package-lock.json. You should commit this file.
+npm WARN optional SKIPPING OPTIONAL DEPENDENCY: fsevents@~2.3.2 (node_modules\vite\node_modules\fsevents):
+npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for fsevents@2.3.2: wanted {"os":"darwin","arch":"any"} (current: {"os":"win32","arch":"x64"})
+npm WARN optional SKIPPING OPTIONAL DEPENDENCY: esbuild-android-arm64@0.14.54 (node_modules\esbuild\node_modules\esbuild-android-arm64):
+npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for esbuild-android-arm64@0.14.54: wanted {"os":"android","arch":"arm64"} (current: {"os":"win32","arch":"x64"})
+npm WARN optional SKIPPING OPTIONAL DEPENDENCY: esbuild-darwin-64@0.14.54 (node_modules\esbuild\node_modules\esbuild-darwin-64):
+npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for esbuild-darwin-64@0.14.54: wanted {"os":"darwin","arch":"x64"} (current: {"os":"win32","arch":"x64"})
+npm WARN optional SKIPPING OPTIONAL DEPENDENCY: esbuild-freebsd-64@0.14.54 (node_modules\esbuild\node_modules\esbuild-freebsd-64):
+npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for esbuild-freebsd-64@0.14.54: wanted {"os":"freebsd","arch":"x64"} (current: {"os":"win32","arch":"x64"})
+npm WARN optional SKIPPING OPTIONAL DEPENDENCY: esbuild-darwin-arm64@0.14.54 (node_modules\esbuild\node_modules\esbuild-darwin-arm64):
+npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for esbuild-darwin-arm64@0.14.54: wanted {"os":"darwin","arch":"arm64"} (current: {"os":"win32","arch":"x64"})
+npm WARN optional SKIPPING OPTIONAL DEPENDENCY: esbuild-linux-32@0.14.54 (node_modules\esbuild\node_modules\esbuild-linux-32):
+npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for esbuild-linux-32@0.14.54: wanted {"os":"linux","arch":"ia32"} (current: {"os":"win32","arch":"x64"})
+npm WARN optional SKIPPING OPTIONAL DEPENDENCY: esbuild-linux-arm@0.14.54 (node_modules\esbuild\node_modules\esbuild-linux-arm):
+npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for esbuild-linux-arm@0.14.54: wanted {"os":"linux","arch":"arm"} (current: {"os":"win32","arch":"x64"})
+npm WARN optional SKIPPING OPTIONAL DEPENDENCY: esbuild-freebsd-arm64@0.14.54 (node_modules\esbuild\node_modules\esbuild-freebsd-arm64):
+npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for esbuild-freebsd-arm64@0.14.54: wanted {"os":"freebsd","arch":"arm64"} (current: {"os":"win32","arch":"x64"})
+npm WARN optional SKIPPING OPTIONAL DEPENDENCY: esbuild-linux-64@0.14.54 (node_modules\esbuild\node_modules\esbuild-linux-64):
+npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for esbuild-linux-64@0.14.54: wanted {"os":"linux","arch":"x64"} (current: {"os":"win32","arch":"x64"})
+npm WARN optional SKIPPING OPTIONAL DEPENDENCY: esbuild-android-64@0.14.54 (node_modules\esbuild\node_modules\esbuild-android-64):
+npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for esbuild-android-64@0.14.54: wanted {"os":"android","arch":"x64"} (current: {"os":"win32","arch":"x64"})
+npm WARN optional SKIPPING OPTIONAL DEPENDENCY: @esbuild/linux-loong64@0.14.54 (node_modules\esbuild\node_modules\@esbuild\linux-loong64):
+npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for @esbuild/linux-loong64@0.14.54: wanted {"os":"linux","arch":"loong64"} (current: {"os":"win32","arch":"x64"})
+npm WARN optional SKIPPING OPTIONAL DEPENDENCY: esbuild-linux-mips64le@0.14.54 (node_modules\esbuild\node_modules\esbuild-linux-mips64le):
+npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for esbuild-linux-mips64le@0.14.54: wanted {"os":"linux","arch":"mips64el"} (current: {"os":"win32","arch":"x64"})
+npm WARN optional SKIPPING OPTIONAL DEPENDENCY: esbuild-linux-arm64@0.14.54 (node_modules\esbuild\node_modules\esbuild-linux-arm64):
+npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for esbuild-linux-arm64@0.14.54: wanted {"os":"linux","arch":"arm64"} (current: {"os":"win32","arch":"x64"})
+npm WARN optional SKIPPING OPTIONAL DEPENDENCY: esbuild-linux-ppc64le@0.14.54 (node_modules\esbuild\node_modules\esbuild-linux-ppc64le):
+npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for esbuild-linux-ppc64le@0.14.54: wanted {"os":"linux","arch":"ppc64"} (current: {"os":"win32","arch":"x64"})
+npm WARN optional SKIPPING OPTIONAL DEPENDENCY: esbuild-linux-riscv64@0.14.54 (node_modules\esbuild\node_modules\esbuild-linux-riscv64):
+npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for esbuild-linux-riscv64@0.14.54: wanted {"os":"linux","arch":"riscv64"} (current: {"os":"win32","arch":"x64"})
+npm WARN optional SKIPPING OPTIONAL DEPENDENCY: esbuild-linux-s390x@0.14.54 (node_modules\esbuild\node_modules\esbuild-linux-s390x):
+npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for esbuild-linux-s390x@0.14.54: wanted {"os":"linux","arch":"s390x"} (current: {"os":"win32","arch":"x64"})
+npm WARN optional SKIPPING OPTIONAL DEPENDENCY: esbuild-netbsd-64@0.14.54 (node_modules\esbuild\node_modules\esbuild-netbsd-64):
+npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for esbuild-netbsd-64@0.14.54: wanted {"os":"netbsd","arch":"x64"} (current: {"os":"win32","arch":"x64"})
+npm WARN optional SKIPPING OPTIONAL DEPENDENCY: esbuild-openbsd-64@0.14.54 (node_modules\esbuild\node_modules\esbuild-openbsd-64):
+npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for esbuild-openbsd-64@0.14.54: wanted {"os":"openbsd","arch":"x64"} (current: {"os":"win32","arch":"x64"})
+npm WARN optional SKIPPING OPTIONAL DEPENDENCY: esbuild-sunos-64@0.14.54 (node_modules\esbuild\node_modules\esbuild-sunos-64):
+npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for esbuild-sunos-64@0.14.54: wanted {"os":"sunos","arch":"x64"} (current: {"os":"win32","arch":"x64"})
+npm WARN optional SKIPPING OPTIONAL DEPENDENCY: esbuild-windows-32@0.14.54 (node_modules\esbuild\node_modules\esbuild-windows-32):
+npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for esbuild-windows-32@0.14.54: wanted {"os":"win32","arch":"ia32"} (current: {"os":"win32","arch":"x64"})
+npm WARN optional SKIPPING OPTIONAL DEPENDENCY: esbuild-windows-arm64@0.14.54 (node_modules\esbuild\node_modules\esbuild-windows-arm64):
+npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for esbuild-windows-arm64@0.14.54: wanted {"os":"win32","arch":"arm64"} (current: {"os":"win32","arch":"x64"})
+
+added 37 packages from 52 contributors and audited 58 packages in 49.573s
+
+3 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+
+PS D:\程序\2023Q3\vite-test>
+```
+
+
+
+运行：
+
+```sh
+PS D:\程序\2023Q3\vite-test> npm run dev
+
+> vite-test@0.0.0 dev D:\程序\2023Q3\vite-test
+> vite
+
+Port 3000 is in use, trying another one...
+
+  vite v2.9.16 dev server running at:
+
+  > Local: http://localhost:3001/
+  > Network: use `--host` to expose
+
+  ready in 173ms.
+
+
+```
+
+
+
+
+
+![image-20230630205503090](img/vue学习笔记/image-20230630205503090.png)
+
+
+
+
+
+
+
+最后项目结构如下：
+
+![image-20230630205641596](img/vue学习笔记/image-20230630205641596.png)
+
+
+
+
+
+
+
+## 命令行界面
+
+在安装了 Vite 的项目中，可以在 npm scripts 中使用 vite 可执行文件
+
+![image-20230630205903283](img/vue学习笔记/image-20230630205903283.png)
+
+
+
+
+
+可以指定额外的命令行选项，如 `--port` 或 `--https`。运行 `npx vite --help` 获得完整的命令行选项列表。
+
+
+
+```sh
+PS D:\程序\2023Q3\vite-test> npx vite --help
+vite/2.9.16
+
+Usage:
+  $ vite [root]
+
+Commands:
+  [root]           start dev server
+  build [root]     build for production
+  optimize [root]  pre-bundle dependencies
+  preview [root]   locally preview production build
+
+For more info, run any command with the `--help` flag:
+  $ vite --help
+  $ vite build --help
+  $ vite optimize --help
+  $ vite preview --help
+
+Options:
+  --host [host]           [string] specify hostname
+  --port <port>           [number] specify port
+  --https                 [boolean] use TLS + HTTP/2
+  --open [path]           [boolean | string] open browser on startup
+  --cors                  [boolean] enable CORS
+  --strictPort            [boolean] exit if specified port is already in use
+  --force                 [boolean] force the optimizer to ignore the cache and re-bundle
+  -c, --config <file>     [string] use specified config file
+  --base <path>           [string] public base path (default: /)
+  -l, --logLevel <level>  [string] info | warn | error | silent
+  --clearScreen           [boolean] allow/disable clear screen when logging
+  -d, --debug [feat]      [string | boolean] show debug logs
+  -f, --filter <filter>   [string] filter debug logs
+  -m, --mode <mode>       [string] set env mode
+  -h, --help              Display this message
+  -v, --version           Display version number
+PS D:\程序\2023Q3\vite-test>
+```
 
 
 
