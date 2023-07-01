@@ -14998,6 +14998,93 @@ PS D:\程序\2023Q3\vite-test>
 
 
 
+## 修改端口
+
+打开项目根目录下 vite.config.ts
+
+```typescript
+import {defineConfig} from 'vite'
+import vue from '@vitejs/plugin-vue'
+
+// https://vitejs.dev/config/
+export default defineConfig({
+    plugins: [vue()],
+    server:
+        {
+            port: 8878
+        }
+})
+```
+
+
+
+![image-20230630210909876](img/vue学习笔记/image-20230630210909876.png)
+
+
+
+
+
+
+
+
+
+## 配置代理
+
+为了避免前后端服务器联调时， fetch、xhr 请求产生跨域问题，需要配置代理，同样是修改项目根目录下 vite.config.ts
+
+```typescript
+import {defineConfig} from 'vite'
+import vue from '@vitejs/plugin-vue'
+
+// https://vitejs.dev/config/
+export default defineConfig({
+    plugins: [vue()],
+    server:
+        {
+            port: 8878,
+            proxy:
+                {
+                    '/api': {
+                        target: 'http://localhost:9090',
+                        changeOrigin: true
+                    }
+                }
+        },
+})
+
+```
+
+
+
+```vue
+<template>
+
+</template>
+
+<script lang="ts" setup>
+
+import axios from "axios";
+
+axios.get('/api/test').then((res) =>
+{
+  console.log(res.data);
+}).catch((error) =>
+{
+  console.log(error);
+});
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+
+
+![image-20230630211910907](img/vue学习笔记/image-20230630211910907.png)
 
 
 
@@ -15013,12 +15100,77 @@ PS D:\程序\2023Q3\vite-test>
 
 
 
+# VueUse
+
+## 概述
+
+VueUse不是Vue.use，它是为Vue 2和3服务的一套Vue Composition API的常用工具集，是目前世界上Star最高的同类型库之一。它的初衷就是将一切原本并不支持响应式的JS API变得支持响应式，省去程序员自己写相关代码。
+
+VueUse是一款基于组合式API的函数集合。
+
+
+
+## 特点
+
+* 功能丰富
+* 无缝迁移
+* 强类型，用TypeScript编写，带有完整的TS文档
+* 灵活，用refs作为参数，完全可定制
+* 不需要打包工具，可通过CDN引入，无需任何打包工具
+* 服务端渲染(SSR) 友好，完全可用于服务器端渲染(rendering/generation)
+* 可交互样例
+* 支持插件
 
 
 
 
 
-# vueuse
+
+
+## 官网和文档
+
+官网：https://www.vueusejs.com/
+
+文档：https://www.vueusejs.com/guide/
+
+
+
+
+
+
+
+
+
+## 安装
+
+```sh
+npm i @vueuse/core
+```
+
+
+
+也可以使用cdn
+
+```html
+<script src="https://unpkg.com/@vueuse/shared"></script>
+<script src="https://unpkg.com/@vueuse/core"></script>
+```
+
+
+
+暴露一个全局变量 window.VueUse
+
+
+
+
+
+## 使用方法
+
+
+
+
+
+
 
 
 
