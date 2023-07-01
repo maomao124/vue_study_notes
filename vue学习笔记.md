@@ -15166,9 +15166,339 @@ npm i @vueuse/core
 
 ## 使用方法
 
+在@vueuse/core中导入你需要的函数
 
 
 
+```vue
+<template>
+  <h1>鼠标位置：{{ x }},{{ y }}</h1>
+</template>
+
+<script lang="ts" setup>
+import {useMouse} from "@vueuse/core";
+
+const {x, y} = useMouse();
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230701161032425](img/vue学习笔记/image-20230701161032425.png)
+
+
+
+
+
+
+
+
+
+## 使用准则
+
+* 从 `"vue-demi"` 导入所有的vue接口
+* 尽可能使用 `ref` 代替 `reactive`
+* 尽可能用对象作为参数，以便将来扩展更灵活
+* 包装大量数据时，使用 `shallowRef` 而不是 `ref`
+* 在使用多窗口、测试模拟和 SSR 时，使用 `configurableWindow` （等）以更灵活的使用 `window` 等全局变量
+* 当涉及到尚未被浏览器广泛实现的Web APIs时，会输出 `isSupported` 标志
+* 当在内部使用' watch '或' watchEffect '时，也尽可能使' immediate '和' flush '作为可配置项
+* 避免使用控制台输出
+* 使用 tryOnUnmounted 优雅地清除副作用
+* 当函数异步时，返回一个 PromiseLike
+
+
+
+
+
+
+
+
+
+
+
+## State
+
+### createSharedComposable
+
+让一个钩子函数可用于多个Vue实例中
+
+```vue
+import { createSharedComposable, useMouse } from '@vueuse/core'
+
+const useSharedMouse = createSharedComposable(useMouse)
+
+// CompA.vue
+const { x, y } = useSharedMouse()
+
+// CompB.vue - will reuse the previous state and no new event listeners will be registered
+const { x, y } = useSharedMouse()
+```
+
+
+
+
+
+
+
+
+
+### useDebouncedRefHistory
+
+useRefHistory 的简写，带有防抖过滤器。
+
+当计数器的值开始改变时，该函数会在500ms后对计数器保存快照。
+
+
+
+```vue
+<template>
+
+  <h1>{{ count }}</h1>
+  <button @click="count++">+1</button>
+  <br>
+  <button @click="count--">-1</button>
+  <br>
+  <button @click="undo">undo</button>
+  <br>
+  <button @click="redo">redo</button>
+
+</template>
+
+<script setup lang="ts">
+
+import {ref} from "vue";
+import {useDebouncedRefHistory} from "@vueuse/core";
+
+const count = ref(100);
+const {history, undo, redo} = useDebouncedRefHistory(count, {deep: true, debounce: 500});
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+
+
+
+
+### useLastChanged
+
+记录最后一次更改的时间戳
+
+
+
+```vue
+<template>
+
+  <h1>{{ count }}</h1>
+  <button @click="count++">+1</button>
+  <br>
+  <button @click="count--">-1</button>
+  <br>
+  <h1>最后一次更改时间：{{ new Date(lastChanged).toLocaleString() }}</h1>
+
+
+</template>
+
+<script setup lang="ts">
+
+import {ref} from "vue";
+import {useLastChanged} from "@vueuse/core";
+
+const count = ref(100);
+
+const lastChanged = useLastChanged(count)
+
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230701163347479](img/vue学习笔记/image-20230701163347479.png)
+
+
+
+
+
+
+
+### useStorage
+
+响应式 LocalStorage/SessionStorage
+
+```vue
+<template>
+
+  <h1>{{ count }}</h1>
+  <button @click="count++">+1</button>
+  <br>
+  <button @click="count--">-1</button>
+
+
+</template>
+
+<script setup lang="ts">
+
+import {onMounted, ref} from "vue";
+import {useLastChanged, useStorage} from "@vueuse/core";
+
+const count = ref(100);
+
+const storage = useStorage("count", count);
+//const storage = useStorage("count", count, sessionStorage);
+onMounted(() =>
+{
+  setInterval(() =>
+  {
+    console.log(localStorage.getItem('count'));
+  }, 1000)
+})
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+
+
+![image-20230701164350820](img/vue学习笔记/image-20230701164350820.png)
+
+
+
+![image-20230701164357403](img/vue学习笔记/image-20230701164357403.png)
+
+
+
+
+
+
+
+
+
+
+
+## Elements
+
+### useDraggable
+
+使元素可拖拽
+
+```vue
+<template>
+  <div>
+    <div ref="el" :style="style" style="position: fixed">
+      Drag me! I am at {{ x }}, {{ y }}
+    </div>
+  </div>
+</template>
+
+<script lang="ts" setup>
+
+import {ref} from "vue";
+import {useDraggable} from "@vueuse/core";
+
+const el = ref<HTMLElement | null>(null)
+const {x, y, style} = useDraggable(el, {
+  initialValue: {x: 40, y: 40},
+})
+
+
+</script>
+
+<style scoped>
+
+div {
+  background: #42b983;
+}
+</style>
+```
+
+
+
+![image-20230701165637169](img/vue学习笔记/image-20230701165637169.png)
+
+
+
+
+
+![image-20230701165646460](img/vue学习笔记/image-20230701165646460.png)
+
+
+
+### useDropZone
+
+创建一个可以放置文件的区域。
+
+```vue
+<template>
+  <div ref="dropZoneRef">
+    文件放置位置
+  </div>
+</template>
+
+<script setup lang="ts">
+import {ref} from "vue";
+import {useDropZone} from "@vueuse/core";
+
+const dropZoneRef = ref<HTMLDivElement>()
+
+function onDrop(files: File[] | null)
+{
+  if (files != null)
+  {
+    for (let file of files)
+    {
+      console.log(file);
+    }
+  }
+}
+
+const {isOverDropZone} = useDropZone(dropZoneRef, onDrop)
+
+</script>
+
+<style scoped>
+div {
+  background: dodgerblue;
+  width: 600px;
+  height: 600px;
+  text-align: center;
+}
+</style>
+```
+
+
+
+![image-20230701170337352](img/vue学习笔记/image-20230701170337352.png)
+
+
+
+
+
+
+
+
+
+### useElementSize
 
 
 
