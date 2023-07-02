@@ -15500,6 +15500,284 @@ div {
 
 ### useElementSize
 
+元素尺寸大小响应式
+
+```vue
+<template>
+  <div ref="el">
+    更改窗口大小改变值<br>
+    Height: {{ height }}<br>
+    Width: {{ width }}
+  </div>
+</template>
+
+<script setup lang="ts">
+
+import {useElementSize} from "@vueuse/core";
+import {ref} from "vue";
+
+const el = ref(null)
+const {width, height} = useElementSize(el)
+
+</script>
+
+<style scoped>
+
+div {
+  width: 100vw;
+  height: 100vh;
+}
+</style>
+```
+
+
+
+![image-20230701171532475](img/vue学习笔记/image-20230701171532475.png)
+
+
+
+
+
+![image-20230701171545755](img/vue学习笔记/image-20230701171545755.png)
+
+
+
+
+
+
+
+
+
+### useMouseInElement
+
+响应式获取鼠标相对于元素的位置
+
+
+
+```vue
+<template>
+  <div>
+    <div id="d" ref="target">
+      <h1>Hello world</h1>
+    </div>
+    <h1>{{ x }},{{ y }}<br>
+      {{ isOutside }}<br>
+      {{ elementX }},{{ elementY }}</h1>
+  </div>
+</template>
+
+<script lang="ts" setup>
+
+import {ref} from "vue";
+import {useMouseInElement} from "@vueuse/core";
+
+const target = ref(null)
+const {x, y, isOutside, elementX, elementY} = useMouseInElement(target)
+
+</script>
+
+<style scoped>
+
+#d {
+  background: darksalmon;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 200px;
+  height: 200px;
+}
+</style>
+```
+
+
+
+![image-20230701192722586](img/vue学习笔记/image-20230701192722586.png)
+
+
+
+
+
+
+
+
+
+### useWindowFocus
+
+```vue
+<template>
+
+  <h1>窗口是否聚焦：{{ windowFocus }}</h1>
+
+</template>
+
+<script setup lang="ts">
+
+import {useWindowFocus} from "@vueuse/core";
+import {watch} from "vue";
+
+const windowFocus = useWindowFocus();
+
+
+watch(windowFocus, (newValue) =>
+{
+  if (newValue)
+  {
+    console.log("窗口聚焦")
+  }
+  else
+  {
+    console.log("窗口取消聚焦")
+  }
+})
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230701193458571](img/vue学习笔记/image-20230701193458571.png)
+
+
+
+![image-20230701193503404](img/vue学习笔记/image-20230701193503404.png)
+
+
+
+
+
+![image-20230701193511122](img/vue学习笔记/image-20230701193511122.png)
+
+
+
+![image-20230701193520415](img/vue学习笔记/image-20230701193520415.png)
+
+
+
+
+
+
+
+### useWindowScroll
+
+响应式获取窗口的滚动位置。
+
+
+
+```vue
+<template>
+  <div class="div">
+    <h1>
+      {{ windowScroll.x }}<br>
+      {{ windowScroll.y }}
+    </h1>
+  </div>
+</template>
+
+<script lang="ts" setup>
+
+import {useWindowScroll} from "@vueuse/core";
+import {watch} from "vue";
+
+const windowScroll = useWindowScroll();
+
+watch(windowScroll.x, () =>
+{
+  console.log("x更改", windowScroll.x.value, windowScroll.y.value);
+})
+watch(windowScroll.y, () =>
+{
+  console.log("y更改", windowScroll.x.value, windowScroll.y.value);
+})
+
+</script>
+
+<style scoped>
+.div {
+  text-align: center;
+  width: 500vw;
+  height: 2000vh;
+  background: dodgerblue;
+}
+
+
+</style>
+```
+
+
+
+![image-20230701203928601](img/vue学习笔记/image-20230701203928601.png)
+
+
+
+
+
+![image-20230701203937812](img/vue学习笔记/image-20230701203937812.png)
+
+
+
+
+
+
+
+### useWindowSize
+
+响应式获取窗口尺寸
+
+
+
+```vue
+<template>
+  <div>
+    <h1>{{ windowSize.width }}</h1>
+    <h1>{{ windowSize.height }}</h1>
+  </div>
+</template>
+
+<script setup lang="ts">
+import {useWindowSize} from "@vueuse/core";
+
+const windowSize = useWindowSize();
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+
+
+![image-20230701204713014](img/vue学习笔记/image-20230701204713014.png)
+
+
+
+
+
+
+
+![image-20230701204728186](img/vue学习笔记/image-20230701204728186.png)
+
+
+
+
+
+
+
+## Browser
+
+### useBluetooth
+
+
+
+
+
 
 
 
