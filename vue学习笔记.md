@@ -1,5 +1,29 @@
 <h1 style="color:skyblue;text-align:center">Vue学习笔记</h1>
 
+[TOC]
+
+---
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -15774,6 +15798,45 @@ const windowSize = useWindowSize();
 
 ### useBluetooth
 
+响应式 Web Bluetooth API。提供连接低功耗蓝牙外设并与之交互的能力
+
+
+
+```vue
+<template>
+  <div>
+    <button @click="bluetooth.requestDevice()">请求设备连接</button>
+    <br>
+    <h2>是否支持：{{ bluetooth.isSupported }}</h2>
+    <br>
+    <h2>是否连接：{{ bluetooth.isConnected }}</h2>
+    <br>
+    <h2>设备：{{ bluetooth.device }}</h2>
+  </div>
+</template>
+
+<script lang="ts" setup>
+import {useBluetooth} from "@vueuse/core";
+
+const bluetooth = useBluetooth({acceptAllDevices: true,});
+console.log(bluetooth);
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230702195208598](img/vue学习笔记/image-20230702195208598.png)
+
+
+
+
+
+![image-20230702195226316](img/vue学习笔记/image-20230702195226316.png)
 
 
 
@@ -15781,6 +15844,156 @@ const windowSize = useWindowSize();
 
 
 
+
+
+
+
+
+
+### useBroadcastChannel
+
+响应式 BroadcastChannel API
+
+BroadcastChannel 接口代理了一个命名频道，可以让指定 origin 下的任意 browsing context 来订阅它。它允许同源的不同浏览器窗口，Tab 页，frame 或者 iframe 下的不同文档之间相互通信。
+
+```vue
+<template>
+  <h1>请打开两个tab页</h1>
+  <h2>是否支持：{{ broadcastChannel.isSupported }}</h2>
+  <h2>是否关闭：{{ broadcastChannel.isClosed }}</h2>
+  <button @click="send">点击发送消息</button>
+  <button @click="broadcastChannel.close()">点击关闭</button>
+</template>
+
+<script setup lang="ts">
+import {useBroadcastChannel} from "@vueuse/core";
+import {watch} from "vue";
+
+const broadcastChannel = useBroadcastChannel({name: 'test'});
+console.log(broadcastChannel);
+
+watch(broadcastChannel.data, (msg) =>
+{
+  console.log("接收到消息：" + msg)
+})
+
+function send()
+{
+  if (!broadcastChannel.isClosed.value)
+  {
+    console.log("发送消息")
+    broadcastChannel.post("hello");
+  }
+}
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230702202317087](img/vue学习笔记/image-20230702202317087.png)
+
+
+
+![image-20230702202328862](img/vue学习笔记/image-20230702202328862.png)
+
+
+
+
+
+
+
+
+
+
+
+### useBrowserLocation
+
+响应式获取 Location
+
+```vue
+<template>
+  <h2>{{ location }}</h2>
+</template>
+
+<script setup lang="ts">
+import {useBrowserLocation} from "@vueuse/core";
+import {watch} from "vue";
+
+const location = useBrowserLocation();
+console.log(location.value)
+watch(location, () =>
+{
+  console.log("监听到location更改")
+  console.log(location)
+})
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230702202913423](img/vue学习笔记/image-20230702202913423.png)
+
+
+
+
+
+### useClipboard
+
+响应式 Clipboard API。剪贴板 API 提供了响应剪贴板命令（剪切、复制和粘贴）与异步读写系统剪贴板的能力。从权限 Permissions API。获取权限之后，才能访问剪贴板内容；如果用户没有授予权限，则不允许读取或更改剪贴板内容
+
+
+
+```vue
+<template>
+
+  剪切板内容：<br>
+  <textarea v-text="clipboard.text"></textarea>
+  <br>
+  <input type="text" v-model="source">
+  <br>
+  <button @click="clipboard.copy(source)">点击复制</button>
+
+</template>
+
+<script lang="ts" setup>
+
+import {useClipboard} from "@vueuse/core";
+import {ref} from "vue";
+
+const source = ref('Hello')
+const clipboard = useClipboard({source});
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230702204000114](img/vue学习笔记/image-20230702204000114.png)
+
+
+
+
+
+
+
+
+
+
+
+### useEventListener
 
 
 
