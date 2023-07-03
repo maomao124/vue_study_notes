@@ -15995,6 +15995,343 @@ const clipboard = useClipboard({source});
 
 ### useEventListener
 
+轻松使用事件监听。在挂载时使用 addEventListener 注册，在卸载时自动使用 removeEventListener 。
+
+
+
+```vue
+<template>
+  <div>
+    <button ref="el" type="button">按钮</button>
+  </div>
+</template>
+
+<script setup lang="ts">
+import {ref} from "vue";
+import {useEventListener} from "@vueuse/core";
+
+const el = ref<HTMLButtonElement>();
+useEventListener(el, 'click', () =>
+{
+  alert("按钮被点击了")
+})
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230703132600981](img/vue学习笔记/image-20230703132600981.png)
+
+
+
+
+
+
+
+### useFileDialog
+
+轻松打开文件对话框。
+
+```vue
+<template>
+  <div>
+    <button ref="el" type="button">点击打开</button>
+    <br>
+    <br>
+    <template v-if="files">
+      <p>You have selected: <b>{{ `${files.length} ${files.length === 1 ? 'file' : 'files'}` }}</b></p>
+      <li v-for="file of files" :key="file.name">
+        {{ file.name }}
+      </li>
+    </template>
+  </div>
+</template>
+
+<script setup lang="ts">
+import {ref} from "vue";
+import {useEventListener, useFileDialog} from "@vueuse/core";
+
+const el = ref<HTMLButtonElement>();
+
+const fileDialog = useFileDialog();
+const files = fileDialog.files;
+fileDialog.onChange((files) =>
+{
+  console.log("发生改变", files)
+})
+
+useEventListener(el, 'click', () =>
+{
+  fileDialog.open()
+})
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+
+
+![image-20230703134722904](img/vue学习笔记/image-20230703134722904.png)
+
+
+
+
+
+![image-20230703134354464](img/vue学习笔记/image-20230703134354464.png)
+
+
+
+
+
+![image-20230703134407905](img/vue学习笔记/image-20230703134407905.png)
+
+
+
+
+
+
+
+
+
+
+
+### useFullscreen
+
+响应式Fullscreen API。它添加了以全屏模式呈现特定元素（及其后代）的方法，并在不再需要时退出全屏模式
+
+```vue
+<template>
+  <img ref="img" src="public/favicon.ico" alt="图片">
+  <br>
+  <button @click="fullscreen.enter()">进入全屏</button>
+</template>
+
+<script setup lang="ts">
+import {ref} from "vue";
+import {useFullscreen} from "@vueuse/core";
+
+const img = ref<HTMLImageElement>();
+
+const fullscreen = useFullscreen(img);
+console.log(fullscreen.isSupported.value);
+
+</script>
+
+<style scoped>
+img {
+  width: 300px;
+  height: 300px;
+  background: #42b983;
+}
+</style>
+```
+
+
+
+![image-20230703135442399](img/vue学习笔记/image-20230703135442399.png)
+
+![image-20230703135452149](img/vue学习笔记/image-20230703135452149.png)
+
+
+
+
+
+
+
+
+
+
+
+### useMemory
+
+响应式获取内存信息
+
+```vue
+<template>
+  <template v-if="memory.memory">
+    <div opacity="50">
+      Used
+    </div>
+    <div>{{ size(memory.memory.usedJSHeapSize) }}</div>
+    <div opacity="50">
+      Allocated
+    </div>
+    <div>{{ size(memory.memory.totalJSHeapSize) }}</div>
+    <div opacity="50">
+      Limit
+    </div>
+    <div>{{ size(memory.memory.jsHeapSizeLimit) }}</div>
+  </template>
+</template>
+
+<script setup lang="ts">
+import {ref} from "vue";
+import {useMemory} from "@vueuse/core";
+
+const memory = useMemory();
+console.log(memory.isSupported.value)
+
+function size(v: number)
+{
+  const kb = v / 1024 / 1024
+  return `${kb.toFixed(2)} MB`
+}
+
+</script>
+
+<style scoped>
+video {
+  width: 300px;
+  height: 300px;
+  background: #42b983;
+}
+</style>
+```
+
+
+
+
+
+
+
+### useShare
+
+响应式 Web Share API。浏览器提供可以共享文本或文件内容的功能。
+
+
+
+```vue
+<template>
+  <button @click="toShare">点击分享</button>
+</template>
+
+<script lang="ts" setup>
+import {useShare} from "@vueuse/core";
+
+const share = useShare();
+
+function toShare(): void
+{
+  if (share.isSupported)
+  {
+    share.share({
+      title: "分享测试",
+      text: "11111111111111111111111111111111111111",
+      url: location.href
+    })
+  }
+  else
+  {
+    console.log("不支持")
+  }
+}
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230703141922235](img/vue学习笔记/image-20230703141922235.png)
+
+
+
+
+
+
+
+
+
+### useWebNotification
+
+Notifications API 的 Web Notification 接口用于配置和向用户显示桌面通知。
+
+```vue
+<template>
+  <button @click="()=>{if (isSupported){show()}}">通知
+  </button>
+</template>
+
+<script setup lang="ts">
+import {useWebNotification} from "@vueuse/core";
+
+const {
+  isSupported,
+  notification,
+  show,
+  close,
+  onClick,
+  onShow,
+  onError,
+  onClose,
+} = useWebNotification({
+  title: '你好，当前时间为' + new Date().toLocaleString(),
+  dir: 'auto',
+  lang: 'zh-cn',
+  renotify: true,
+  tag: '通知测试',
+})
+console.log(isSupported.value)
+onClick((e) =>
+{
+  console.log("通知被点击了,点击的通知为", e.target.title)
+})
+onClose((e) =>
+{
+  console.log("通知被关闭了 ", e.target.title)
+})
+
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230703143158262](img/vue学习笔记/image-20230703143158262.png)
+
+
+
+
+
+![image-20230703143223221](img/vue学习笔记/image-20230703143223221.png)
+
+
+
+
+
+
+
+
+
+### useWebWorkerFn
+
+使用 Promise 语法，在不阻塞 UI 的情况下运行复杂功能，运行在 alewin/useWorker
+
+
+
+
+
+
+
+
+
 
 
 
