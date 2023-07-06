@@ -16326,7 +16326,323 @@ onClose((e) =>
 
 
 
+```vue
+<template>
 
+  <p>Current Time: <b>{{ computedTime }}</b></p>
+  <button @click="baseSort">
+    Sort in Main Thread
+  </button>
+  <button v-if="!running" @click="workerSort">
+    Sort in Worker
+  </button>
+  <button v-else class="orange" @click="workerTerminate('PENDING')">
+    Terminate Worker
+  </button>
+  <p v-if="data">
+    Thread: <strong>{{ runner }}</strong><br>
+    Result: <strong>{{ data }}</strong>
+  </p>
+</template>
+
+<script setup lang="ts">
+import {useDateFormat, useTimestamp, useWebWorkerFn} from "@vueuse/core";
+import {computed, nextTick, ref} from "vue";
+
+function heavyTask()
+{
+  const randomNumber = () => Math.trunc(Math.random() * 5_000_00)
+  const numbers: number[] = Array(5_000_000).fill(undefined).map(randomNumber)
+  numbers.sort()
+  return numbers.slice(0, 5)
+}
+
+const {workerFn, workerStatus, workerTerminate} = useWebWorkerFn(heavyTask)
+const time = useTimestamp()
+const computedTime = useDateFormat(time, 'YYYY-MM-DD HH:mm:ss SSS')
+const running = computed(() => workerStatus.value === 'RUNNING')
+
+const data = ref<number[] | null>(null)
+const runner = ref('')
+
+async function baseSort()
+{
+  data.value = null
+  await nextTick()
+  data.value = heavyTask()
+  runner.value = 'Main'
+}
+
+async function workerSort()
+{
+  data.value = null
+  await nextTick()
+  data.value = await workerFn()
+  runner.value = 'Worker'
+}
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230705115117558](img/vue学习笔记/image-20230705115117558.png)
+
+
+
+
+
+## Sensors
+
+### useBattery
+
+响应式 Battery Status API，更多时候被称之为 Battery API, 提供了有关系统充电级别的信息并提供了通过电池等级或者充电状态的改变提醒用户的事件。这个可以在设备电量低的时候调整应用的资源使用状态，或者在电池用尽前保存应用中的修改以防数据丢失。
+
+
+
+|      State      |   Type    |            Description             |
+| :-------------: | :-------: | :--------------------------------: |
+|    charging     | `Boolean` |       是否设备当前正在充电。       |
+|  chargingTime   | `Number`  |       设备充满电所需的秒数。       |
+| dischargingTime | `Number`  |    距离电池耗电至空需要多少秒。    |
+|      level      | `Number`  | 0到1之间的数字，代表系统电量的水平 |
+
+
+
+```vue
+<template>
+  <h2>charging: {{charging}}</h2>
+  <h2>chargingTime: {{chargingTime}}</h2>
+  <h2>dischargingTime: {{dischargingTime}}</h2>
+  <h2>level: {{level}}</h2>
+
+</template>
+
+<script lang="ts" setup>
+import {useBattery} from "@vueuse/core";
+
+const {charging, chargingTime, dischargingTime, level} = useBattery()
+
+setTimeout(()=>
+{
+  console.log(charging.value)
+  console.log(chargingTime.value)
+  console.log(dischargingTime.value)
+  console.log(level.value)
+},500)
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230705193352152](img/vue学习笔记/image-20230705193352152.png)
+
+
+
+![image-20230705193428702](img/vue学习笔记/image-20230705193428702.png)
+
+
+
+
+
+
+
+### useDeviceMotion
+
+响应式 DeviceMotionEvent，为 web 开发者提供了关于设备的位置和方向的改变速度的信息。
+
+
+
+|            State             |   Type   |                        Description                         |
+| :--------------------------: | :------: | :--------------------------------------------------------: |
+|         acceleration         | `object` |         提供了设备在 X,Y,Z 轴方向上加速度的对象。          |
+| accelerationIncludingGravity | `object` |     提供了设备在 X,Y,Z 轴方向上带重力的加速度的对象。      |
+|         rotationRate         | `object` | 提供了设备在 alpha、beta、gamma 轴方向上旋转的速率的对象。 |
+|           interval           | `Number` |         表示从设备获取数据的间隔时间，单位是毫秒。         |
+
+
+
+```vue
+<template>
+<div>
+  <h2>acceleration:{{JSON.stringify(acceleration)}}</h2>
+  <h2>accelerationIncludingGravity:{{JSON.stringify(accelerationIncludingGravity)}}</h2>
+  <h2>rotationRate:{{JSON.stringify(rotationRate)}}</h2>
+  <h2>interval:{{interval}}</h2>
+
+</div>
+</template>
+
+<script lang="ts" setup>
+import {useDeviceMotion} from "@vueuse/core";
+
+const {
+  acceleration,
+  accelerationIncludingGravity,
+  rotationRate,
+  interval,
+} = useDeviceMotion()
+
+setTimeout(()=>
+{
+  console.log(acceleration.value?.x)
+  console.log(acceleration.value?.y)
+  console.log(acceleration.value?.z)
+  console.log(accelerationIncludingGravity.value?.x)
+  console.log(accelerationIncludingGravity.value?.y)
+  console.log(accelerationIncludingGravity.value?.z)
+  console.log(rotationRate.value?.alpha)
+  console.log(rotationRate.value?.gamma)
+  console.log(rotationRate.value?.beta)
+},1000)
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+可以使用手机测试
+
+
+
+
+
+### useDevicesList
+
+列出可用的输入输出设备的响应式列表
+
+```vue
+<template>
+<div>
+  <h2>{{devices}}</h2>
+  <h2>{{cameras}}</h2>
+  <h2>{{microphones}}</h2>
+  <h2>{{speakers}}</h2>
+
+</div>
+</template>
+
+<script lang="ts" setup>
+import {useDevicesList} from "@vueuse/core";
+
+const {
+  devices,
+  videoInputs: cameras,
+  audioInputs: microphones,
+  audioOutputs: speakers,
+} = useDevicesList()
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+
+
+
+
+### useDisplayMedia
+
+响应式 mediaDevices.getDisplayMedia流
+
+```vue
+<template>
+  <div>
+    <video ref="video"
+           muted
+           autoplay
+           controls></video>
+    <br>
+    <button @click="request">请求</button>
+  </div>
+</template>
+
+<script lang="ts" setup>
+import {useDevicesList, useDisplayMedia} from "@vueuse/core";
+import {ref, watchEffect} from "vue";
+
+const video = ref<HTMLVideoElement>()
+const displayMedia = useDisplayMedia();
+
+console.log(displayMedia.enabled.value)
+
+watchEffect(() => {
+  if (video.value)
+    video.value.srcObject = displayMedia.stream.value!
+})
+
+function request()
+{
+  if (!displayMedia.isSupported.value)
+  {
+    console.log("不支持")
+    return
+  }
+  if (displayMedia.enabled.value)
+  {
+    console.log('开启中，即将关闭')
+    displayMedia.stop()
+  }
+  else
+  {
+    console.log("即将打开")
+    displayMedia.start()
+  }
+}
+
+</script>
+
+<style scoped>
+
+video {
+  height: 600px;
+  width: 900px;
+}
+</style>
+```
+
+
+
+![image-20230705201037681](img/vue学习笔记/image-20230705201037681.png)
+
+
+
+![image-20230705201054314](img/vue学习笔记/image-20230705201054314.png)
+
+
+
+
+
+![image-20230705201106877](img/vue学习笔记/image-20230705201106877.png)
+
+
+
+![image-20230705201146407](img/vue学习笔记/image-20230705201146407.png)
+
+
+
+
+
+
+
+### useFps
 
 
 
