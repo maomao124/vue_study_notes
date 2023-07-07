@@ -16644,6 +16644,40 @@ video {
 
 ### useFps
 
+响应式 FPS（每秒帧数）
+
+```vue
+<template>
+  <h1>FPS:{{ fps }}</h1>
+</template>
+
+<script lang="ts" setup>
+
+import {useFps} from "@vueuse/core";
+
+const fps = useFps();
+
+setInterval(() =>
+{
+  console.log("时间" + new Date().toLocaleTimeString() + "  fps:" + fps.value)
+}, 1000)
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230706134608820](img/vue学习笔记/image-20230706134608820.png)
+
+
+
+
+
+![image-20230706134623722](img/vue学习笔记/image-20230706134623722.png)
 
 
 
@@ -16651,6 +16685,171 @@ video {
 
 
 
+
+
+### useGeolocation
+
+响应式 Geolocation API。允许用户向 web 应用程序提供他们的位置
+
+
+
+|   State   |                             Type                             |      Description       |
+| :-------: | :----------------------------------------------------------: | :--------------------: |
+|  coords   | [`Coordinates`](https://developer.mozilla.org/zh-CN/docs/Web/API/Coordinates) | 位置信息，如纬度和经度 |
+| locatedAt |                            `Date`                            |    最后一次定位时间    |
+|   error   |                           `string`                           |   定位失败的失败消息   |
+|  resume   |                          `function`                          |    操作函数更新位置    |
+|   pause   |                          `function`                          |  操作函数暂停更新位置  |
+
+
+
+
+
+```vue
+<template>
+  <h1>latitude:{{ coords.latitude }}</h1>
+  <h1>altitude:{{ coords.altitude }}</h1>
+  <h1>accuracy:{{ coords.accuracy }}</h1>
+  <h1>heading:{{ coords.heading }}</h1>
+  <h1>altitudeAccuracy:{{ coords.altitudeAccuracy }}</h1>
+  <h1>longitude:{{ coords.longitude }}</h1>
+  <h1>speed:{{ coords.speed }}</h1>
+
+  <h1>locatedAt:{{ locatedAt }}</h1>
+  <h1>error:{{ error }}</h1>
+
+</template>
+
+<script lang="ts" setup>
+
+import {useGeolocation} from "@vueuse/core";
+
+const {coords, locatedAt, error, resume, pause} = useGeolocation()
+
+setTimeout(() =>
+{
+  console.log(coords.value)
+}, 1000)
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+
+
+![image-20230706140111123](img/vue学习笔记/image-20230706140111123.png)
+
+
+
+
+
+
+
+### useIdle
+
+跟踪用户是否处于非活动状态。
+
+```vue
+<template>
+  <h1>是否空闲：{{ idle.idle }}</h1>
+  <h1>最后活动时间：{{ t }}</h1>
+</template>
+
+<script lang="ts" setup>
+
+import {useGeolocation, useIdle} from "@vueuse/core";
+import {ref, watch} from "vue";
+
+const idle = useIdle(10 * 1000); //10s
+let t = ref();
+
+watch(idle.lastActive, () =>
+{
+  t.value = new Date(idle.lastActive.value).toLocaleTimeString()
+})
+
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+
+
+![image-20230706141506777](img/vue学习笔记/image-20230706141506777.png)
+
+
+
+
+
+
+
+
+
+### useMagicKeys
+
+响应式按下状态，支持组合键。
+
+```vue
+<template>
+  <h1>shift:{{ shift }}</h1>
+  <h1>space:{{ space }}</h1>
+  <h1>a:{{ a }}</h1>
+  <h1>b:{{ b }}</h1>
+  <h1>c:{{ c }}</h1>
+  <h1>d:{{ magicKeys.d }}</h1>
+  <h1>e:{{ magicKeys.e }}</h1>
+  <h1>s:{{ magicKeys.s }}</h1>
+  <h1>Shift+Ctrl+d:{{ magicKeys['Shift+Ctrl+d'] }}</h1>
+
+
+
+</template>
+
+<script lang="ts" setup>
+
+import {useMagicKeys} from "@vueuse/core";
+
+const {shift, space, a, b, c /* keys you want to monitor */} = useMagicKeys();
+
+const magicKeys = useMagicKeys();
+
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+
+
+![image-20230706142839186](img/vue学习笔记/image-20230706142839186.png)
+
+
+
+
+
+
+
+
+
+
+
+### useNetwork
+
+响应式 Network status。网络状态 API 可以获取到系统的网络连接信息，比如说连接方式是 WiFi 还是蜂窝。应用程序可以根据此信息为用户展现不同清晰度的内容。该 API 是由 NetworkInformation 接口和 Navigator 接口上新增的一个 connection 属性组成的
 
 
 
