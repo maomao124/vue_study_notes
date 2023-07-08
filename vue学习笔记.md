@@ -16851,6 +16851,456 @@ const magicKeys = useMagicKeys();
 
 响应式 Network status。网络状态 API 可以获取到系统的网络连接信息，比如说连接方式是 WiFi 还是蜂窝。应用程序可以根据此信息为用户展现不同清晰度的内容。该 API 是由 NetworkInformation 接口和 Navigator 接口上新增的一个 connection 属性组成的
 
+```vue
+<template>
+  <h1>isSupported:{{ network.isSupported }}</h1>
+  <h1>type:{{ network.type }}</h1>
+  <h1>isOnline:{{ network.isOnline }}</h1>
+  <h1>saveData:{{ network.saveData }}</h1>
+  <h1>rtt:{{ network.rtt }}</h1>
+  <h1>downlink:{{ network.downlink }}</h1>
+  <h1>downlinkMax:{{ network.downlinkMax }}</h1>
+  <h1>effectiveType:{{ network.effectiveType }}</h1>
+  <h1>offlineAt:{{ network.offlineAt }}</h1>
+  <h1>onlineAt:{{ network.onlineAt }}</h1>
+</template>
+
+<script lang="ts" setup>
+import {useNetwork} from "@vueuse/core";
+
+const network = useNetwork();
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+
+
+![image-20230707135620684](img/vue学习笔记/image-20230707135620684.png)
+
+
+
+
+
+
+
+### usePageLeave
+
+响应式获取鼠标是否离开页面。
+
+```vue
+<template>
+  <h1>pageLeave:{{ pageLeave }}</h1>
+</template>
+
+<script lang="ts" setup>
+import {usePageLeave} from "@vueuse/core";
+
+const pageLeave = usePageLeave();
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230707140048834](img/vue学习笔记/image-20230707140048834.png)
+
+
+
+
+
+
+
+
+
+### useTextSelection
+
+基于 Window.getSelection 响应式跟踪用户文本选择
+
+```vue
+<template>
+  <p>基于 Window.getSelection 响应式跟踪用户文本选择</p>
+
+  <h2>{{ textSelection.text }}</h2>
+  <h2>{{ textSelection.rects }}</h2>
+</template>
+
+<script lang="ts" setup>
+import {computed, ref} from "vue";
+import {useTextSelection} from "@vueuse/core";
+
+const textSelection = useTextSelection();
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230707142623428](img/vue学习笔记/image-20230707142623428.png)
+
+![image-20230707142639412](img/vue学习笔记/image-20230707142639412.png)
+
+
+
+
+
+
+
+
+
+## Network
+
+### useFetch
+
+响应式 Fetch API，提供中止请求、在请求被触发之前拦截请求、在 url 更改时自动重新获取请求以及使用预定义选项创建您自己的 useFetch
+
+只需提供一个 url 给 useFetch 函数即可使用该功能。url可以是字符串，也可以是 ref。 data 对象将包含请求的结果，error 对象将包含所有的错误，isFetching 对象表示请求是否正在加载。
+
+
+
+```typescript
+import { useFetch } from '@vueuse/core'
+
+const { isFetching, error, data } = useFetch(url)
+```
+
+
+
+异步使用：
+
+```typescript
+import { useFetch } from '@vueuse/core'
+
+const { isFetching, error, data } = await useFetch(url)
+```
+
+
+
+更改 URL 重新获取：
+
+```typescript
+const url = ref('https://my-api.com/user/1')
+
+const { data } = useFetch(url, { refetch: true })
+
+url.value = 'https://my-api.com/user/2' // Will trigger another request
+```
+
+
+
+中止请求：
+
+一个请求可以通过使用 useFetch 函数中的 abort 函数中止。canAbort 属性表示请求是否可以中止。
+
+```typescript
+const { abort, canAbort } = useFetch(url)
+
+setTimeout(() => {
+  if (canAbort.value)
+    abort()
+}, 100)
+```
+
+
+
+
+
+### useWebSocket
+
+响应式 WebSocket 
+
+
+
+基本适用：
+
+```typescript
+import { useWebSocket } from '@vueuse/core'
+
+const { status, data, send, open, close } = useWebSocket('ws://websocketurl')
+```
+
+
+
+自动重连：autoReconnect
+
+```typescript
+const { status, data, close } = useWebSocket('ws://websocketurl', {
+  autoReconnect: true,
+})
+```
+
+自动连接：Auto-connect
+
+自动关闭：Auto-close-connection
+
+心跳：heartbeat
+
+```typescript
+const { status, data, close } = useWebSocket('ws://websocketurl', {
+  heartbeat: true,
+})
+```
+
+子协议：protocols
+
+```typescript
+import { useWebSocket } from '@vueuse/core'
+
+const { status, data, send, open, close } = useWebSocket('ws://websocketurl', {
+  protocols: ['soap'], // ['soap', 'wamp']
+})
+```
+
+
+
+更多：
+
+```typescript
+const { status, data, close } = useWebSocket('ws://websocketurl', {
+  heartbeat: {
+    message: 'ping',
+    interval: 1000,
+    pongTimeout: 1000,
+  },
+})
+```
+
+
+
+
+
+
+
+
+
+## Animation
+
+### useInterval
+
+每隔一段时间响应式增加计数
+
+```vue
+<template>
+  <h2>{{ count1 }}</h2>
+  <h2>{{ count2 }}</h2>
+  <h2>{{ count3 }}</h2>
+
+</template>
+
+<script lang="ts" setup>
+
+import {useInterval} from "@vueuse/core";
+
+const count1 = useInterval(200);
+const count2 = useInterval(500);
+const count3 = useInterval(1000);
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230707144350443](img/vue学习笔记/image-20230707144350443.png)
+
+![image-20230707144407390](img/vue学习笔记/image-20230707144407390.png)
+
+
+
+
+
+
+
+### useNow
+
+响应式获取当前 Date 实例
+
+```vue
+<template>
+  <h2>{{ now.toLocaleString() }}</h2>
+
+</template>
+
+<script lang="ts" setup>
+
+import {useNow} from "@vueuse/core";
+
+const {now, pause, resume} = useNow({controls: true})
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230707144657995](img/vue学习笔记/image-20230707144657995.png)	
+
+
+
+![image-20230707144707476](img/vue学习笔记/image-20230707144707476.png)
+
+
+
+
+
+
+
+
+
+### useTimestamp
+
+响应式获取当前时间戳
+
+```vue
+<template>
+  <h2>timestamp:{{ timestamp }}</h2>
+
+</template>
+
+<script lang="ts" setup>
+
+import {useTimestamp} from "@vueuse/core";
+
+const timestamp = useTimestamp();
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+
+
+![image-20230707145015313](img/vue学习笔记/image-20230707145015313.png)
+
+
+
+
+
+![image-20230707145020953](img/vue学习笔记/image-20230707145020953.png)
+
+
+
+
+
+
+
+### useTransition
+
+值之间的过度
+
+```vue
+<template>
+  <h2>output1:{{ output1 }}</h2>
+  <h2>output2:{{ output2 }}</h2>
+  <h2>output3:{{ output3 }}</h2>
+  <h2>output4:{{ output4 }}</h2>
+  <button @click="change">改变值</button>
+
+</template>
+
+<script lang="ts" setup>
+
+import {TransitionPresets, useTransition} from "@vueuse/core";
+import {ref} from "vue";
+
+const source = ref(0)
+
+const output1 = useTransition(source, {
+  duration: 1000,
+  transition: TransitionPresets.easeInOutCubic,
+})
+const output2 = useTransition(source, {
+  duration: 500,
+  transition: TransitionPresets.easeInOutCubic,
+})
+const output3 = useTransition(source, {
+  duration: 5000,
+  transition: TransitionPresets.easeInOutCubic,
+})
+const output4 = useTransition(source, {
+  duration: 1000,
+  transition: TransitionPresets.easeInCirc,
+})
+
+function change()
+{
+  source.value = source.value + 100
+}
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+- [`linear`](https://cubic-bezier.com/#0,0,1,1)
+- [`easeInSine`](https://cubic-bezier.com/#.12,0,.39,0)
+- [`easeOutSine`](https://cubic-bezier.com/#.61,1,.88,1)
+- [`easeInOutSine`](https://cubic-bezier.com/#.37,0,.63,1)
+- [`easeInQuad`](https://cubic-bezier.com/#.11,0,.5,0)
+- [`easeOutQuad`](https://cubic-bezier.com/#.5,1,.89,1)
+- [`easeInOutQuad`](https://cubic-bezier.com/#.45,0,.55,1)
+- [`easeInCubic`](https://cubic-bezier.com/#.32,0,.67,0)
+- [`easeOutCubic`](https://cubic-bezier.com/#.33,1,.68,1)
+- [`easeInOutCubic`](https://cubic-bezier.com/#.65,0,.35,1)
+- [`easeInQuart`](https://cubic-bezier.com/#.5,0,.75,0)
+- [`easeOutQuart`](https://cubic-bezier.com/#.25,1,.5,1)
+- [`easeInOutQuart`](https://cubic-bezier.com/#.76,0,.24,1)
+- [`easeInQuint`](https://cubic-bezier.com/#.64,0,.78,0)
+- [`easeOutQuint`](https://cubic-bezier.com/#.22,1,.36,1)
+- [`easeInOutQuint`](https://cubic-bezier.com/#.83,0,.17,1)
+- [`easeInExpo`](https://cubic-bezier.com/#.7,0,.84,0)
+- [`easeOutExpo`](https://cubic-bezier.com/#.16,1,.3,1)
+- [`easeInOutExpo`](https://cubic-bezier.com/#.87,0,.13,1)
+- [`easeInCirc`](https://cubic-bezier.com/#.55,0,1,.45)
+- [`easeOutCirc`](https://cubic-bezier.com/#0,.55,.45,1)
+- [`easeInOutCirc`](https://cubic-bezier.com/#.85,0,.15,1)
+- [`easeInBack`](https://cubic-bezier.com/#.36,0,.66,-.56)
+- [`easeOutBack`](https://cubic-bezier.com/#.34,1.56,.64,1)
+- [`easeInOutBack`](https://cubic-bezier.com/#.68,-.6,.32,1.6)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
