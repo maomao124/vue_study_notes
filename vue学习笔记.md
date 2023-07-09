@@ -17303,6 +17303,142 @@ function change()
 
 
 
+## Watch
+
+### until
+
+监听一次Promise后的变化
+
+```vue
+<template>
+  <h2>count:{{ count }}</h2>
+  <button @click="change">改变值</button>
+</template>
+
+<script lang="ts" setup>
+
+import {invoke, until, useCounter} from "@vueuse/core";
+import {ref} from "vue";
+
+const {count} = useCounter(10)
+
+function change()
+{
+  count.value++;
+}
+
+invoke(async () =>
+{
+  await until(count).toMatch(v => v >= 20)
+  alert('大于等于20')
+})
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230708221641913](img/vue学习笔记/image-20230708221641913.png)
+
+
+
+
+
+
+
+
+
+
+
+### watchArray
+
+监听数组的添加和删除
+
+与 watch 类似，但给回调函数传入了添加了的和删除了的的元素，如果list用push, splice等更新，请传{ deep: true }
+
+
+
+```vue
+<template>
+  <h2>list:{{ list }}</h2>
+  <button @click="change1">+1元素</button>
+  <button @click="change2">-1元素</button>
+</template>
+
+<script lang="ts" setup>
+
+import {watchArray} from "@vueuse/core";
+import {ref} from "vue";
+
+const list = ref([1, 2, 3])
+
+function change1()
+{
+  list.value.push(Math.round(Math.random() * 100 + 10))
+}
+
+function change2()
+{
+  if (list.value.length > 0)
+  {
+    list.value.pop()
+  }
+}
+
+watchArray(list, (newList, oldList, added, removed) =>
+{
+  console.log('新数组：', newList)
+  console.log('旧数组：', oldList)
+  console.log("添加的元素：", added)
+  console.log("移除的元素：", removed)
+}, {deep: true})
+
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230708230322484](img/vue学习笔记/image-20230708230322484.png)
+
+
+
+![image-20230708230331136](img/vue学习笔记/image-20230708230331136.png)
+
+
+
+
+
+![image-20230708230345636](img/vue学习笔记/image-20230708230345636.png)
+
+
+
+
+
+![image-20230708230414097](img/vue学习笔记/image-20230708230414097.png)
+
+
+
+
+
+
+
+
+
+### watchAtMost
+
+
+
+
+
 
 
 
