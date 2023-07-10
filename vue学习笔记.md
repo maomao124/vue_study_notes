@@ -17435,6 +17435,377 @@ watchArray(list, (newList, oldList, added, removed) =>
 
 ### watchAtMost
 
+指定 watch 触发的次数
+
+类似于 watch，带有一个额外的选项 count，count 可以设置回调函数触发的次数。到达计数后，watch将自动停止
+
+```vue
+<template>
+  <h2>count:{{ count }}</h2>
+  <button @click="change1">+1</button>
+  <button @click="change2">-1</button>
+</template>
+
+<script lang="ts" setup>
+
+import {watchArray, watchAtMost} from "@vueuse/core";
+import {ref} from "vue";
+
+const count = ref(100)
+
+function change1()
+{
+  count.value++
+}
+
+function change2()
+{
+  count.value--;
+}
+
+watchAtMost(count, () =>
+{
+  console.log(count.value)
+}, {count: 10})
+
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230709132240336](img/vue学习笔记/image-20230709132240336.png)
+
+![image-20230709132254755](img/vue学习笔记/image-20230709132254755.png)
+
+
+
+
+
+### watchDebounced
+
+防抖 watch
+
+```vue
+<template>
+  <h2>count:{{ count }}</h2>
+  <h2>触发次数:{{ updateNumber }}</h2>
+  <button @click="change1">+1</button>
+  <button @click="change2">-1</button>
+</template>
+
+<script lang="ts" setup>
+
+import {watchArray, watchAtMost, watchDebounced} from "@vueuse/core";
+import {ref} from "vue";
+
+const count = ref(100)
+
+const updateNumber = ref(0);
+
+function change1()
+{
+  count.value++
+}
+
+function change2()
+{
+  count.value--;
+}
+
+watchDebounced(count, () =>
+{
+  console.log(count.value)
+  updateNumber.value++;
+}, {debounce: 500, maxWait: 1000})
+
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230709132850808](img/vue学习笔记/image-20230709132850808.png)
+
+
+
+
+
+
+
+
+
+### watchOnce
+
+watch 只触发一次
+
+```vue
+<template>
+  <h2>count:{{ count }}</h2>
+  <h2>触发次数:{{ updateNumber }}</h2>
+  <button @click="change1">+1</button>
+  <button @click="change2">-1</button>
+</template>
+
+<script lang="ts" setup>
+
+import {watchArray, watchAtMost, watchDebounced, watchOnce} from "@vueuse/core";
+import {ref} from "vue";
+
+const count = ref(100)
+
+const updateNumber = ref(0);
+
+function change1()
+{
+  count.value++
+}
+
+function change2()
+{
+  count.value--;
+}
+
+watchOnce(count, () =>
+{
+  console.log(count.value)
+  updateNumber.value++;
+})
+
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230709213113279](img/vue学习笔记/image-20230709213113279.png)
+
+
+
+
+
+
+
+### watchThrottled
+
+节流 watch
+
+类似于 watch，但提供了一个额外的选项 throttle 作用于回调函数
+
+```vue
+<template>
+  <h2>count:{{ count }}</h2>
+  <h2>触发次数:{{ updateNumber }}</h2>
+  <button @click="change1">+1</button>
+  <button @click="change2">-1</button>
+</template>
+
+<script lang="ts" setup>
+
+import {watchThrottled} from "@vueuse/core";
+import {ref} from "vue";
+
+const count = ref(100)
+
+const updateNumber = ref(0);
+
+function change1()
+{
+  count.value++
+}
+
+function change2()
+{
+  count.value--;
+}
+
+watchThrottled(count, () =>
+{
+  console.log(count.value)
+  updateNumber.value++;
+}, {throttle: 1000})
+
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+
+
+![image-20230709213520128](img/vue学习笔记/image-20230709213520128.png)
+
+
+
+![image-20230709213531236](img/vue学习笔记/image-20230709213531236.png)
+
+
+
+
+
+
+
+## Time
+
+### useDateFormat
+
+根据传入的字符串获取格式化的日期
+
+
+
+| Format |      Output      |              Description              |
+| :----: | :--------------: | :-----------------------------------: |
+|  `YY`  |        18        |            Two-digit year             |
+| `YYYY` |       2018       |            Four-digit year            |
+|  `M`   |       1-12       |       The month, beginning at 1       |
+|  `MM`  |      01-12       |          The month, 2-digits          |
+| `MMM`  |     Jan-Dec      |      The abbreviated month name       |
+| `MMMM` | January-December |          The full month name          |
+|  `D`   |       1-31       |         The day of the month          |
+|  `DD`  |      01-31       |    The day of the month, 2-digits     |
+|  `H`   |       0-23       |               The hour                |
+|  `HH`  |      00-23       |          The hour, 2-digits           |
+|  `h`   |       1-12       |        The hour, 12-hour clock        |
+|  `hh`  |      01-12       |   The hour, 12-hour clock, 2-digits   |
+|  `m`   |       0-59       |              The minute               |
+|  `mm`  |      00-59       |         The minute, 2-digits          |
+|  `s`   |       0-59       |              The second               |
+|  `ss`  |      00-59       |         The second, 2-digits          |
+| `SSS`  |     000-999      |       The millisecond, 3-digits       |
+|  `A`   |      AM PM       |             The meridiem              |
+|  `AA`  |    A.M. P.M.     |         The meridiem, periods         |
+|  `a`   |      am pm       |        The meridiem, lowercase        |
+|  `aa`  |    a.m. p.m.     |  The meridiem, lowercase and periods  |
+|  `d`   |       0-6        | The day of the week, with Sunday as 0 |
+|  `dd`  |       S-S        |  The min name of the day of the week  |
+| `ddd`  |     Sun-Sat      | The short name of the day of the week |
+| `dddd` | Sunday-Saturday  |    The name of the day of the week    |
+
+
+
+
+
+```vue
+<template>
+  <h2>格式化的日期:{{ formatted }}</h2>
+</template>
+
+<script lang="ts" setup>
+
+import {useDateFormat, useNow, watchThrottled} from "@vueuse/core";
+import {ref} from "vue";
+
+const formatted = useDateFormat(useNow(), 'YYYY-MM-DD HH:mm:ss')
+
+</script>
+
+<style scoped>
+h2 {
+  color: red;
+}
+</style>
+```
+
+
+
+![image-20230709215110789](img/vue学习笔记/image-20230709215110789.png)
+
+
+
+![image-20230709215116809](img/vue学习笔记/image-20230709215116809.png)
+
+
+
+
+
+
+
+
+
+### useTimeAgo
+
+```vue
+<template>
+  <h2>timeAgo1:{{ timeAgo1 }}</h2>
+  <h2>timeAgo2:{{ timeAgo2 }}</h2>
+  <h2>timeAgo3:{{ timeAgo3 }}</h2>
+  <h2>timeAgo4:{{ timeAgo4 }}</h2>
+  <h2>timeAgo5:{{ timeAgo5 }}</h2>
+  <h2>timeAgo6:{{ timeAgo6 }}</h2>
+  <h2>今天:{{ new Date().toLocaleString() }}</h2>
+
+</template>
+
+<script lang="ts" setup>
+
+import {useTimeAgo} from "@vueuse/core";
+import {ref} from "vue";
+
+const timeAgo1 = useTimeAgo(new Date(2022, 1, 1));
+const timeAgo2 = useTimeAgo(new Date(2023, 6, 1));
+const timeAgo3 = useTimeAgo(new Date(2017, 7, 15));
+const timeAgo4 = useTimeAgo(new Date(2024, 9, 5));
+const timeAgo5 = useTimeAgo(new Date(2023, 6, 9));
+const timeAgo6 = useTimeAgo(new Date(2023, 6, 10));
+
+</script>
+
+<style scoped>
+h2 {
+  color: red;
+}
+</style>
+
+```
+
+
+
+![image-20230709215828739](img/vue学习笔记/image-20230709215828739.png)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Utilities
+
+
+
+
+
+
+
+
+
+
+
 
 
 
