@@ -17796,6 +17796,346 @@ h2 {
 
 ## Utilities
 
+### get
+
+相当于ref.value
+
+```vue
+<template>
+  <h2>count:{{ count }}</h2>
+</template>
+
+<script lang="ts" setup>
+
+import {get} from "@vueuse/core";
+import {ref} from "vue";
+
+const count = ref(200);
+
+console.log(get(count))
+</script>
+
+<style scoped>
+h2 {
+  color: red;
+}
+</style>
+```
+
+
+
+![image-20230710163124395](img/vue学习笔记/image-20230710163124395.png)
+
+
+
+
+
+
+
+
+
+### set
+
+相当于ref.value = x
+
+```vue
+<template>
+  <h2>count:{{ count }}</h2>
+  <button @click="change">改变值</button>
+</template>
+
+<script lang="ts" setup>
+
+import {get, set} from "@vueuse/core";
+import {ref} from "vue";
+
+const count = ref(200);
+
+console.log(get(count))
+
+function change()
+{
+  set(count, get(count) + 1)
+}
+
+</script>
+
+<style scoped>
+h2 {
+  color: red;
+}
+</style>
+```
+
+
+
+![image-20230710163403770](img/vue学习笔记/image-20230710163403770.png)
+
+
+
+
+
+### useAsyncQueue
+
+按顺序执行每个异步任务，并将当前任务结果传递给下一个任务
+
+```vue
+<template>
+</template>
+
+<script lang="ts" setup>
+
+import {get, set, useAsyncQueue} from "@vueuse/core";
+import {ref} from "vue";
+
+const p1 = (() =>
+{
+  return new Promise((resolve) =>
+  {
+    setTimeout(() =>
+    {
+      resolve(1000)
+    }, 10)
+  })
+})
+
+const p2 = ((result: number) =>
+{
+  return new Promise((resolve) =>
+  {
+    setTimeout(() =>
+    {
+      resolve(1000 + result)
+    }, 20)
+  })
+})
+
+const {activeIndex, result} = useAsyncQueue([p1, p2])
+
+console.log(activeIndex.value)
+
+console.log(result)
+</script>
+
+<style scoped>
+h2 {
+  color: red;
+}
+</style>
+```
+
+
+
+
+
+
+
+### useBase64
+
+响应式base64转换。支持纯文本、缓冲区、文件、画布、对象、地图、集合和图像。
+
+
+
+```vue
+<template>
+  文本：<br><input type="text" v-model="text">
+  <br>
+  文本转码后：<br>
+  <textarea>{{base64.base64}}</textarea>
+  <br>
+  <br>
+  图片：<br><img src="public/favicon.ico" ref="image" alt="图片">
+  <br>
+  图片转码后：<br>
+  <textarea>{{base64Image.base64}}</textarea>
+</template>
+
+<script lang="ts" setup>
+
+import {useBase64} from "@vueuse/core";
+import {Ref, ref} from "vue";
+
+const text = ref("hello");
+const image = ref() as Ref<HTMLImageElement>
+
+const base64 = useBase64(text);
+const base64Image = useBase64(image);
+
+</script>
+
+<style scoped>
+
+input, textarea {
+  width: 50vw;
+}
+</style>
+```
+
+
+
+![image-20230710165321370](img/vue学习笔记/image-20230710165321370.png)
+
+
+
+
+
+可以将以下字符串直接复制粘贴到浏览器的地址栏里解析
+
+```
+data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAABSNJREFUWEfFVl1sFFUU/s7MbndK/1RKKdUQYlQ0RnwAaghidkHZXU1bQEREMU0QeEAfwBAjtHXtFowhQqLyAEjSiD+kIkob6S4KuxEJsdAHMUZRYwjRUkqr9o/OdnfmmJn+zZ3Z0h8N3re595zzfee755y5hP95UfB4KLcrmckOHmc6gDPtwFTxRC10qc379yfT8Z67YYNbaU0pwlkHgIX5wEJbIAC57j4iXyS8H8AcBvRhRwK0i91Qo1cB3cKNIDOkI+eLZ72FUGjE3nAMhaR5TZdeJugrwdCGY0kExT8d8uwcQAgFCcAF8kZrnibmfQDyrAT4ugb1iyvQfu8DSMipBS5p2bmG2nPW3fkl5fOR0j8HUDS8z4B8RyaUJ2aApsgCAQCdTLSRgsff9qhy514w1gkwEiH1aw8SkVZwUkwWEn2YNY1eiNfWqoaPt7xc6b3G70HnZ60xyC3BEyiE665sUUnDiHBQ0fI2mbn5ItUPAlQPYKZAQmOoX7Uh9WOXoAIBPXBJa5saao2MUVxSvgwp/RAD2dbsXfflQnm0AJBFCQFcBrg0Fqj6bvjEFwlXAnjd5Da0CNCvJtBX3wLuSYlXQfQ1eXiFYcoJOgrmR6zglO1CZmkRpOkeu/RGJbwWC1SGB4QYXIsbam5nNx8DMNde4f1nO9Df9Kd9W4NMW8xNjXcDkK0GGcW3IWOBs/IBNFOSyk6VVPwhEDA+Fkdq1jL4AACPUJDdKfQda4F+LeEsyAFDofCkaR5klhWBclz27BMEWn8qUHHIIvII74XH3szJ8PR/AKBUSJeA1A9dUE+2OYvJrovRdksK4Lo/1w5uWNb3JzKeO1P2SndaAmZFN4a9RDgC2wjifh2JxlakfusBJEdRDcTTGa47s+EJFoIyjDYXVgczVsaDlXHrriPSU3V1cnvOxT0gvGRXQbt83ZwNrOr2qzCzJUUye16eOcWZPeOd/O7Zmz9ZtWpkSAkVb0HzRnfeK7FWz8DdAgkGErE2JC90piXgnpMHj6/AcUbALzrJpXH/tp/ssoyiJeCLhjeDsUuobqMtO/qhGgXZmRwBYkDKc0MpK4I0NcOevQbC1pi/co8d3NEFVoNFx3dOkyXtUwIW2a8ief4vJL5pF7Y9D+fDPe9Wh/QMnNZ0+cnTj2+7NiEChrGvMbwChPcBZAlt2atBbWiBdsWcxJBnKFBKikBZjnnfC8bzsWDl0XTgN1TAOFxQtztTye09COAZR1v+3AM12mpuK/5CuO7JTtd2H6tdWevOrtrSNykCpgrR6ofA9BmAGUKQFEONDBIIFAIuRzldAfHymL/q29HAx1TAdGQm34maHWC8alfBnIwAjMln/debm4Q3YksrtoPI+dixBBq1C6xg3sbQLEmS65nxgJ3EAEkxRyJ8r+taaTwYunSj7MenwGAEX7R6A5jeBeAeI2gSxC/G/FXGS2vMNS4FjCjeWOgWSrgOA+y/cVSKsie1Ou4L/T0m+miTcDRHbyQcIOCw8HwTjTsZWB0PVEbGAz6hKzCM557f585tb9sLYP0oAAe68gs2Nc/bmPbVnM5n3Fcw5LykccccnYyHC8+yld4liansZHD7hfFmP2EFhgL7IjXbAK6xXKHxL6yIBSp2TgR80gQeOxEqSumyMZyKBwGbXJK2/MuloZabQsAA8UWq1wBkjGljEKyLBao+mij4pBUwHJdGd2UlWTVB3aSsOeHf2ntTCZgqRKvNF3TMX9U8GfB/pcBkAe1+E27D/wp4KM4/+77APzp8BUQAAAAASUVORK5CYII=
+```
+
+
+
+![image-20230710165439542](img/vue学习笔记/image-20230710165439542.png)
+
+
+
+
+
+
+
+### useCloned
+
+响应式克隆。默认情况下，它使用`JSON.parse(JSON.stringify())`进行克隆
+
+
+
+```vue
+<template>
+  <h2>original:{{ original }}</h2>
+  <h2>cloned:{{ cloned.cloned }}</h2>
+  <button @click="change">改变值</button>
+</template>
+
+<script lang="ts" setup>
+
+import {ref} from "vue";
+import {useCloned} from "@vueuse/core";
+
+const original = ref({a: 1, b: 2, c: 3, d: {d1: 123, d2: {r: 678}}});
+
+const cloned = useCloned(original);
+
+function change()
+{
+  original.value.d.d2.r = 345552;
+}
+
+</script>
+
+<style scoped>
+h2 {
+  color: red;
+}
+</style>
+```
+
+
+
+![image-20230710170932053](img/vue学习笔记/image-20230710170932053.png)
+
+
+
+
+
+![image-20230710170945429](img/vue学习笔记/image-20230710170945429.png)
+
+
+
+### useOffsetPagination
+
+响应式分页
+
+```typescript
+import { useOffsetPagination } from '@vueuse/core'
+
+function fetchData({ currentPage, currentPageSize }: { currentPage: number; currentPageSize: number }) {
+  fetch(currentPage, currentPageSize).then((responseData) => {
+    data.value = responseData
+  })
+}
+
+const {
+  currentPage,
+  currentPageSize,
+  pageCount,
+  isFirstPage,
+  isLastPage,
+  prev,
+  next,
+} = useOffsetPagination({
+  total: database.value.length,
+  page: 1,
+  pageSize,
+  onPageChange: fetchData,
+  onPageSizeChange: fetchData,
+})
+```
+
+
+
+
+
+### usePrevious
+
+保持引用的上一个值
+
+```vue
+<template>
+  <h2>count:{{ count }}</h2>
+  <h2>上一次的值:{{ previous }}</h2>
+  <button @click="change1">+1</button>
+  <button @click="change2">-1</button>
+</template>
+
+<script lang="ts" setup>
+
+import {usePrevious} from "@vueuse/core";
+import {ref} from "vue";
+
+const count = ref(100)
+const previous = usePrevious(count);
+
+function change1()
+{
+  count.value++
+}
+
+function change2()
+{
+  count.value--;
+}
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230710171916834](img/vue学习笔记/image-20230710171916834.png)
+
+
+
+
+
+![image-20230710171925986](img/vue学习笔记/image-20230710171925986.png)
+
+
+
+![image-20230710171938148](img/vue学习笔记/image-20230710171938148.png)
+
+
+
+
+
+
+
+
+
 
 
 
