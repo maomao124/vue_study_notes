@@ -18349,6 +18349,116 @@ const useJwt3 = useJwt(RSAToken)
 
 ### useNProgress
 
+响应式进度条
+
+
+
+安装：
+
+```sh
+npm i nprogress
+```
+
+
+
+使用：
+
+```vue
+<template>
+  <button @click="progress.isLoading = !progress.isLoading">
+    {{ !progress.isLoading ? 'Start' : 'Stop' }}
+  </button>
+  <b v-if="progress.isLoading">{{ ((progress.progress || 0) * 100).toFixed(0) }}%</b>
+</template>
+
+<script lang="ts" setup>
+import { useNProgress } from '@vueuse/integrations/useNProgress'
+
+const progress = useNProgress()
+
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+
+
+
+
+### useQRCode
+
+二维码
+
+
+
+安装：
+
+```sh
+npm i qrcode
+```
+
+
+
+使用：
+
+```vue
+<template>
+  内容：{{ text }}
+  <br>
+  对应二维码：
+  <br>
+  <img :src="qrCode" alt="QR Code"/>
+  <br>
+  <br>
+  内容：{{ text2 }}
+  <br>
+  对应二维码：
+  <br>
+  <img :src="qrCode2" alt="QR Code"/>
+  <br>
+  <br>
+  内容：{{ text3 }}
+  <br>
+  对应二维码：
+  <br>
+  <img :src="qrCode3" alt="QR Code"/>
+  <br>
+  <br>
+  <button @click="text3=text3+'0'">+1长度</button>
+</template>
+
+<script lang="ts" setup>
+import {useQRCode} from "@vueuse/integrations/useQRCode";
+import {ref} from "vue";
+
+const text = "hello"
+const qrCode = useQRCode(text);
+const text2 = "13244235354353435346346"
+const qrCode2 = useQRCode(text2);
+
+const text3 = ref("10000")
+const qrCode3 = useQRCode(text3);
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230714184434116](img/vue学习笔记/image-20230714184434116.png)
+
+
+
+![image-20230714184448437](img/vue学习笔记/image-20230714184448437.png)
+
 
 
 
@@ -18372,6 +18482,63 @@ const useJwt3 = useJwt(RSAToken)
 
 
 # useRequest
+
+## 概述
+
+一个 Vue 请求库
+
+在以往的业务项目中，我们经常会被 loading 状态的管理、请求的节流防抖、接口数据的缓存、分页等重复的功能实现所困扰。每次开启一个新项目都需要重新实现一遍，这是一项重复的工作，还需要确保团队的一致性。
+
+VueRequest 的目的是为开发人员提供一种方便、快速的方式来管理 API 状态。通过简单的配置，可以省去那些繁琐的任务，专注于业务核心的开发。
+
+
+
+
+
+## 特点
+
+* 兼容 Vue 2 & 3
+* 所有数据都具有响应式
+* 轮询请求
+* 自动处理错误重试
+* 内置请求缓存
+* 节流请求与防抖请求
+* 聚焦页面时自动重新请求
+* 强大的分页扩展以及加载更多扩展
+* 完全使用 Typescript 编写，具有强大的类型提示
+* 兼容 Vite
+* 轻量化
+* 开箱即用
+
+
+
+
+
+
+
+## 官网和文档
+
+官网：https://cn.attojs.org/
+
+文档：https://cn.attojs.org/guide/introduction.html
+
+
+
+
+
+## 安装
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
