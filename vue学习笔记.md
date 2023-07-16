@@ -18528,6 +18528,17 @@ VueRequest 的目的是为开发人员提供一种方便、快速的方式来管
 
 ## 安装
 
+```sh
+npm install vue-request
+```
+
+
+
+cdn：
+
+```html
+<script src="https://unpkg.com/vue-request/dist/vue-request.min.js"></script>
+```
 
 
 
@@ -18535,6 +18546,44 @@ VueRequest 的目的是为开发人员提供一种方便、快速的方式来管
 
 
 
+## 入门
+
+```vue
+<template>
+  <h3 v-if="student==null">暂无数据</h3>
+  <h2 v-else>{{ JSON.stringify(student) }}</h2>
+</template>
+
+<script setup lang="ts">
+
+import {useRequest} from "vue-request";
+import axios from "axios";
+import {computed} from "vue";
+
+interface Student
+{
+  id: number,
+  name?: string,
+  sex?: string,
+  age?: number,
+}
+
+const {data, loading, error} = useRequest<Student>(() => axios.get('/api/student/10001'))
+
+const student = computed(() =>
+{
+  return data?.value || null
+})
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+useRequest 还返回了三个值， data、loading 和 error。当请求还没完成时, data 将会为 undefined 同时，loading 将被设置为 true。当请求完成后，则将会根据请求结果来设定 data 和 error，并对页面进行渲染。这是因为 data、 loading 和 error 是 Vue 的 响应式引用(shallowRef)，它们的值将根据请求状态及请求结果来修改。
 
 
 
@@ -18542,7 +18591,128 @@ VueRequest 的目的是为开发人员提供一种方便、快速的方式来管
 
 
 
+## 全局配置
 
+```typescript
+import {createApp} from 'vue'
+import App from './view/View1.vue'
+
+import {setGlobalOptions} from 'vue-request';
+
+setGlobalOptions({
+    manual: true
+})
+
+createApp(App).mount('#app')
+```
+
+
+
+还可以通过 useRequestProvider hooks，进行更加精细化的配置。传入的配置只会影响到该组件的子组件.
+
+```vue
+<template>
+  <h3 v-if="student==null">暂无数据</h3>
+  <h2 v-else>{{ JSON.stringify(student) }}</h2>
+</template>
+
+<script setup lang="ts">
+
+import {useRequest, useRequestProvider} from "vue-request";
+import axios from "axios";
+import {computed} from "vue";
+
+interface Student
+{
+  id: number,
+  name?: string,
+  sex?: string,
+  age?: number,
+}
+
+useRequestProvider({
+  manual: true,
+});
+
+const {data, loading, error} = useRequest<Student>(() => axios.get('/api/student/10001'))
+
+const student = computed(() =>
+{
+  return data?.value || null
+})
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+
+
+
+
+## 数据请求
+
+实例：
+
+```typescript
+const { data, error } = useRequest(Service, options);
+```
+
+这是 VueRequest 最基本的 API。这里的 Service 它必须是一个返回 Promise 的函数，返回的结果将决定是传递 data（resolve） 亦或者是error(reject)。函数的入参将会被当做 params 传递给 API 接口。	
+
+
+
+```vue
+<template>
+  <h2>{{ JSON.stringify(data) }}</h2>
+</template>
+
+<script setup lang="ts">
+
+import {useRequest, useRequestProvider} from "vue-request";
+import axios from "axios";
+import {computed} from "vue";
+
+const getUser = (id: number, userName: string) =>
+{
+  return axios.get('api/user', {
+    params: {
+      id: id,
+      name: userName,
+    },
+  });
+};
+
+const {data, run} = useRequest(getUser, {
+  defaultParams: [10001, '张三'],
+});
+
+setTimeout(() =>
+{
+  run(10002, "李四")
+}, 2000)
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230715194609043](img/vue学习笔记/image-20230715194609043.png)
+
+
+
+
+
+
+
+## 手动触发请求
 
 
 
