@@ -18714,11 +18714,208 @@ setTimeout(() =>
 
 ## 手动触发请求
 
+默认情况下，我们将会在组件挂载时，自动帮你触发绑定的请求。当然，如果你想自己控制触发请求的时机，你可以通过传入 manual 选项，来禁止挂载时的默认请求，然后通过 run() 或者 runAsync() 来触发请求
 
 
 
 
 
+## 数据更改
+
+```vue
+<template>
+  <h2>{{ JSON.stringify(data) }}</h2>
+</template>
+
+<script setup lang="ts">
+
+import {useRequest} from "vue-request";
+import axios from "axios";
+import {ref} from "vue";
+
+const getUser = () =>
+{
+  return new Promise(resolve =>
+  {
+    setTimeout(() =>
+    {
+      resolve("张三");
+    }, 1000);
+  });
+};
+const name = ref('李四');
+const {data, loading, mutate} = useRequest(getUser);
+
+setTimeout(() =>
+{
+  mutate(name.value);
+}, 3000);
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+
+
+
+
+## 轮询
+
+```vue
+<template>
+  <h3 v-if="student==null">暂无数据</h3>
+  <h2 v-else>{{ JSON.stringify(student) }}</h2>
+</template>
+
+<script setup lang="ts">
+
+import {useRequest} from "vue-request";
+import axios from "axios";
+import {computed} from "vue";
+
+interface Student
+{
+  id: number,
+  name?: string,
+  sex?: string,
+  age?: number,
+}
+
+const {data, loading, error} = useRequest<Student>(() => axios.get('/api/student/10001'),
+    {
+      pollingInterval: 2000,
+    })
+
+const student = computed(() =>
+{
+  return data?.value || null
+})
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230717122002964](img/vue学习笔记/image-20230717122002964.png)
+
+
+
+
+
+
+
+
+
+### 屏幕不可见时轮询
+
+默认情况下，我们会在屏幕不可见时暂停轮询。当屏幕重新聚焦时，重新激活轮询。当然，你可以通过设置 `pollingWhenHidden = true`，来使得屏幕不可见时也继续发起请求
+
+
+
+```vue
+<template>
+  <h3 v-if="student==null">暂无数据</h3>
+  <h2 v-else>{{ JSON.stringify(student) }}</h2>
+</template>
+
+<script setup lang="ts">
+
+import {useRequest} from "vue-request";
+import axios from "axios";
+import {computed} from "vue";
+
+interface Student
+{
+  id: number,
+  name?: string,
+  sex?: string,
+  age?: number,
+}
+
+const {data, loading, error} = useRequest<Student>(() => axios.get('/api/student/10001'),
+    {
+      pollingInterval: 2000,
+      pollingWhenHidden: true
+    })
+
+const student = computed(() =>
+{
+  return data?.value || null
+})
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+
+
+### 网络离线时轮询
+
+默认情况下，我们会在网络断开时时暂停轮询。当网络恢复正常后，重新激活轮询。当然，你可以通过设置 `pollingWhenOffline = true`，来使得网络断开时也继续发起请求
+
+VueRequest 是通过监听 window.ononline 来检查是否正常联网的
+
+
+
+```vue
+<template>
+  <h3 v-if="student==null">暂无数据</h3>
+  <h2 v-else>{{ JSON.stringify(student) }}</h2>
+</template>
+
+<script setup lang="ts">
+
+import {useRequest} from "vue-request";
+import axios from "axios";
+import {computed} from "vue";
+
+interface Student
+{
+  id: number,
+  name?: string,
+  sex?: string,
+  age?: number,
+}
+
+const {data, loading, error} = useRequest<Student>(() => axios.get('/api/student/10001'),
+    {
+      pollingInterval: 2000,
+      pollingWhenHidden: true,
+      pollingWhenOffline: true
+    })
+
+const student = computed(() =>
+{
+  return data?.value || null
+})
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+
+
+
+
+
+
+## 依赖请求
 
 
 
