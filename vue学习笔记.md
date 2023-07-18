@@ -18917,11 +18917,194 @@ const student = computed(() =>
 
 ## 依赖请求
 
+B 请求的请求参数，依赖 A 请求的返回结果。这时，你可以使用 ready 来处理这种依赖关系。
+
+当 manual=false 时，每次 ready 从 false 变为 true 时，都会自动发起请求，并且会带上参数 options.defaultParams
+
+除了支持传入 Ref\<boolean\> 类型的值外，ready 还支持传入一个返回布尔值的函数 () => boolean
+
+
+
+```vue
+<template>
+  <h3 v-if="student==null">暂无数据</h3>
+  <h2 v-else>{{ JSON.stringify(student) }}</h2>
+  <button @click="ready=!ready">更改ready</button>
+  <h3>{{ ready }}</h3>
+</template>
+
+<script setup lang="ts">
+
+import {useRequest} from "vue-request";
+import axios from "axios";
+import {computed, ref} from "vue";
+
+interface Student
+{
+  id: number,
+  name?: string,
+  sex?: string,
+  age?: number,
+}
+
+const ready = ref(false);
+
+const {data, loading, error} = useRequest<Student>(() => axios.get('/api/student/10001'),
+    {
+      pollingInterval: 2000,
+      pollingWhenHidden: true,
+      pollingWhenOffline: true,
+      ready: ready
+    })
+
+const student = computed(() =>
+{
+  return data?.value || null
+})
+</script>
+
+<style scoped>
+
+</style>
+```
 
 
 
 
 
+## 防抖
+
+简单来说就是，把触发非常频繁的事件合并成一次执行。例如输入事件，debounce 函数只会在用户停止输入后的一段时间才会执行。
+
+VueRequest 的防抖是使用 lodash 提供的 debounce 实现的
+
+
+
+```vue
+<template>
+  <h3 v-if="student==null">暂无数据</h3>
+  <h2 v-else>{{ JSON.stringify(student) }}</h2>
+  <h2>id:{{ id }}</h2>
+  <button @click="run(id++)">请求</button>
+</template>
+
+<script setup lang="ts">
+
+import {useRequest} from "vue-request";
+import axios from "axios";
+import {computed, ref} from "vue";
+
+interface Student
+{
+  id: number,
+  name?: string,
+  sex?: string,
+  age?: number,
+}
+
+const id = ref(100);
+
+const {data, loading, error, run} = useRequest<Student>((id: number) =>
+        axios.get('/api/student/10001', {
+          params: {
+            id: id
+          }
+        }),
+    {
+      debounceInterval: 1000,
+      manual: true,
+      defaultParams: [id]
+    })
+const student = computed(() =>
+{
+  return data?.value || null
+})
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230717184112374](img/vue学习笔记/image-20230717184112374.png)
+
+
+
+![image-20230717184121216](img/vue学习笔记/image-20230717184121216.png)
+
+
+
+
+
+
+
+
+
+## 节流
+
+保证每 X 毫秒去执行一次函数。例如输入事件，throttle 函数会在用户输入的过程中以设定的时间间隔去执行函数
+
+
+
+```vue
+<template>
+  <h3 v-if="student==null">暂无数据</h3>
+  <h2 v-else>{{ JSON.stringify(student) }}</h2>
+  <h2>id:{{ id }}</h2>
+  <button @click="run(id++)">请求</button>
+</template>
+
+<script setup lang="ts">
+
+import {useRequest} from "vue-request";
+import axios from "axios";
+import {computed, ref} from "vue";
+
+interface Student
+{
+  id: number,
+  name?: string,
+  sex?: string,
+  age?: number,
+}
+
+const id = ref(100);
+
+const {data, loading, error, run} = useRequest<Student>((id: number) =>
+        axios.get('/api/student/10001', {
+          params: {
+            id: id
+          }
+        }),
+    {
+      throttleInterval:500,
+      manual: true,
+      defaultParams: [id]
+    })
+const student = computed(() =>
+{
+  return data?.value || null
+})
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230717184556494](img/vue学习笔记/image-20230717184556494.png)
+
+
+
+
+
+
+
+## 缓存与预加载
 
 
 
