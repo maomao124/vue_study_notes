@@ -19106,6 +19106,441 @@ const student = computed(() =>
 
 ## 缓存与预加载
 
+可以通过设置 cacheKey 来启用缓存功能。当缓存启用后 VueRequest 会把当前请求的结果缓存下来，等到下次该组件初始化时，亦或者另外一个设置了同样 cacheKey 的请求初始化时，如果有缓存，则会优先返回缓存的数据，然后再在背后发起新的请求
+
+
+
+```vue
+<template>
+  <h3 v-if="student==null">暂无数据</h3>
+  <h2 v-else>{{ JSON.stringify(student) }}</h2>
+  <h2>id:{{ id }}</h2>
+  <button @click="run(id++)">请求</button>
+</template>
+
+<script setup lang="ts">
+
+import {useRequest} from "vue-request";
+import axios from "axios";
+import {computed, ref} from "vue";
+
+interface Student
+{
+  id: number,
+  name?: string,
+  sex?: string,
+  age?: number,
+}
+
+const id = ref(100);
+
+const {data, loading, error, run} = useRequest<Student>((id: number) =>
+        axios.get('/api/student/10001', {
+          params: {
+            id: id
+          }
+        }),
+    {
+      manual: true,
+      defaultParams: [id],
+      cacheKey: "10001",
+    })
+const student = computed(() =>
+{
+  return data?.value || null
+})
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+还可以设置缓存的回收时间。当缓存数据的时间超过了设定的 cacheTime （默认为 600000 毫秒，即 10 分钟），VueRequest 会自动丢弃该缓存的数据，等到下次发起请求后，重新缓存新的数据
+
+```vue
+<template>
+  <h3 v-if="student==null">暂无数据</h3>
+  <h2 v-else>{{ JSON.stringify(student) }}</h2>
+  <h2>id:{{ id }}</h2>
+  <button @click="run(id++)">请求</button>
+</template>
+
+<script setup lang="ts">
+
+import {useRequest} from "vue-request";
+import axios from "axios";
+import {computed, ref} from "vue";
+
+interface Student
+{
+  id: number,
+  name?: string,
+  sex?: string,
+  age?: number,
+}
+
+const id = ref(100);
+
+const {data, loading, error, run} = useRequest<Student>((id: number) =>
+        axios.get('/api/student/10001', {
+          params: {
+            id: id
+          }
+        }),
+    {
+      manual: true,
+      defaultParams: [id],
+      cacheKey: "10001",
+      cacheTime: 20 * 60 * 1000
+    })
+const student = computed(() =>
+{
+  return data?.value || null
+})
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+当拥有相同的 cacheKey 时，同时只会有一个在发起请求，后发起的将会共用同一个请求
+
+
+
+cacheKey 除了可以传入一个字符串以外，还支持传入一个函数。params 作为函数的参数传入，并返回一个字符串作为最终的 cacheKey。通过该函数可实现动态 cacheKey 的功能
+
+cacheKey 函数的入参 params 在初始化时为 undefined
+
+
+
+```typescript
+const { data } = useRequest(getJobType, {
+  manual: true,
+  cacheKey: params => {
+    if (params && params[0]) {
+      return `JobType-${params[0]}`;
+    }
+    return '';
+  },
+  staleTime: 60 * 60 * 1000, // 60 minutes
+});
+```
+
+
+
+VueRequest 提供了一个 clearCache 方法，可以清除指定 cacheKey 或者是所有的缓存数据
+
+```vue
+<template>
+  <h3 v-if="student==null">暂无数据</h3>
+  <h2 v-else>{{ JSON.stringify(student) }}</h2>
+  <h2>id:{{ id }}</h2>
+  <button @click="run(id++)">请求</button>
+</template>
+
+<script setup lang="ts">
+
+import {useRequest, clearCache} from "vue-request";
+import axios from "axios";
+import {computed, ref} from "vue";
+
+interface Student
+{
+  id: number,
+  name?: string,
+  sex?: string,
+  age?: number,
+}
+
+const id = ref(100);
+
+const {data, loading, error, run} = useRequest<Student>((id: number) =>
+        axios.get('/api/student/10001', {
+          params: {
+            id: id
+          }
+        }),
+    {
+      manual: true,
+      defaultParams: [id],
+      cacheKey: "10001",
+      cacheTime: 20 * 60 * 1000
+    })
+const student = computed(() =>
+{
+  return data?.value || null
+})
+
+function clearStudentCache(): void
+{
+  clearCache("10001")
+}
+
+function clearAllCache()
+{
+  clearCache();
+}
+
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+
+
+
+
+
+
+
+
+## 错误重试
+
+errorRetryCount ：重试的次数
+
+```vue
+<template>
+  <h3 v-if="student==null">暂无数据</h3>
+  <h2 v-else>{{ JSON.stringify(student) }}</h2>
+</template>
+
+<script setup lang="ts">
+
+import {useRequest} from "vue-request";
+import axios from "axios";
+import {computed} from "vue";
+
+interface Student
+{
+  id: number,
+  name?: string,
+  sex?: string,
+  age?: number,
+}
+
+const {data, loading, error} = useRequest<Student>(() => axios.get('/api/student/10001'),
+    {
+      errorRetryCount: 5,
+      onError: () =>
+      {
+        console.log("错误重试")
+      },
+      onSuccess: () =>
+      {
+        console.log("请求成功")
+      }
+    })
+
+const student = computed(() =>
+{
+  return data?.value || null
+})
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230719111308102](img/vue学习笔记/image-20230719111308102.png)
+
+
+
+![image-20230719111346277](img/vue学习笔记/image-20230719111346277.png)
+
+
+
+
+
+默认使用二进制指数退避算法，也可以使用 errorRetryInterval 来设定重试的间隔时间
+
+```vue
+<template>
+  <h3 v-if="student==null">暂无数据</h3>
+  <h2 v-else>{{ JSON.stringify(student) }}</h2>
+</template>
+
+<script setup lang="ts">
+
+import {useRequest} from "vue-request";
+import axios from "axios";
+import {computed} from "vue";
+
+interface Student
+{
+  id: number,
+  name?: string,
+  sex?: string,
+  age?: number,
+}
+
+const {data, loading, error} = useRequest<Student>(() => axios.get('/api/student/10001'),
+    {
+      errorRetryCount: 5,
+      errorRetryInterval: 3000,
+      onError: () =>
+      {
+        console.log("错误重试")
+      },
+      onSuccess: () =>
+      {
+        console.log("请求成功")
+      }
+    })
+
+const student = computed(() =>
+{
+  return data?.value || null
+})
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+
+
+
+
+## LoadingDelay
+
+设定一个延迟值，当等待时间大于延迟值时 loading 才会被设置成 true
+
+
+
+```vue
+<template>
+  <h3 v-if="student==null">暂无数据</h3>
+  <h2 v-else>{{ JSON.stringify(student) }}</h2>
+</template>
+
+<script setup lang="ts">
+
+import {useRequest} from "vue-request";
+import axios from "axios";
+import {computed} from "vue";
+
+interface Student
+{
+  id: number,
+  name?: string,
+  sex?: string,
+  age?: number,
+}
+
+const {data, loading, error} = useRequest<Student>(() => axios.get('/api/student/10001'),
+    {
+      loadingDelay: 500,
+    })
+
+const student = computed(() =>
+{
+  return data?.value || null
+})
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+
+
+
+
+## 依赖刷新
+
+使用 refreshDeps 来实现
+
+```vue
+<template>
+  <h3 v-if="student==null">暂无数据</h3>
+  <h2 v-else>{{ JSON.stringify(student) }}</h2>
+  <h2>请求id：{{ id }}</h2>
+  <br>
+  <button @click="id--">-1</button>
+  <button @click="id++">+1</button>
+</template>
+
+<script setup lang="ts">
+
+import {useRequest} from "vue-request";
+import axios from "axios";
+import {computed, ref} from "vue";
+
+interface Student
+{
+  id: number,
+  name?: string,
+  sex?: string,
+  age?: number,
+}
+
+const id = ref(10001)
+
+const {data, loading, error} = useRequest<Student>(() => axios.get('/api/student/' + id.value),
+    {
+      refreshDeps: id,
+    })
+
+const student = computed(() =>
+{
+  return data?.value || null
+})
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230719112844463](img/vue学习笔记/image-20230719112844463.png)
+
+
+
+![image-20230719112853511](img/vue学习笔记/image-20230719112853511.png)
+
+
+
+
+
+![image-20230719112908373](img/vue学习笔记/image-20230719112908373.png)
+
+
+
+
+
+
+
+
+
+## 聚焦时重新请求
+
+
+
+
+
+
+
 
 
 
