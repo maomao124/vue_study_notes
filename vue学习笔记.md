@@ -19535,7 +19535,50 @@ const student = computed(() =>
 
 ## 聚焦时重新请求
 
+有些时候，你要确保多个浏览器窗口之间数据的一致性；又或者是当用户电脑在休眠状态重新激活后，页面的数据需要同步到最新状态时。refreshOnWindowFocus 可能会为你节省很多逻辑代码。
 
+可以修改 refocusTimespan 的值，从而延长触发的间隔。
+
+```vue
+<template>
+  <h3 v-if="student==null">暂无数据</h3>
+  <h2 v-else>{{ JSON.stringify(student) }}</h2>
+</template>
+
+<script setup lang="ts">
+
+import {useRequest} from "vue-request";
+import axios from "axios";
+import {computed} from "vue";
+
+interface Student
+{
+  id: number,
+  name?: string,
+  sex?: string,
+  age?: number,
+}
+
+const {data, loading, error} = useRequest<Student>(() => axios.get('/api/student/10001'),
+    {
+      refreshOnWindowFocus: true,
+      refocusTimespan: 1000
+    })
+
+const student = computed(() =>
+{
+  return data?.value || null
+})
+</script>
+
+<style scoped>
+
+</style>
+```
+
+
+
+![image-20230719113736987](img/vue学习笔记/image-20230719113736987.png)
 
 
 
